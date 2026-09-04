@@ -4,194 +4,454 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="競馬Pro">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>競馬予想シミュレーター Ver.2</title>
+<title>競馬Pro Ver.4</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f1f5f9;color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
-header{background:#0f172a;color:#fff;padding:14px 15px calc(14px + env(safe-area-inset-top));position:sticky;top:0;z-index:10}
-h1{font-size:20px;margin:0}.sub{font-size:11px;color:#cbd5e1;margin-top:3px}
-main{max-width:760px;margin:auto;padding:12px}.card{background:#fff;border-radius:15px;padding:14px;margin-bottom:12px;box-shadow:0 1px 5px #0001}
-h2{font-size:16px;margin:0 0 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-label{font-size:11px;color:#64748b;display:block;margin-bottom:4px}
-input,select,button,textarea{font:inherit;border:1px solid #cbd5e1;border-radius:10px;padding:10px;width:100%;background:#fff}
-button{background:#0f172a;color:#fff;border:0;font-weight:700;margin-top:8px;padding:13px}.secondary{background:#e2e8f0;color:#0f172a}
-.warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px;font-size:12px;line-height:1.55}
-.ok{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:10px;font-size:12px}
-.hidden{display:none}.horse{border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin:8px 0}.head{display:flex;gap:8px;align-items:center}.num{font-weight:800;width:28px}.name{flex:1;font-weight:700}.small{font-size:11px;color:#64748b}.badge{display:inline-block;border-radius:999px;padding:4px 7px;background:#eef2ff;font-size:11px;margin:2px}
-table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 3px;border-bottom:1px solid #e5e7eb;text-align:right}th:first-child,td:first-child{text-align:left}
-.bar{height:8px;background:#e2e8f0;border-radius:10px;overflow:hidden}.fill{height:100%;background:#0f172a}
-.big{font-size:25px;font-weight:800}.note{font-size:11px;color:#64748b;line-height:1.55}.loading{padding:15px;text-align:center}
+:root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#687386;--line:#dbe1e8;--accent:#0f766e;--accent2:#2563eb;--danger:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;font-size:14px}
+header{position:sticky;top:0;z-index:5;background:#0f172a;color:#fff;padding:12px 14px calc(10px + env(safe-area-inset-top));box-shadow:0 2px 8px #0002}
+header h1{font-size:18px;margin:0 0 4px}header small{opacity:.75}
+main{max-width:900px;margin:auto;padding:10px 10px 80px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin:10px 0;box-shadow:0 1px 2px #00000008}
+h2{font-size:16px;margin:0 0 10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:3px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:9px;background:#fff;color:var(--ink)}textarea{min-height:150px;resize:vertical}
+button{border:0;border-radius:9px;padding:10px 12px;background:#e5e7eb;color:#111827;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:white}.blue{background:var(--accent2);color:white}.danger{background:#fee2e2;color:var(--danger)}.wide{width:100%}
+.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.row .fit{flex:0 0 auto}.muted{color:var(--muted)}.note{font-size:12px;color:var(--muted);line-height:1.55}.hidden{display:none!important}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:8px}.tab{white-space:nowrap;background:#e8edf3}.tab.active{background:#0f172a;color:#fff}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}.horseTable{border-collapse:collapse;width:100%;min-width:920px;font-size:12px}.horseTable th,.horseTable td{border-bottom:1px solid var(--line);padding:6px;text-align:center;white-space:nowrap}.horseTable th{background:#f1f5f9;position:sticky;top:0}.horseTable input,.horseTable select{padding:5px;border-radius:6px;min-width:52px}.horseTable .name{min-width:115px;text-align:left}
+.badge{display:inline-block;padding:3px 6px;border-radius:999px;background:#e2e8f0;font-size:11px}.good{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.bad{background:#fee2e2;color:#991b1b}
+.resultTop{font-size:20px;font-weight:800}.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.kpi>div{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}.kpi b{display:block;font-size:17px}.rank{font-weight:800}.horsebar{height:7px;background:#e5e7eb;border-radius:99px;overflow:hidden}.horsebar i{display:block;height:100%;background:var(--accent)}
+details{margin-top:8px}summary{font-weight:700;cursor:pointer}
+footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:7px calc(7px + env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom));z-index:4}
+@media(min-width:700px){main{padding:16px}.grid{grid-template-columns:repeat(4,1fr)}.grid3{grid-template-columns:repeat(6,1fr)}}
 </style>
 </head>
 <body>
-<header><h1>🏇 競馬予想シミュレーター Ver.2</h1><div class="sub">JRA公開情報を取り込むスマホ向け試作版</div></header>
+<header><h1>🏇 競馬Pro Ver.4</h1><small>出馬表 → 過去走評価 → 展開 → Monte Carlo → 期待値・買い目</small></header>
 <main>
-<div class="card">
-<h2>① レース登録</h2>
-<div class="grid">
-<div><label>レース名</label><input id="raceName" value="京成杯オータムハンデ"></div>
-<div><label>日付</label><input id="raceDate" type="date" value="2026-09-05"></div>
-<div><label>競馬場</label><input id="venue" value="中山"></div>
-<div><label>レース番号</label><input id="raceNo" type="number" min="1" max="12" value="11"></div>
-</div>
-<p class="small">JRAの出馬表ページURLを貼ると、ページから読み取れる出走馬情報を自動取り込みします。</p>
-<input id="jraUrl" placeholder="JRA出馬表URLを貼り付け">
-<button onclick="loadJRA()">JRA出馬表を自動取得</button>
-<div id="fetchMsg" class="note"></div>
+<div class="tabs">
+<button class="tab active" data-tab="race">①レース</button>
+<button class="tab" data-tab="horses">②出走馬</button>
+<button class="tab" data-tab="model">③モデル</button>
+<button class="tab" data-tab="result">④結果</button>
 </div>
 
+<section id="race" class="panel">
 <div class="card">
-<h2>② 自動取り込み結果</h2>
-<div id="raceInfo" class="small">まだデータを取得していません。</div>
-<div id="horses"></div>
-<button class="secondary" onclick="loadSample()">今回の京成杯AHサンプルを読み込む</button>
-</div>
-
-<div class="card">
-<h2>③ 当日補正</h2>
+<h2>レース設定</h2>
 <div class="grid">
+<div><label>レース名</label><input id="raceName" value="重賞予想"></div>
+<div><label>日付</label><input id="raceDate" type="date"></div>
+<div><label>競馬場</label><select id="venue"><option>中山</option><option>東京</option><option>阪神</option><option>京都</option><option>中京</option><option>新潟</option><option>札幌</option><option>函館</option><option>福島</option><option>小倉</option></select></div>
+<div><label>距離(m)</label><input id="distance" type="number" value="1600"></div>
+<div><label>芝/ダート</label><select id="surface"><option>芝</option><option>ダート</option></select></div>
 <div><label>馬場</label><select id="going"><option>良</option><option>稍重</option><option>重</option><option>不良</option></select></div>
-<div><label>トラックバイアス</label><select id="bias"><option value="0">フラット</option><option value="2">やや前有利</option><option value="4">前有利</option><option value="-2">やや差し有利</option><option value="-4">差し有利</option></select></div>
+<div><label>頭数</label><input id="fieldSize" type="number" value="16" min="3" max="18"></div>
+<div><label>想定ペース</label><select id="pace"><option value="auto">自動</option><option value="slow">スロー</option><option value="mid">平均</option><option value="fast">ハイ</option></select></div>
 </div>
-<div class="note">Ver.2ではJRAの出馬表情報を自動取り込みし、脚質などは過去走データが取得できた馬から推定します。馬場・当日バイアスは最終調整用です。</div>
+<div class="grid" style="margin-top:8px">
+<div><label>トラックバイアス</label><select id="bias"><option value="neutral">フラット</option><option value="inside">内有利</option><option value="outside">外有利</option><option value="front">前有利</option><option value="closer">差し有利</option><option value="innerFront">内・前有利</option><option value="outerCloser">外・差し有利</option></select></div>
+<div><label>シミュレーション回数</label><select id="runs"><option value="30000">30,000</option><option value="100000" selected>100,000</option><option value="300000">300,000</option></select></div>
+</div>
 </div>
 
 <div class="card">
-<h2>④ シミュレーション</h2>
+<h2>出馬表データの取り込み</h2>
+<p class="note">①JRAの出馬表URLを試す、②JRAページの文字を貼り付ける、③CSVを貼り付ける、の3方式です。URL取得はブラウザ環境やJRA側の仕様変更で失敗することがあるため、貼り付け方式も残しています。</p>
+<div class="row">
+<input id="jraUrl" placeholder="JRA出馬表URLを貼り付け">
+<button class="blue fit" id="fetchJra">JRAから取得</button>
+</div>
+<div style="margin-top:8px">
+<label>出馬表テキスト / CSV</label>
+<textarea id="importText" placeholder="JRAの出馬表をコピーして貼り付けるか、CSVを貼り付けてください。
+CSV例:
+馬番,馬名,枠,斤量,オッズ,脚質,先行力,末脚,持久力,コース適性,馬場適性,近5走
+1,サンプル,1,56,12.5,差し,70,82,75,80,70,1-5-3-7-2"></textarea>
+</div>
+<div class="row" style="margin-top:8px">
+<button class="primary" id="importBtn">貼り付けデータを読み込む</button>
+<button id="sampleBtn">サンプルを読み込む</button>
+</div>
+<div id="importMsg" class="note" style="margin-top:7px"></div>
+</div>
+
+<div class="card">
+<h2>データ管理</h2>
+<div class="row">
+<button id="saveBtn">このレースを保存</button>
+<button id="loadBtn">保存データを読み込む</button>
+<button id="exportBtn">JSONを書き出す</button>
+<button id="clearBtn" class="danger">全消去</button>
+</div>
+<p class="note">保存先はこのiPhoneのブラウザ内です。GitHub上には個人情報や投票情報を保存しません。</p>
+</div>
+</section>
+
+<section id="horses" class="panel hidden">
+<div class="card">
+<h2>出走馬</h2>
+<div class="row">
+<button class="primary fit" id="addHorse">＋馬を追加</button>
+<button class="fit" id="autoScore">データから評価を自動計算</button>
+<button class="fit" id="sortHorse">モデル順に並べ替え</button>
+</div>
+<p class="note">数値は0〜100。脚質は「逃げ/先行/差し/追込」。近5走は着順をカンマまたは「-」区切りで入力できます。</p>
+<div class="tablewrap"><table class="horseTable"><thead><tr>
+<th>削除</th><th>馬番</th><th>馬名</th><th>枠</th><th>斤量</th><th>オッズ</th><th>脚質</th><th>先行</th><th>末脚</th><th>持久</th><th>コース</th><th>馬場</th><th>クラス</th><th>騎手</th><th>近5走</th><th>休養日</th><th>馬体重増減</th>
+</tr></thead><tbody id="horseBody"></tbody></table></div>
+</div>
+</section>
+
+<section id="model" class="panel hidden">
+<div class="card">
+<h2>モデル設定</h2>
+<div class="grid3">
+<div><label>能力</label><input id="wAbility" type="number" value="30"></div>
+<div><label>近走</label><input id="wForm" type="number" value="15"></div>
+<div><label>展開</label><input id="wPace" type="number" value="15"></div>
+<div><label>コース</label><input id="wCourse" type="number" value="10"></div>
+<div><label>馬場</label><input id="wGoing" type="number" value="8"></div>
+<div><label>騎手</label><input id="wJockey" type="number" value="7"></div>
+</div>
+<div class="grid3" style="margin-top:8px">
+<div><label>斤量</label><input id="wWeight" type="number" value="5"></div>
+<div><label>枠順</label><input id="wGate" type="number" value="5"></div>
+<div><label>休養</label><input id="wRest" type="number" value="2"></div>
+<div><label>馬体重</label><input id="wBody" type="number" value="3"></div>
+<div><label>市場を予想へ混ぜる</label><input id="marketMix" type="number" value="15" min="0" max="50"></div>
+<div><label>乱数シード</label><input id="seed" type="number" value="20260905"></div>
+</div>
+<p class="note">市場混合は「オッズを正解扱い」するものではなく、モデルの極端な評価を少しだけ市場情報で縮める設定です。0なら完全にモデル主体。</p>
+</div>
+<div class="card">
+<h2>Ver.4 分析モード</h2>
 <div class="grid">
-<div><label>試行回数</label><select id="runs"><option value="30000">3万回</option><option value="100000" selected>10万回</option><option value="300000">30万回</option></select></div>
-<div><label>ハナ固定</label><select id="fixed"><option value="">なし</option></select></div>
+<div><label>市場オッズの扱い</label><select id="marketMode">
+<option value="blend" selected>モデル＋市場を融合</option>
+<option value="model">モデルのみ</option>
+<option value="market">市場のみ</option>
+</select></div>
+<div><label>展開の不確実性</label><select id="paceUncertainty">
+<option value="normal" selected>標準</option>
+<option value="low">低め</option>
+<option value="high">高め</option>
+</select></div>
+<div><label>穴馬を拾う感度</label><input id="longshot" type="number" min="0" max="30" value="8"></div>
+<div><label>本命の安定性重視</label><input id="favoriteStability" type="number" min="0" max="30" value="10"></div>
 </div>
-<button onclick="runSim()">10万回シミュレーション</button>
+<p class="note">Ver.4では「最も勝ちそうな馬」と「最も買う価値がある馬」を分離して評価します。穴馬感度は低人気馬の過小評価を防ぐための補正です。</p>
 </div>
-
-<div id="results" class="hidden">
-<div class="card"><h2>⑤ 展開予測</h2><div id="pace"></div><div id="leader"></div></div>
-<div class="card"><h2>⑥ 着順確率</h2><div id="ranking"></div></div>
-<div class="card"><h2>⑦ 穴馬・妙味判定</h2><div id="value"></div></div>
-<div class="card"><h2>⑧ 買い目候補</h2><div id="bets"></div></div>
-</div>
-
 <div class="card">
-<h2>データについて</h2>
-<div class="warn"><b>重要：</b>このVer.2は「スマホだけで試す」ことを優先した試作版です。JRAの公開ページを読み取る方式はページ構造の変更や通信制限で取得できない場合があります。取得できない場合はサンプルデータに切り替えられます。</div>
-<p class="note">JRA公式の出馬表には馬番・馬名・斤量・騎手・過去4走などが掲載されています。JRAの競走馬情報にも過去のレース成績、条件別成績、出走レースが掲載されています。実運用では利用条件を確認した上で、公開情報の範囲で利用します。</p>
+<h2>展開シナリオ</h2>
+<div id="paceBox"></div>
+<button class="primary wide" id="simulate">Monte Carloを実行</button>
 </div>
-</main>
+</section>
 
+<section id="result" class="panel hidden">
+<div class="card"><h2>最終評価</h2><div id="summary" class="note">まだシミュレーションしていません。</div></div>
+<div class="card"><h2>勝率・3着内率・期待値</h2><div class="tablewrap"><table class="horseTable" id="resultTable"><thead><tr><th>順位</th><th>馬番</th><th>馬名</th><th>勝率</th><th>2着内</th><th>3着内</th><th>適正オッズ</th><th>実オッズ</th><th>EV</th><th>信頼度</th><th>評価</th></tr></thead><tbody></tbody></table></div></div>
+<div class="card"><h2>「なぜ推奨？」</h2><div id="reasons"></div></div>
+<div class="card">
+<h2>モデル診断</h2>
+<div class="kpi">
+<div><span>能力1位</span><b id="diagAbility">-</b></div>
+<div><span>妙味1位</span><b id="diagValue">-</b></div>
+<div><span>安定性1位</span><b id="diagStable">-</b></div>
+</div>
+<p class="note">同じ馬が3項目で上位なら軸向き。能力1位と妙味1位が違う場合は「本命」と「買う価値」を分けて考えるのがVer.4のポイントです。</p>
+</div>
+<div class="card"><h2>買い目候補</h2><div id="bets"></div><p class="note">買い目はモデル上の候補です。資金配分や購入を自動実行する機能はありません。</p></div>
+</section>
+</main>
+<footer><div class="row"><button class="primary" id="goModel">モデル設定へ</button><button class="blue" id="goResult">予想を実行</button></div></footer>
 <script>
-let horses=[];
+const $=id=>document.getElementById(id);
+let horses=[], lastResult=null;
+
+function today(){return new Date().toISOString().slice(0,10)}
+$("raceDate").value=today();
+
 const sample=[
-["1","クルゼイロドスル",56,60,72,70,70,65,112.4],
-["2","ミナデオロ",56,82,70,72,68,78,15.1],
-["3","ドロップオブライト",55,45,82,72,78,70,22.5],
-["4","フォルテアンジェロ",55,72,86,82,82,72,5.3],
-["5","サイルーン",57,68,84,78,86,74,16.2],
-["6","ファンダム",58,62,84,82,80,72,7.8],
-["7","エコロブルーム",58,75,82,78,88,70,7.1],
-["8","ピコローズ",53,35,82,65,72,75,17.5],
-["9","レザベーション",55,70,84,78,90,76,7.1],
-["10","ヴァルキリーバース",55.5,73,86,78,88,74,6.5],
-["11","クランフォード",55,88,72,78,78,86,10.7],
-["12","ディールメーカー",54,80,70,76,80,78,9.9],
-["13","メタルスピード",56,58,72,80,86,72,26.4],
-["14","リラボニート",55,42,84,70,72,75,68],
-["15","テレサ",55,40,82,68,70,73,61.2],
-["16","ラケマーダ",57,30,78,76,74,70,248.4]
+["1","ミナデオロ",1,56,15.1,"逃げ",78,72,72,82,72,76,78,"M.ミシェル","5-1-4-6-2",35,0],
+["2","フォルテアンジェロ",2,56,5.3,"先行",86,84,80,85,78,86,84,"C.ルメール","2-3-1-5-4",28,2],
+["3","ヴァルキリーバース",3,54,6.5,"差し",65,91,82,88,80,90,92,"戸崎圭太","1-4-2-3-5",42,-2],
+["4","エコロブルーム",4,57,7.1,"差し",70,88,84,91,82,87,88,"横山武史","3-2-6-1-4",21,0],
+["5","レザベーション",5,55,7.1,"先行",83,79,78,84,75,85,80,"田辺裕信","4-1-2-7-3",35,0],
+["6","ファンダム",6,56,7.8,"差し",68,89,83,86,81,88,86,"坂井瑠星","2-5-1-3-4",28,4],
+["7","ディールメーカー",7,57,9.9,"先行",82,82,85,88,79,86,85,"佐々木大輔","6-2-1-4-2",35,-2],
+["8","クランフォード",8,55,10.7,"逃げ",88,76,77,80,76,83,82,"岩田望来","1-3-5-2-6",14,0],
+["9","ピコローズ",9,54,17.5,"追込",48,93,79,83,78,80,82,"菅原明良","5-2-4-8-1",49,2],
+["10","サイルーン",10,56,16.2,"差し",62,90,81,87,79,84,86,"R.キング","3-6-2-4-5",28,-4],
+["11","ドロップオブライト",11,55,22.5,"差し",58,86,76,82,77,79,80,"石川裕紀人","7-4-3-2-5",42,0],
+["12","メタルスピード",12,57,26.4,"先行",79,78,86,85,80,82,84,"横山和生","4-8-2-3-6",21,6],
+["13","サンプルA",13,55,68,"追込",42,87,74,76,72,70,75,"騎手A","8-6-5-7-4",56,-6],
+["14","サンプルB",14,55,61.2,"差し",57,82,72,80,75,74,76,"騎手B","6-7-3-9-5",35,0],
+["15","サンプルC",15,54,112,"追込",38,85,70,74,70,68,72,"騎手C","9-8-6-5-7",63,-2],
+["16","サンプルD",16,54,248,"追込",35,78,68,70,68,65,70,"騎手D","10-9-8-6-7",70,0]
 ];
-// [num,name,weight,early,finish,stamina,course,going,odds]
-function render(){
- const box=document.getElementById("horses"); box.innerHTML="";
- const fs=document.getElementById("fixed"); fs.innerHTML='<option value="">なし</option>';
+
+function makeHorse(a){return {num:+a[0],name:a[1],gate:+a[2],weight:+a[3],odds:+a[4]||0,style:a[5]||"差し",early:+a[6]||50,finish:+a[7]||50,stamina:+a[8]||50,course:+a[9]||50,goingFit:+a[10]||50,jockey:+a[11]||50,classFit:+a[12]||50,form:String(a[13]??""),rest:+a[14]||30,body:+a[15]||0}}
+function renderHorses(){
+ const tb=$("horseBody");tb.innerHTML="";
  horses.forEach((h,i)=>{
-  box.innerHTML+=`<div class="horse"><div class="head"><span class="num">${h[0]}</span><span class="name">${h[1]}</span><span class="small">${h[2]}kg / ${h[8]?h[8]+'倍':''}</span></div>
-  <div class="small">先行 ${h[3]}　末脚 ${h[4]}　持続 ${h[5]}　コース ${h[6]}　馬場 ${h[7]}</div></div>`;
-  fs.innerHTML+=`<option value="${i}">${h[0]} ${h[1]}</option>`;
+ const tr=document.createElement("tr");
+ const fields=[["num","number"],["name","text"],["gate","number"],["weight","number"],["odds","number"],["style","select"],["early","number"],["finish","number"],["stamina","number"],["course","number"],["goingFit","number"],["classFit","number"],["jockey","number"],["form","text"],["rest","number"],["body","number"]];
+ tr.innerHTML=`<td><button class="danger" onclick="delHorse(${i})">×</button></td>`+
+ fields.map(([k,t])=> t==="select"?`<td><select data-i="${i}" data-k="${k}"><option ${h[k]=="逃げ"?"selected":""}>逃げ</option><option ${h[k]=="先行"?"selected":""}>先行</option><option ${h[k]=="差し"?"selected":""}>差し</option><option ${h[k]=="追込"?"selected":""}>追込</option></select></td>`:`<td><input class="${k==="name"||k==="form"?"name":""}" type="${t}" value="${h[k]??""}" data-i="${i}" data-k="${k}"></td>`).join("");
+ tb.appendChild(tr);
  });
+ tb.querySelectorAll("input,select").forEach(el=>el.onchange=()=>{horses[+el.dataset.i][el.dataset.k]=el.type==="number"?+el.value:el.value;});
 }
-function loadSample(){
- horses=sample.map(x=>x.slice());
- document.getElementById("raceInfo").innerHTML="<b>サンプル：</b>2026/9/5 中山11R 京成杯オータムハンデ";
- render(); document.getElementById("fetchMsg").textContent="サンプルデータを読み込みました。";
-}
-async function loadJRA(){
- const url=document.getElementById("jraUrl").value.trim();
- if(!url){document.getElementById("fetchMsg").textContent="JRA出馬表URLを入力してください。";return;}
- const msg=document.getElementById("fetchMsg"); msg.innerHTML='<div class="loading">JRA公開ページを取得中…</div>';
- try{
-   // BrowserからJRAへ直接アクセスするとCORS等で失敗するため、公開テキスト変換サービスを経由する試作方式。
-   const target="https://r.jina.ai/"+url;
-   const res=await fetch(target,{headers:{"Accept":"text/plain"}});
-   if(!res.ok) throw new Error("HTTP "+res.status);
-   const text=await res.text();
-   const parsed=parseJRA(text);
-   if(!parsed.length) throw new Error("出走馬を解析できませんでした");
-   horses=parsed; render();
-   document.getElementById("raceInfo").innerHTML="<b>自動取得：</b>"+parsed.length+"頭を読み込みました。";
-   msg.innerHTML='<div class="ok">自動取得しました。取得できた項目を確認してからシミュレーションしてください。</div>';
- }catch(e){
-   msg.innerHTML='<div class="warn">自動取得できませんでした。JRA URLが正しいか確認してください。今回は「京成杯AHサンプル」で動作確認できます。<br><span class="small">'+e.message+'</span></div>';
- }
-}
-function parseJRA(t){
- const lines=t.split(/\n/).map(s=>s.replace(/\s+/g," ").trim()).filter(Boolean);
- const out=[]; const seen=new Set();
- for(let i=0;i<lines.length;i++){
-   const m=lines[i].match(/^(\d{1,2})\s+(.{2,30})\s+(\d{2,3}(?:\.\d)?)kg/);
-   if(m && !seen.has(m[1])){
-     const num=m[1], name=m[2].replace(/^[●○▲△★☆]+/,"").trim();
-     let weight=+m[3];
-     out.push([num,name,weight,50,70,70,70,70,0]);seen.add(num);
-   }
- }
- return out.slice(0,18);
-}
-function rnd(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
-function weighted(items,w){let s=w.reduce((a,b)=>a+Math.max(0,b),0),r=Math.random()*s;for(let i=0;i<items.length;i++){r-=Math.max(0,w[i]);if(r<=0)return items[i]}return items[items.length-1]}
-function sim(N,fixed){
- const bias=+document.getElementById("bias").value;
- const pc={S:0,M:0,H:0}, win=Array(horses.length).fill(0),top2=Array(horses.length).fill(0),top3=Array(horses.length).fill(0),lead=Array(horses.length).fill(0);
- let base=[.3,.55,.15];
- const front=horses.filter(h=>h[3]>=75).length;
- if(front>=5){base=[.22,.52,.26]} else if(front<=2){base=[.42,.48,.10]}
- for(let k=0;k<N;k++){
-  const pace=weighted(["S","M","H"],base);pc[pace]++;
-  let ls=horses.map(h=>h[3]*.72+h[6]*.10+h[7]*.08-h[2]*.12+rnd()*6);
-  let li=fixed===""?ls.indexOf(Math.max(...ls)):fixed;
-  lead[li]++;
-  let scores=horses.map((h,i)=>{
-   let p=pace==="S"?h[3]*.12+h[4]*.30+h[5]*.16:pace==="M"?h[3]*.16+h[4]*.27+h[5]*.22:h[3]*.10+h[4]*.23+h[5]*.30;
-   let pos=i===li?(pace==="S"?5:pace==="M"?1:-3):(h[3]>=70?1:pace==="H"?2:-1);
-   return h[4]*.25+h[5]*.18+h[6]*.14+h[7]*.10+p*.12+bias*(h[3]>=65?1:-.7)+pos-Math.max(0,h[2]-55)*.7+rnd()*5.5;
-  });
-  const rank=[...horses.keys()].sort((a,b)=>scores[b]-scores[a]);
-  win[rank[0]]++;top2[rank[0]]++;top2[rank[1]]++;top3[rank[0]]++;top3[rank[1]]++;top3[rank[2]]++;
- }
- return {pc,win,top2,top3,lead,N};
-}
-function runSim(){
- if(!horses.length){loadSample()}
- const N=+document.getElementById("runs").value, fixed=document.getElementById("fixed").value;
- const r=sim(N,fixed);
- document.getElementById("results").classList.remove("hidden");
- document.getElementById("pace").innerHTML=`<span class="badge">スロー ${(r.pc.S/N*100).toFixed(1)}%</span><span class="badge">平均 ${(r.pc.M/N*100).toFixed(1)}%</span><span class="badge">ハイ ${(r.pc.H/N*100).toFixed(1)}%</span>`;
- const li=[...horses.keys()].sort((a,b)=>r.lead[b]-r.lead[a]).slice(0,5);
- document.getElementById("leader").innerHTML="<p><b>逃げ確率 上位</b></p>"+li.map(i=>`${horses[i][0]} ${horses[i][1]}　<b>${(r.lead[i]/N*100).toFixed(1)}%</b>`).join("<br>");
- const rows=[...horses.keys()].sort((a,b)=>r.win[b]-r.win[a]);
- document.getElementById("ranking").innerHTML=`<table><tr><th>馬</th><th>1着</th><th>2着内</th><th>3着内</th><th>オッズ</th></tr>${rows.map(i=>`<tr><td>${horses[i][0]} ${horses[i][1]}</td><td>${(r.win[i]/N*100).toFixed(1)}%</td><td>${(r.top2[i]/N*100).toFixed(1)}%</td><td>${(r.top3[i]/N*100).toFixed(1)}%</td><td>${horses[i][8]?horses[i][8]+'倍':'-'}</td></tr>`).join("")}</table>`;
- const vals=rows.filter(i=>horses[i][8]>0).map(i=>({i,edge:(r.win[i]/N)*horses[i][8]})).sort((a,b)=>b.edge-a.edge).slice(0,5);
- document.getElementById("value").innerHTML=vals.map(x=>{let i=x.i;let fair=1/(r.win[i]/N);return `<div style="margin:9px 0"><b>${horses[i][0]} ${horses[i][1]}</b>　勝率 ${(r.win[i]/N*100).toFixed(1)}%<br>実オッズ ${horses[i][8]}倍 / 理論オッズ ${fair.toFixed(1)}倍<br><span class="badge">${horses[i][8]>fair*1.15?"妙味あり":horses[i][8]<fair*.85?"過剰人気":"妥当"}</span></div>`}).join("");
- const top=rows.slice(0,5);
- document.getElementById("bets").innerHTML=`<b>3連複候補の軸</b><br>${top.slice(0,3).map(i=>`${horses[i][0]} ${horses[i][1]}`).join(" / ")}<br><br><span class="note">Ver.2では単勝確率を中心に評価しています。次版で3連複・3連単を確率分布から直接最適化します。</span>`;
- document.getElementById("results").scrollIntoView({behavior:"smooth"});
-}
+function delHorse(i){horses.splice(i,1);renderHorses()}
+function addHorse(){let n=horses.length+1;horses.push(makeHorse([n,"新規馬",n,56,20,"差し",55,70,65,70,70,60,60,"5-5-5-5-5",30,0]));renderHorses()}
+function loadSample(){horses=sample.map(makeHorse); $("raceName").value="2026 京成杯オータムハンデ"; $("raceDate").value="2026-09-05"; $("venue").value="中山";$("distance").value=1600;$("surface").value="芝";$("going").value="良";$("fieldSize").value=16;renderHorses();$("importMsg").textContent="サンプル16頭を読み込みました。実際の予想では出馬表データを取り込んでください。"}
 loadSample();
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
+function parseCSV(s){
+ const lines=s.split(/\r?\n/).map(x=>x.trim()).filter(Boolean); if(!lines.length)return [];
+ let start=/馬番/.test(lines[0])?1:0;
+ return lines.slice(start).map(line=>{
+  const c=line.split(/[,\t]/).map(x=>x.trim());
+  if(c.length<2)return null;
+  return makeHorse([c[0],c[1],c[2]||c[0],c[3]||56,c[4]||0,c[5]||"差し",c[6]||50,c[7]||70,c[8]||70,c[9]||70,c[10]||70,c[11]||60,c[12]||60,c[13]||"",c[14]||30,c[15]||0]);
+ }).filter(Boolean);
 }
+function parseJraText(s){
+ // JRA text/table often contains lines such as: 馬名 ... 斤量 騎手 | 前走...
+ // We intentionally parse only stable fields and leave advanced metrics for auto-scoring.
+ const out=[]; const lines=s.split(/\r?\n/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+ let current=null, num=0;
+ for(const line of lines){
+  let m=line.match(/^(\d{1,2})\s+(.+?)\s+(\d{1,2})\.?(\d)?\s*kg\s+(.+)$/);
+  if(!m) m=line.match(/^(\d{1,2})\s+(.+?)\s+(\d{1,2}(?:\.\d)?)\s+(.+)$/);
+  if(m && !/年|月|日/.test(m[2])){
+    const n=+m[1], name=m[2].replace(/[\|\|]/g,"").trim(), wt=parseFloat(m[3]);
+    if(name.length>1 && !/レース|番人気|本賞金|コース/.test(name)){current=makeHorse([n,name,n,wt,0,"差し",50,70,70,70,70,60,60,"",30,0]);out.push(current);num=n;continue}
+  }
+  let fm=line.match(/(\d+)\s*着/); if(current&&fm&&!current.form) current.form=fm[1];
+ }
+ // Fallback: find numbered horse-name lines from copied tables.
+ if(out.length<3){
+   const rx=/^\s*(\d{1,2})\s+([^\d]{2,20}?)(?:\s+(\d{1,2}(?:\.\d+)?)\s*kg)?(?:\s+(.+))?$/;
+   for(const line of lines){const m=line.match(rx);if(m){const n=+m[1],name=m[2].trim();if(name&&!/レース|本賞金|コース|枠|馬番/.test(name)&&!out.some(x=>x.num===n))out.push(makeHorse([n,name,n,m[3]||56,0,"差し",50,70,70,70,70,60,60,"",30,0]));}}
+ }
+ return out;
+}
+$("importBtn").onclick=()=>{
+ const s=$("importText").value.trim(); if(!s){$("importMsg").textContent="貼り付けデータがありません。";return}
+ let p=parseCSV(s); if(p.length<3)p=parseJraText(s);
+ if(p.length){horses=p;$("fieldSize").value=p.length;renderHorses();$("importMsg").textContent=`${p.length}頭を読み込みました。自動評価を実行してください。`;showTab("horses")}
+ else $("importMsg").textContent="読み込めませんでした。JRAページの表をコピーするか、指定CSV形式で貼り付けてください。";
+};
+$("sampleBtn").onclick=loadSample;
+
+$("fetchJra").onclick=async()=>{
+ const u=$("jraUrl").value.trim();if(!u){$("importMsg").textContent="JRA出馬表URLを入力してください。";return}
+ $("importMsg").textContent="取得中…";
+ try{
+  const proxy="https://r.jina.ai/"+u;
+  const r=await fetch(proxy,{headers:{"Accept":"text/plain"}}); if(!r.ok)throw Error("HTTP "+r.status);
+  const txt=await r.text(); $("importText").value=txt;
+  let p=parseJraText(txt); if(p.length<3) p=parseCSV(txt);
+  if(p.length){horses=p;$("fieldSize").value=p.length;renderHorses();$("importMsg").textContent=`JRAページから${p.length}頭を抽出しました。取得元は第三者プロキシ経由です。`;showTab("horses")}
+  else $("importMsg").textContent="ページは取得できましたが馬を自動抽出できませんでした。取得した文字を確認して貼り付け方式で調整してください。";
+ }catch(e){$("importMsg").textContent="自動取得に失敗しました。JRAページを開いて表をコピーし、下の欄へ貼り付ける方法を使ってください。"}
+};
+
+function avgForm(f){const a=String(f).split(/[-, ]+/).map(Number).filter(x=>x>=1&&x<=30);if(!a.length)return 50;const avg=a.reduce((x,y)=>x+y,0)/a.length;return Math.max(20,Math.min(95,100-avg*8))}
+function autoScore(){
+ horses.forEach((h,i)=>{
+  const form=avgForm(h.form); h.classFit=Math.round((h.classFit+form)/2);
+  h.course=Math.round(h.course);h.goingFit=Math.round(h.goingFit);
+  if(h.early===50&&h.finish===70){h.early=h.style==="逃げ"?88:h.style==="先行"?78:h.style==="差し"?62:45}
+  h.finish=Math.max(h.finish,form); h.stamina=Math.max(h.stamina,Math.min(95,form+5));
+  h.jockey=Math.max(40,Math.min(95,h.jockey||60));
+ });
+ renderHorses();$("importMsg").textContent="近5走を中心に未設定値を補完しました。必要なら手修正してください.";
+}
+$("autoScore").onclick=autoScore;
+$("addHorse").onclick=addHorse;
+
+function normWeights(){
+ const ids=["wAbility","wForm","wPace","wCourse","wGoing","wJockey","wWeight","wGate","wRest","wBody"];
+ const vals=ids.map(x=>Math.max(0,+$(x).value||0));const sum=vals.reduce((a,b)=>a+b,0)||1;return vals.map(x=>x/sum);
+}
+function gateFit(h,n){
+ const v=+h.gate, inner=v<=Math.ceil(n/3), outer=v>Math.floor(n*2/3);
+ const b=$("bias").value;
+ if(["inside","innerFront"].includes(b))return inner?82:outer?45:65;
+ if(["outside","outerCloser"].includes(b))return outer?82:inner?50:67;
+ return 68;
+}
+function paceFit(h,pace){
+ if(pace==="slow") return h.style==="逃げ"?88:h.style==="先行"?82:h.style==="差し"?58:45;
+ if(pace==="fast") return h.style==="逃げ"?45:h.style==="先行"?62:h.style==="差し"?82:88;
+ return h.style==="逃げ"?70:h.style==="先行"?78:h.style==="差し"?76:70;
+}
+function biasFit(h){
+ const b=$("bias").value;
+ if(["front","innerFront"].includes(b)) return ["逃げ","先行"].includes(h.style)?86:60;
+ if(["closer","outerCloser"].includes(b)) return ["差し","追込"].includes(h.style)?86:60;
+ return 70;
+}
+function baseScore(h,pace){
+ const w=normWeights(), n=horses.length||16;
+ const ability=(h.finish*.45+h.stamina*.35+h.classFit*.2);
+ const form=avgForm(h.form);
+ const rest=Math.max(35,100-Math.abs((h.rest||30)-28)*2);
+ const body=Math.max(40,100-Math.min(20,Math.abs(h.body||0)*4));
+ const weight=Math.max(35,90-(h.weight-54)*5);
+ const score=
+ ability*w[0]+form*w[1]+paceFit(h,pace)*w[2]+((h.course*.7+biasFit(h)*.3))*w[3]+((h.goingFit*.7+biasFit(h)*.3))*w[4]+h.jockey*w[5]+weight*w[6]+gateFit(h,n)*w[7]+rest*w[8]+body*w[9];
+ return score;
+}
+function leaderProbs(){
+ const paceVals=horses.map(h=>Math.max(1,h.early+(h.style==="逃げ"?18:h.style==="先行"?8:0)));
+ const sum=paceVals.reduce((a,b)=>a+b,0);
+ return horses.map((h,i)=>paceVals[i]/sum);
+}
+function scenarioPace(){
+ const p=$("pace").value;if(p!=="auto")return [{p,prob:1}];
+ const early=horses.reduce((s,h)=>s+(h.early+(h.style==="逃げ"?18:0)),0)/(horses.length||1);
+ const fast=Math.min(.75,Math.max(.18,(early-60)/55));
+ return [{p:"slow",prob:(1-fast)*.45},{p:"mid",prob:.55},{p:"fast",prob:fast*.55}].filter(x=>x.prob>0);
+}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function seededNoise(rng, scale=1){
+  const u=Math.max(1e-9,rng());
+  return Math.log(-Math.log(u))*scale;
+}
+function marketProbability(h){
+  if(!(h.odds>1)) return 0;
+  return 1/h.odds;
+}
+function simulate(){
+ if(horses.length<3){alert("3頭以上登録してください");return}
+ const N=+($("runs").value), rng=mulberry32(+($("seed").value)||1), scen=scenarioPace(), n=horses.length;
+ const win=Array(n).fill(0),top2=Array(n).fill(0),top3=Array(n).fill(0);
+ const finishSum=Array(n).fill(0), finishSq=Array(n).fill(0);
+ const paceCounts={slow:0,mid:0,fast:0};
+ const scenarioScores=scen.map(s=>({p:s.p,prob:s.prob,scores:horses.map(h=>baseScore(h,s.p))}));
+ const marketMode=$("marketMode")?.value||"blend";
+ const mix=Math.max(0,Math.min(50,+$("marketMix").value||0))/100;
+ const longshot=Math.max(0,Math.min(30,+$("longshot").value||0));
+ const stability=Math.max(0,Math.min(30,+$("favoriteStability").value||0));
+ const uncertainty=$("paceUncertainty")?.value||"normal";
+ const noiseScale=uncertainty==="low"?0.65:uncertainty==="high"?1.35:1;
+ const ordered={};
+ for(let it=0;it<N;it++){
+   let rr=rng(), acc=0, chosen=scenarioScores[scenarioScores.length-1];
+   for(const s of scenarioScores){acc+=s.prob;if(rr<=acc){chosen=s;break}}
+   paceCounts[chosen.p]++;
+   const arr=chosen.scores.map((raw,i)=>{
+     const h=horses[i];
+     let score=raw;
+     const mp=marketProbability(h);
+     if(mp>0 && marketMode!=="model"){
+       const marketScore=Math.min(95,42+Math.sqrt(mp)*155);
+       const localMix=marketMode==="market"?0.72:mix;
+       score=score*(1-localMix)+marketScore*localMix;
+     }
+     // Longshot correction is deliberately modest.
+     if(h.odds>=20) score += longshot;
+     // Favorite stability rewards horses with strong recent form and stamina.
+     if(h.odds>0 && h.odds<=6) score += stability*((avgForm(h.form)+h.stamina)/200);
+     const val=score/11 + seededNoise(rng,noiseScale);
+     return {i,val};
+   }).sort((a,b)=>b.val-a.val);
+   for(let k=0;k<n;k++){
+     const idx=arr[k].i;
+     finishSum[idx]+=k+1; finishSq[idx]+=(k+1)*(k+1);
+     if(k<3) top3[idx]++;
+     if(k<2) top2[idx]++;
+     if(k===0) win[idx]++;
+   }
+   const key=arr.slice(0,3).map(x=>x.i).join("-");
+   ordered[key]=(ordered[key]||0)+1;
+ }
+ const rows=horses.map((h,i)=>{
+   const w=win[i]/N,t2=top2[i]/N,t3=top3[i]/N;
+   const meanFinish=finishSum[i]/N;
+   const variance=Math.max(0,finishSq[i]/N-meanFinish*meanFinish);
+   const stabilityScore=Math.max(0,100-Math.sqrt(variance)*18);
+   const scenarioSpread=Math.max(...scenarioScores.map(s=>s.scores[i]))-Math.min(...scenarioScores.map(s=>s.scores[i]));
+   const confidence=Math.max(5,Math.min(99,0.55*stabilityScore+0.45*(100-Math.min(100,scenarioSpread*2))));
+   const fair=w>0?1/w:99;
+   const ev=h.odds>0?h.odds*w-1:null;
+   const value=(ev??-1);
+   return {h,i,w,t2,t3,fair,ev,meanFinish,confidence,score:Math.max(...scenarioScores.map(s=>s.scores[i])),value};
+ }).sort((a,b)=>b.w-a.w);
+ lastResult={N,rows,ordered,paceCounts,scenarios:scenarioScores};
+ renderResult();
+}
+function renderResult(){
+ const r=lastResult, N=r.N, rows=r.rows;
+ const valueRows=[...rows].sort((a,b)=>(b.value-a.value));
+ const top=valueRows[0];
+ $("summary").innerHTML=
+ `<div class="resultTop">能力1位：${rows[0].h.num} ${rows[0].h.name}</div>
+  <p><b>買い価値1位：</b>${top.h.num} ${top.h.name}（EV ${top.ev==null?"-":(top.ev*100).toFixed(0)+"%"}）
+  ／ 試行 ${N.toLocaleString()}回。</p>
+  <p>展開：スロー ${r.paceCounts.slow.toLocaleString()} / 平均 ${r.paceCounts.mid.toLocaleString()} / ハイ ${r.paceCounts.fast.toLocaleString()}。
+  <br>「能力順位」と「オッズ妙味」を分けて見ることで、人気馬の過大評価と穴馬の見落としを減らす設計です。</p>`;
+
+ const tb=$("resultTable").querySelector("tbody");tb.innerHTML="";
+ rows.forEach((x,i)=>{
+   const tr=document.createElement("tr");
+   const cls=x.ev!=null?(x.ev>0.15?"good":x.ev<-.2?"bad":"warn"):"";
+   tr.innerHTML=`<td class="rank">${i+1}</td><td>${x.h.num}</td><td class="name">${x.h.name}</td>
+   <td>${(x.w*100).toFixed(1)}%</td><td>${(x.t2*100).toFixed(1)}%</td><td>${(x.t3*100).toFixed(1)}%</td>
+   <td>${x.fair.toFixed(1)}倍</td><td>${x.h.odds?x.h.odds.toFixed(1):"-"}</td>
+   <td>${x.ev==null?"-":(x.ev*100).toFixed(0)+"%"}</td><td>${x.confidence.toFixed(0)}</td>
+   <td><span class="badge ${cls}">${x.ev!=null?(x.ev>0.15?"妙味":x.ev<-.2?"割高":"相応"):"オッズ待ち"}</span></td>`;
+   tb.appendChild(tr);
+ });
+
+ const reasons=rows.slice(0,8).map((x,i)=>{
+   const h=x.h, form=avgForm(h.form);
+   const paceName=r.scenarios.reduce((a,b)=>a.prob>b.prob?a:b).p;
+   const parts=[
+     ["能力",+(h.finish*.45+h.stamina*.35+h.classFit*.2).toFixed(0)],
+     ["近走",+form.toFixed(0)],["展開",+paceFit(h,paceName).toFixed(0)],
+     ["コース",h.course],["馬場",h.goingFit],["騎手",h.jockey],["枠",+gateFit(h,horses.length).toFixed(0)]
+   ].sort((a,b)=>b[1]-a[1]);
+   const strengths=parts.slice(0,3).map(p=>p[0]+" "+p[1]).join(" / ");
+   const valueText=x.ev==null?"オッズ未入力":x.ev>0.15?"市場より割安":x.ev<-.2?"市場より割高":"おおむね妥当";
+   return `<div class="card"><b>${i+1}位 ${h.num} ${h.name}</b>
+   <p>勝率 <b>${(x.w*100).toFixed(1)}%</b>、3着内 <b>${(x.t3*100).toFixed(1)}%</b>、
+   適正オッズ ${x.fair.toFixed(1)}倍、信頼度 ${x.confidence.toFixed(0)}/100。</p>
+   <p>主な強み：${strengths}。${valueText}。脚質は${h.style}で、${paceName==="fast"?"ハイペース":paceName==="slow"?"スローペース":"平均ペース"}を中心に評価。</p></div>`;
+ }).join("");
+ $("reasons").innerHTML=reasons;
+
+ const value=valueRows.filter(x=>x.ev!=null).slice(0,6);
+ let bets="<ol>";
+ if(value[0]) bets+=`<li><b>単勝妙味：</b>${value[0].h.num} ${value[0].h.name}（勝率 ${(value[0].w*100).toFixed(1)}%、EV ${(value[0].ev*100).toFixed(0)}%）</li>`;
+ const top4=rows.slice(0,4);
+ if(top4.length>=2) bets+=`<li><b>馬連候補：</b>${top4.map(x=>x.h.num).join(" - ")}（上位モデル群）</li>`;
+ if(top4.length>=3) bets+=`<li><b>3連複軸：</b>${rows[0].h.num} - ${rows[1].h.num}, ${rows[2].h.num}, ${rows[3].h.num}</li>`;
+ if(value.length>=3) bets+=`<li><b>穴候補：</b>${value.filter(x=>x.h.odds>=10).slice(0,3).map(x=>x.h.num+" "+x.h.name).join(" / ")||"該当なし"}</li>`;
+ bets+="</ol><p class='note'>買い目はモデル候補です。オッズは発走直前まで変動するため、購入判断では最終オッズを再確認してください。</p>";
+ $("bets").innerHTML=bets;
+ $("diagAbility").textContent=`${rows[0].h.num} ${rows[0].h.name}`;
+ $("diagValue").textContent=`${valueRows[0].h.num} ${valueRows[0].h.name}`;
+ const stable=[...rows].sort((a,b)=>b.confidence-a.confidence)[0];
+ $("diagStable").textContent=`${stable.h.num} ${stable.h.name}`;
+ showTab("result");
+}
+$("simulate").onclick=simulate;$("goResult").onclick=simulate;$("goModel").onclick=()=>showTab("model");
+function showTab(id){document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("hidden",x.id!==id));document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));window.scrollTo(0,0)}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+$("sortHorse").onclick=()=>{horses.sort((a,b)=>baseScore(b,"mid")-baseScore(a,"mid"));renderHorses()}
+$("saveBtn").onclick=()=>{localStorage.setItem("keibaProState",JSON.stringify({race:{name:$("raceName").value,date:$("raceDate").value,venue:$("venue").value,distance:$("distance").value,surface:$("surface").value,going:$("going").value,field:$("fieldSize").value,pace:$("pace").value,bias:$("bias").value,runs:$("runs").value},horses}));alert("このiPhoneに保存しました")}
+$("loadBtn").onclick=()=>{const s=localStorage.getItem("keibaProState");if(!s){alert("保存データがありません");return}const x=JSON.parse(s);const r=x.race; $("raceName").value=r.name;$("raceDate").value=r.date;$("venue").value=r.venue;$("distance").value=r.distance;$("surface").value=r.surface;$("going").value=r.going;$("fieldSize").value=r.field;$("pace").value=r.pace;$("bias").value=r.bias;$("runs").value=r.runs;horses=x.horses;renderHorses();alert("読み込みました")}
+$("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify({raceName:$("raceName").value,horses},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="keibaPro_race.json";a.click();URL.revokeObjectURL(a.href)}
+$("clearBtn").onclick=()=>{if(confirm("入力・保存データを消しますか？")){horses=[];localStorage.removeItem("keibaProState");renderHorses()}}
 </script>
+<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));</script>
 </body>
 </html>
