@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="競馬Pro">
 <link rel="manifest" href="manifest.webmanifest">
-<title>競馬Pro Ver.4</title>
+<title>競馬Pro Ver.5</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#687386;--line:#dbe1e8;--accent:#0f766e;--accent2:#2563eb;--danger:#b91c1c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;font-size:14px}
@@ -29,7 +29,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px sol
 </style>
 </head>
 <body>
-<header><h1>🏇 競馬Pro Ver.4</h1><small>出馬表 → 過去走評価 → 展開 → Monte Carlo → 期待値・買い目</small></header>
+<header><h1>🏇 競馬Pro Ver.5</h1><small>出馬表 → 過去走評価 → 展開 → Monte Carlo → 感度分析 → 買い目候補</small></header>
 <main>
 <div class="tabs">
 <button class="tab active" data-tab="race">①レース</button>
@@ -68,7 +68,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px sol
 <label>出馬表テキスト / CSV</label>
 <textarea id="importText" placeholder="JRAの出馬表をコピーして貼り付けるか、CSVを貼り付けてください。
 CSV例:
-馬番,馬名,枠,斤量,オッズ,脚質,先行力,末脚,持久力,コース適性,馬場適性,近5走
+馬番,馬名,枠,斤量,オッズ,脚質,先行力,末脚,持久力,コース適性,馬場適性,騎手,クラス適性,近5走,休養,馬体重増減
 1,サンプル,1,56,12.5,差し,70,82,75,80,70,1-5-3-7-2"></textarea>
 </div>
 <div class="row" style="margin-top:8px">
@@ -76,6 +76,7 @@ CSV例:
 <button id="sampleBtn">サンプルを読み込む</button>
 </div>
 <div id="importMsg" class="note" style="margin-top:7px"></div>
+<p class="note">Ver.5のポイント：①展開シナリオ別の順位 ②条件を変えた感度分析 ③3連系の出現頻度 ④能力・妙味・安定性の3軸評価。</p>
 </div>
 
 <div class="card">
@@ -141,6 +142,7 @@ CSV例:
 </select></div>
 <div><label>穴馬を拾う感度</label><input id="longshot" type="number" min="0" max="30" value="8"></div>
 <div><label>本命の安定性重視</label><input id="favoriteStability" type="number" min="0" max="30" value="10"></div>
+<div><label>不確実性の広さ</label><input id="uncertaintyWidth" type="number" min="0" max="20" value="8"></div>
 </div>
 <p class="note">Ver.4では「最も勝ちそうな馬」と「最も買う価値がある馬」を分離して評価します。穴馬感度は低人気馬の過小評価を防ぐための補正です。</p>
 </div>
@@ -165,6 +167,9 @@ CSV例:
 <p class="note">同じ馬が3項目で上位なら軸向き。能力1位と妙味1位が違う場合は「本命」と「買う価値」を分けて考えるのがVer.4のポイントです。</p>
 </div>
 <div class="card"><h2>買い目候補</h2><div id="bets"></div><p class="note">買い目はモデル上の候補です。資金配分や購入を自動実行する機能はありません。</p></div>
+<div class="card"><h2>展開シナリオ別</h2><div id="scenarioTable"></div></div>
+<div class="card"><h2>感度分析・頑健性</h2><div id="sensitivity"></div></div>
+<div class="card"><h2>3連系の組み合わせ頻度</h2><div id="comboTable"></div></div>
 </section>
 </main>
 <footer><div class="row"><button class="primary" id="goModel">モデル設定へ</button><button class="blue" id="goResult">予想を実行</button></div></footer>
@@ -341,8 +346,10 @@ function simulate(){
  const longshot=Math.max(0,Math.min(30,+$("longshot").value||0));
  const stability=Math.max(0,Math.min(30,+$("favoriteStability").value||0));
  const uncertainty=$("paceUncertainty")?.value||"normal";
- const noiseScale=uncertainty==="low"?0.65:uncertainty==="high"?1.35:1;
- const ordered={};
+ const width=Math.max(0,Math.min(20,+$("uncertaintyWidth")?.value||0));
+ const noiseScale=(uncertainty==="low"?0.65:uncertainty==="high"?1.35:1)*(1+width/100);
+ const comboWin={}, comboTop3={}, pairTop2={};
+
  for(let it=0;it<N;it++){
    let rr=rng(), acc=0, chosen=scenarioScores[scenarioScores.length-1];
    for(const s of scenarioScores){acc+=s.prob;if(rr<=acc){chosen=s;break}}
@@ -356,9 +363,7 @@ function simulate(){
        const localMix=marketMode==="market"?0.72:mix;
        score=score*(1-localMix)+marketScore*localMix;
      }
-     // Longshot correction is deliberately modest.
      if(h.odds>=20) score += longshot;
-     // Favorite stability rewards horses with strong recent form and stamina.
      if(h.odds>0 && h.odds<=6) score += stability*((avgForm(h.form)+h.stamina)/200);
      const val=score/11 + seededNoise(rng,noiseScale);
      return {i,val};
@@ -370,9 +375,13 @@ function simulate(){
      if(k<2) top2[idx]++;
      if(k===0) win[idx]++;
    }
-   const key=arr.slice(0,3).map(x=>x.i).join("-");
-   ordered[key]=(ordered[key]||0)+1;
+   const key3=arr.slice(0,3).map(x=>horses[x.i].num).join("-");
+   const key2=arr.slice(0,2).map(x=>horses[x.i].num).sort((a,b)=>a-b).join("-");
+   comboWin[key3]=(comboWin[key3]||0)+1;
+   comboTop3[key3]=(comboTop3[key3]||0)+1;
+   pairTop2[key2]=(pairTop2[key2]||0)+1;
  }
+
  const rows=horses.map((h,i)=>{
    const w=win[i]/N,t2=top2[i]/N,t3=top3[i]/N;
    const meanFinish=finishSum[i]/N;
@@ -383,26 +392,62 @@ function simulate(){
    const fair=w>0?1/w:99;
    const ev=h.odds>0?h.odds*w-1:null;
    const value=(ev??-1);
-   return {h,i,w,t2,t3,fair,ev,meanFinish,confidence,score:Math.max(...scenarioScores.map(s=>s.scores[i])),value};
+   return {h,i,w,t2,t3,fair,ev,meanFinish,confidence,score:Math.max(...scenarioScores.map(s=>s.scores[i])),value,stabilityScore,scenarioSpread};
  }).sort((a,b)=>b.w-a.w);
- lastResult={N,rows,ordered,paceCounts,scenarios:scenarioScores};
+
+ // Scenario-specific probabilities (same model, no extra Monte Carlo cost)
+ const scenarioRows=scenarioScores.map(s=>{
+   const vals=s.scores.map((score,i)=>({i,score})).sort((a,b)=>b.score-a.score);
+   const max=vals.reduce((a,b)=>a+b.score,0)||1;
+   return {p:s.p,prob:s.prob,leaders:vals.slice(0,5).map((x,rank)=>({
+     ...x, horse:horses[x.i], rel:x.score/max
+   }))};
+ });
+
+ // Robustness: ability/value/stability ranking across pace assumptions and market modes.
+ const sensSettings=[
+   ["スロー・モデル","slow","model"],
+   ["平均・モデル","mid","model"],
+   ["ハイ・モデル","fast","model"],
+   ["平均・市場混合","mid","blend"]
+ ];
+ const sensitivity=horses.map((h,i)=>({i,h,rankSum:0,ranks:[],valueSum:0}));
+ for(const [label,p,mode] of sensSettings){
+   const scores=horses.map(h=>{
+     let s=baseScore(h,p);
+     const mp=marketProbability(h);
+     if(mp>0 && mode!=="model"){
+       const marketScore=Math.min(95,42+Math.sqrt(mp)*155);
+       s=s*0.85+marketScore*0.15;
+     }
+     return s;
+   });
+   const order=scores.map((s,i)=>({i,s})).sort((a,b)=>b.s-a.s);
+   order.forEach((x,r)=>{sensitivity[x.i].rankSum+=r+1;sensitivity[x.i].ranks.push({label,rank:r+1})});
+ }
+ sensitivity.forEach(x=>x.robustRank=x.rankSum/sensSettings.length);
+ sensitivity.sort((a,b)=>a.robustRank-b.robustRank);
+
+ lastResult={N,rows,ordered:comboWin,paceCounts,scenarios:scenarioScores,scenarioRows,sensitivity,comboWin,pairTop2};
  renderResult();
 }
 function renderResult(){
  const r=lastResult, N=r.N, rows=r.rows;
  const valueRows=[...rows].sort((a,b)=>(b.value-a.value));
  const top=valueRows[0];
+ const stable=[...rows].sort((a,b)=>b.confidence-a.confidence)[0];
+
  $("summary").innerHTML=
  `<div class="resultTop">能力1位：${rows[0].h.num} ${rows[0].h.name}</div>
   <p><b>買い価値1位：</b>${top.h.num} ${top.h.name}（EV ${top.ev==null?"-":(top.ev*100).toFixed(0)+"%"}）
-  ／ 試行 ${N.toLocaleString()}回。</p>
+  ／ <b>安定性1位：</b>${stable.h.num} ${stable.h.name} ／ 試行 ${N.toLocaleString()}回。</p>
   <p>展開：スロー ${r.paceCounts.slow.toLocaleString()} / 平均 ${r.paceCounts.mid.toLocaleString()} / ハイ ${r.paceCounts.fast.toLocaleString()}。
-  <br>「能力順位」と「オッズ妙味」を分けて見ることで、人気馬の過大評価と穴馬の見落としを減らす設計です。</p>`;
+  <br>Ver.5では「能力」「市場妙味」「安定性」に加えて、展開が変わったときの順位のブレも確認します。</p>`;
 
  const tb=$("resultTable").querySelector("tbody");tb.innerHTML="";
  rows.forEach((x,i)=>{
-   const tr=document.createElement("tr");
    const cls=x.ev!=null?(x.ev>0.15?"good":x.ev<-.2?"bad":"warn"):"";
+   const tr=document.createElement("tr");
    tr.innerHTML=`<td class="rank">${i+1}</td><td>${x.h.num}</td><td class="name">${x.h.name}</td>
    <td>${(x.w*100).toFixed(1)}%</td><td>${(x.t2*100).toFixed(1)}%</td><td>${(x.t3*100).toFixed(1)}%</td>
    <td>${x.fair.toFixed(1)}倍</td><td>${x.h.odds?x.h.odds.toFixed(1):"-"}</td>
@@ -416,7 +461,7 @@ function renderResult(){
    const paceName=r.scenarios.reduce((a,b)=>a.prob>b.prob?a:b).p;
    const parts=[
      ["能力",+(h.finish*.45+h.stamina*.35+h.classFit*.2).toFixed(0)],
-     ["近走",+form.toFixed(0)],["展開",+paceFit(h,paceName).toFixed(0)],
+     ["近走",+form.toFixed(0)],["展開",paceFit(h,paceName).toFixed(0)],
      ["コース",h.course],["馬場",h.goingFit],["騎手",h.jockey],["枠",+gateFit(h,horses.length).toFixed(0)]
    ].sort((a,b)=>b[1]-a[1]);
    const strengths=parts.slice(0,3).map(p=>p[0]+" "+p[1]).join(" / ");
@@ -424,22 +469,53 @@ function renderResult(){
    return `<div class="card"><b>${i+1}位 ${h.num} ${h.name}</b>
    <p>勝率 <b>${(x.w*100).toFixed(1)}%</b>、3着内 <b>${(x.t3*100).toFixed(1)}%</b>、
    適正オッズ ${x.fair.toFixed(1)}倍、信頼度 ${x.confidence.toFixed(0)}/100。</p>
-   <p>主な強み：${strengths}。${valueText}。脚質は${h.style}で、${paceName==="fast"?"ハイペース":paceName==="slow"?"スローペース":"平均ペース"}を中心に評価。</p></div>`;
+   <p>主な強み：${strengths}。${valueText}。${h.style}で、
+   ${paceName==="fast"?"ハイペース":paceName==="slow"?"スローペース":"平均ペース"}を中心に評価。
+   <br>展開変化への感度：${x.scenarioSpread.toFixed(1)}（小さいほどブレが小さい）。</p></div>`;
  }).join("");
  $("reasons").innerHTML=reasons;
 
  const value=valueRows.filter(x=>x.ev!=null).slice(0,6);
  let bets="<ol>";
- if(value[0]) bets+=`<li><b>単勝妙味：</b>${value[0].h.num} ${value[0].h.name}（勝率 ${(value[0].w*100).toFixed(1)}%、EV ${(value[0].ev*100).toFixed(0)}%）</li>`;
+ if(value[0]) bets+=`<li><b>単勝候補：</b>${value[0].h.num} ${value[0].h.name}（勝率 ${(value[0].w*100).toFixed(1)}%、EV ${(value[0].ev*100).toFixed(0)}%）</li>`;
  const top4=rows.slice(0,4);
  if(top4.length>=2) bets+=`<li><b>馬連候補：</b>${top4.map(x=>x.h.num).join(" - ")}（上位モデル群）</li>`;
- if(top4.length>=3) bets+=`<li><b>3連複軸：</b>${rows[0].h.num} - ${rows[1].h.num}, ${rows[2].h.num}, ${rows[3].h.num}</li>`;
+ if(top4.length>=3) bets+=`<li><b>3連複軸候補：</b>${rows[0].h.num} - ${rows[1].h.num}, ${rows[2].h.num}, ${rows[3].h.num}</li>`;
  if(value.length>=3) bets+=`<li><b>穴候補：</b>${value.filter(x=>x.h.odds>=10).slice(0,3).map(x=>x.h.num+" "+x.h.name).join(" / ")||"該当なし"}</li>`;
- bets+="</ol><p class='note'>買い目はモデル候補です。オッズは発走直前まで変動するため、購入判断では最終オッズを再確認してください。</p>";
+ bets+="</ol><p class='note'>候補はモデル出力です。オッズや馬場・展開の変化で評価は変わります。</p>";
  $("bets").innerHTML=bets;
+
+ // Scenario table
+ let st=`<div class="tablewrap"><table class="horseTable" style="min-width:620px"><thead><tr><th>展開</th><th>想定確率</th><th>1位</th><th>2位</th><th>3位</th><th>4位</th><th>5位</th></tr></thead><tbody>`;
+ r.scenarioRows.forEach(s=>{
+   st+=`<tr><td>${s.p==="slow"?"スロー":s.p==="fast"?"ハイ":"平均"}</td><td>${(s.prob*100).toFixed(0)}%</td>`+
+   s.leaders.map(x=>`<td>${x.horse.num} ${x.horse.name}</td>`).join("")+`</tr>`;
+ });
+ st+=`</tbody></table></div><p class="note">ここは「展開が変わったら誰が浮上するか」を見る欄です。</p>`;
+ $("scenarioTable").innerHTML=st;
+
+ // Sensitivity
+ let ss=`<div class="tablewrap"><table class="horseTable" style="min-width:650px"><thead><tr><th>頑健順位</th><th>馬</th><th>平均順位</th><th>スロー</th><th>平均</th><th>ハイ</th><th>市場混合</th></tr></thead><tbody>`;
+ r.sensitivity.slice(0,10).forEach((x,i)=>{
+   ss+=`<tr><td class="rank">${i+1}</td><td>${x.h.num} ${x.h.name}</td><td>${x.robustRank.toFixed(1)}</td>`+
+   x.ranks.map(z=>`<td>${z.rank}</td>`).join("")+`</tr>`;
+ });
+ ss+=`</tbody></table></div><p class="note">平均順位が低いほど、条件を変えても上位に残る「頑健な馬」です。</p>`;
+ $("sensitivity").innerHTML=ss;
+
+ // Top combinations
+ const combos=Object.entries(r.comboWin).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ const pairs=Object.entries(r.pairTop2).sort((a,b)=>b[1]-a[1]).slice(0,6);
+ let cs=`<div class="tablewrap"><table class="horseTable" style="min-width:560px"><thead><tr><th>3連系上位組合せ</th><th>出現回数</th><th>比率</th></tr></thead><tbody>`;
+ combos.forEach(([k,v])=>cs+=`<tr><td>${k}</td><td>${v.toLocaleString()}</td><td>${(v/N*100).toFixed(2)}%</td></tr>`);
+ cs+=`</tbody></table></div><p class="note">上位3頭の同時出現頻度です。買い目を自動購入する機能はありません。</p>`;
+ cs+=`<details><summary>2頭組（上位2頭）の頻度</summary><div class="tablewrap"><table class="horseTable" style="min-width:420px"><thead><tr><th>組合せ</th><th>頻度</th></tr></thead><tbody>`;
+ pairs.forEach(([k,v])=>cs+=`<tr><td>${k}</td><td>${(v/N*100).toFixed(2)}%</td></tr>`);
+ cs+=`</tbody></table></div></details>`;
+ $("comboTable").innerHTML=cs;
+
  $("diagAbility").textContent=`${rows[0].h.num} ${rows[0].h.name}`;
  $("diagValue").textContent=`${valueRows[0].h.num} ${valueRows[0].h.name}`;
- const stable=[...rows].sort((a,b)=>b.confidence-a.confidence)[0];
  $("diagStable").textContent=`${stable.h.num} ${stable.h.name}`;
  showTab("result");
 }
