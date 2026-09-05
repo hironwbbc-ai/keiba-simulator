@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-05",
+  "source": "JRA公式 開催場別出馬表",
+  "source_url": "https://www.jra.go.jp/keiba/rpdf/",
+  "meetings": [
+    {
+      "venue": "中山",
+      "pdf": "https://www.jra.go.jp/keiba/rpdf/pdf/20260905-04nakayama01.pdf",
+      "meeting": "4回中山1日"
+    },
+    {
+      "venue": "阪神",
+      "pdf": "https://www.jra.go.jp/keiba/rpdf/pdf/20260905-09hanshin01.pdf",
+      "meeting": "4回阪神1日"
+    },
+    {
+      "venue": "札幌",
+      "pdf": "https://www.jra.go.jp/keiba/rpdf/pdf/20260905-01sapporo05.pdf",
+      "meeting": "2回札幌5日"
+    }
+  ]
+}
