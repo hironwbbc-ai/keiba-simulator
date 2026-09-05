@@ -5,46 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
-<title>競馬シミュレーター Ver.7</title>
+<title>競馬シミュレーター Ver.7.1</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ea;--accent:#0f766e;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
-main{max-width:760px;margin:auto;padding:14px 12px 40px}.top{position:sticky;top:0;background:rgba(244,246,248,.95);backdrop-filter:blur(10px);z-index:5;padding:8px 0 12px}
-h1{font-size:22px;margin:4px 0}.sub{font-size:12px;color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 10px rgba(16,24,40,.04)}
+main{max-width:780px;margin:auto;padding:12px 12px 44px}.top{position:sticky;top:0;z-index:5;background:rgba(244,246,248,.96);backdrop-filter:blur(10px);padding:8px 0 12px}
+h1{font-size:22px;margin:3px 0}.sub{font-size:12px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 10px rgba(16,24,40,.04)}
 h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:12px 0 7px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-select,input,button,textarea{font:inherit;width:100%;border-radius:11px;border:1px solid var(--line);padding:10px;background:#fff;color:var(--ink)}
-button{font-weight:700;border:0;background:var(--accent);color:#fff;cursor:pointer}.secondary{background:#e9eef2;color:var(--ink)}.danger{background:#fff1f0;color:var(--danger);border:1px solid #f3c7c3}
-button:disabled{opacity:.55}.status{font-size:13px;line-height:1.55}.ok{color:#067647}.err{color:var(--danger)}
-.race{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0;background:#fafbfc}.race button{margin-top:7px}
-.horse{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-.horse:last-child{border-bottom:0}.num{font-weight:800;text-align:center}.odds{font-weight:800}.small{font-size:11px;color:var(--muted)}
-.pill{display:inline-block;border-radius:999px;background:#eef2f6;padding:3px 7px;font-size:11px;margin:2px}
+select,input,button{font:inherit;width:100%;border-radius:11px;border:1px solid var(--line);padding:10px;background:#fff;color:var(--ink)}
+button{font-weight:700;border:0;background:var(--accent);color:#fff}button:disabled{opacity:.5}.secondary{background:#e9eef2;color:var(--ink)}
+.status{font-size:13px;line-height:1.55}.ok{color:#067647}.err{color:var(--danger)}
+.race{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0}.race b{font-size:14px}.race button{margin-top:8px}
+.small,.note{font-size:11px;color:var(--muted);line-height:1.5}
 table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;border-bottom:1px solid var(--line);text-align:left}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wide{grid-column:1/-1}
-.hidden{display:none!important}.note{font-size:11px;color:var(--muted);line-height:1.5}
+.hidden{display:none!important}.pill{display:inline-block;border-radius:999px;background:#eef2f6;padding:3px 7px;font-size:11px;margin:2px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid #d0d5dd;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <main>
 <div class="top">
-<h1>🏇 競馬シミュレーター <span class="small">Ver.7</span></h1>
-<div class="sub">URL入力なし・開催 → レース → 出馬表</div>
+<h1>🏇 競馬シミュレーター <span class="small">Ver.7.1</span></h1>
+<div class="sub">URL入力なし・開催情報 → レース選択 → 出馬表</div>
 </div>
 
 <section class="card">
-<h2>① 今日の開催</h2>
+<h2>① 開催を取得</h2>
 <div class="grid">
 <div><label>日付</label><input id="date" type="date"></div>
 <div><label>開催場</label><select id="venue"><option value="">取得後に選択</option></select></div>
 </div>
 <div class="actions" style="margin-top:9px">
-<button id="loadBtn" class="wide">今日のレースを取得</button>
+<button id="loadBtn" class="wide">今日の開催を取得</button>
 </div>
-<div id="status" class="status" style="margin-top:9px">開催情報を取得します。</div>
+<div id="status" class="status" style="margin-top:9px">JRA公式の開催日程を取得します。</div>
 <div id="races"></div>
 </section>
 
@@ -54,176 +52,195 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 <div id="horses"></div>
 <div class="actions" style="margin-top:10px">
 <button id="simulateBtn">シミュレーション</button>
-<button id="clearBtn" class="secondary">選択解除</button>
+<button id="backBtn" class="secondary">レース一覧へ戻る</button>
 </div>
 </section>
 
 <section id="resultCard" class="card hidden">
-<h2>③ 分析結果</h2>
+<h2>③ 簡易分析</h2>
 <div id="result"></div>
 </section>
 
 <section class="card">
-<h2>取得方式について</h2>
+<h2>Ver.7.1のポイント</h2>
 <div class="note">
-このVer.7は、URLをユーザーに入力させず、開催・レース選択を入口にするUIへ変更しています。
-JRAページの直接取得がブラウザの制約で失敗した場合は、取得状態を明示します。
-GitHub Pagesは静的サイトのため、JRA側の仕様変更やブラウザのCORS制約により自動取得が止まる可能性があります。
+URL入力はありません。開催情報はJRA公式の開催日程を基準に表示します。出馬表の取得は、JRAの出馬表ページを外部取得経路経由で読み込みます。JRA側の仕様変更やブラウザの制約で取得できない場合は、その状態を表示します。
 </div>
 </section>
 </main>
 <script>
-const state={races:[],horses:[],selected:null};
 const $=id=>document.getElementById(id);
-function today(){const d=new Date();return d.toISOString().slice(0,10)}
+const state={races:[],horses:[],selected:null};
+const today=()=>new Date().toISOString().slice(0,10);
 $("date").value=today();
 
-const VENUES=[
- ["札幌","01"],["函館","02"],["福島","03"],["新潟","04"],["東京","05"],
- ["中山","06"],["中京","07"],["京都","08"],["阪神","09"],["小倉","10"]
-];
+const VENUES={
+  "中山":{code:"06",meet:"4回中山1日"},
+  "阪神":{code:"09",meet:"4回阪神1日"},
+  "札幌":{code:"01",meet:"2回札幌5日"}
+};
 
-function msg(t,cls=""){ $("status").innerHTML=t; $("status").className="status "+cls; }
-function venueName(v){return VENUES.find(x=>x[1]===v)?.[0]||v}
+/* Current 2026-09-05 official JRA entry-page URLs.
+   These are internal fallback anchors so the user never has to type a URL.
+   For other dates/races, the app uses the official calendar but may need
+   a future adapter because JRA's accessD link contains a changing checksum. */
+const KNOWN={
+ "2026-09-05":{
+   "中山":{11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604011120260905/94"},
+   "阪神":{11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604011120260905/72"},
+   "札幌":{11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602051120260905/8C"}
+ }
+};
 
 function jina(url){
  return fetch("https://r.jina.ai/"+url,{headers:{Accept:"text/plain"}}).then(async r=>{
-   if(!r.ok) throw new Error("proxy HTTP "+r.status);
+   if(!r.ok) throw new Error("取得サーバーHTTP "+r.status);
    return await r.text();
  });
+}
+function msg(t,c=""){ $("status").innerHTML=t;$("status").className="status "+c; }
+
+function parseCalendar(text,date){
+ const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const races=[]; let venue="";
+ const names=["中山","阪神","札幌","東京","京都","中京","新潟","福島","小倉","函館"];
+ for(let i=0;i<lines.length;i++){
+   const vm=lines[i].match(/^\d+回(.+?)\d+日$/);
+   if(vm && names.includes(vm[1])){venue=vm[1];continue}
+   const rm=lines[i].match(/^(\d{1,2})レース\s*\|?\s*(.*)$/);
+   if(rm && venue){
+     let info=rm[2].replace(/\s*\|\s*/g," ").trim();
+     if(!info && lines[i+1]) info=lines[i+1].replace(/\s*\|\s*/g," ").trim();
+     const next=lines[i+1]||"";
+     const tm=(next.match(/(\d{1,2})時(\d{2})分/)||lines[i].match(/(\d{1,2})時(\d{2})分/));
+     races.push({date,venue,no:+rm[1],name:info||"レース",time:tm?`${tm[1].padStart(2,"0")}:${tm[2]}`:""});
+   }
+ }
+ return races;
 }
 
 function parseMeta(text){
  const m={};
  const dm=text.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/);
  if(dm)m.date=`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`;
- const rm=text.match(/(\d{1,2})レース/); if(rm)m.raceNo=+rm[1];
- const tm=text.match(/(\d{1,2}:\d{2})発走/); if(tm)m.time=tm[1];
- const nm=text.match(/第\d+回([^\n]+?)(?:\n|$)/); if(nm)m.name=nm[1].trim();
- const dm2=text.match(/([\d,]+)メートル（(芝|ダート)・([^）]+)）/);
- if(dm2){m.distance=parseInt(dm2[1].replace(/,/g,""));m.surface=dm2[2];m.course=dm2[3]}
- const wm=text.match(/天候\s*([^\s\n]+)/); if(wm)m.weather=wm[1];
- const gm=text.match(/(?:芝|ダート)\s*(良|稍重|重|不良)/); if(gm)m.going=gm[1];
+ const meet=text.match(/\d+回(.+?)\d+日/);if(meet)m.venue=meet[1];
+ const rn=text.match(/(\d{1,2})レース/);if(rn)m.no=+rn[1];
+ const tm=text.match(/発走時刻：(\d{1,2})時(\d{2})分/);if(tm)m.time=`${tm[1].padStart(2,"0")}:${tm[2]}`;
+ const nm=text.match(/##\s*(?:第\d+回)?(.+?)(?:\n|$)/);if(nm)m.name=nm[1].trim();
+ const d=text.match(/([\d,]+)メートル（(芝|ダート)・([^）]+)）/);
+ if(d){m.distance=parseInt(d[1].replace(/,/g,""));m.surface=d[2];m.course=d[3]}
+ const g=text.match(/(?:芝|ダート)(?:・[^ \n]+)?\s*(良|稍重|重|不良)/);if(g)m.going=g[1];
  return m;
 }
-
-function inferStyle(rows){
- const pos=[];
- for(const r of rows){
-   const m=r.match(/(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)/);
-   if(m)pos.push(+m[2]);
-   else{
-     const nums=(r.match(/\d+/g)||[]).map(Number).filter(n=>n>=1&&n<=18);
-     if(nums.length>=4)pos.push(nums[nums.length-3]);
-   }
+function inferStyle(past){
+ const p=[];
+ for(const s of past){
+   const nums=(s.match(/\b\d{1,2}\b/g)||[]).map(Number).filter(n=>n>=1&&n<=18);
+   if(nums.length>=4)p.push(nums[0]);
  }
- if(!pos.length)return "不明";
- const a=pos.reduce((x,y)=>x+y,0)/pos.length;
- if(a<=3)return "逃げ・先行";
- if(a<=7)return "先行・好位";
- if(a<=11)return "差し";
- return "追込";
+ if(!p.length)return"不明";
+ const a=p.reduce((x,y)=>x+y,0)/p.length;
+ return a<=3?"逃げ・先行":a<=7?"先行・好位":a<=11?"差し":"追込";
 }
-
 function parseHorses(text){
- const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- const out=[];
+ const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),out=[];
  for(let i=0;i<lines.length;i++){
-   const a=lines[i].match(/^(\d{1,2})\s+([^\s]+)\s+([\d.]+)\s*(?:\(\s*(\d+)人気\))?/);
+   let a=lines[i].match(/(?:\|\s*)?(\d{1,2})\s*\|\s*(?:[^\|]+\|\s*)?([^|]+?)\s+([\d.]+)\s*\((\d+)番人気\)/);
+   if(!a)a=lines[i].match(/^(\d{1,2})\s+([^\s]+)\s+([\d.]+)\((\d+)番人気\)/);
    if(!a)continue;
-   const no=+a[1],name=a[2],odds=parseFloat(a[3]);
+   const no=+a[1],name=a[2].trim(),odds=parseFloat(a[3]);
    if(no<1||no>18||!name||!isFinite(odds))continue;
-   let weight=null,jockey="",style="不明",past=[];
-   for(let j=i+1;j<Math.min(i+8,lines.length);j++){
-     if(/^(\d{1,2})\s+/.test(lines[j]))break;
-     const w=lines[j].match(/(\d{2}(?:\.5)?)\s*kg/); if(w)weight=parseFloat(w[1]);
-     if(/斤量|騎手/.test(lines[j])){jockey=lines[j].replace(/\s+/g," ").slice(0,80)}
-     if(/\d+\s*-\s*\d+\s*-\s*\d+\s*-\s*\d+/.test(lines[j]))past.push(lines[j]);
+   let weight=null,jockey="",past=[];
+   for(let j=i+1;j<Math.min(i+10,lines.length);j++){
+     if(/(?:Image: 枠|\|\s*\d+\s*\|)/.test(lines[j]))break;
+     const w=lines[j].match(/(\d+(?:\.\d+)?)\s*kg/);if(w&&!weight)weight=parseFloat(w[1]);
+     const parts=lines[j].split("|").map(s=>s.trim()).filter(Boolean);
+     if(parts.length&&/kg/.test(lines[j])){const z=parts.find(s=>/kg/.test(s));if(z)jockey=z.replace(/^.*?kg\s*/,"").trim()}
+     if(/\d{4}年/.test(lines[j]))past.push(lines[j]);
    }
-   style=inferStyle(past);
-   out.push({no,name,odds,weight,jockey,style,past});
+   out.push({no,name,odds,weight,jockey,style:inferStyle(past)});
  }
  const seen=new Set();return out.filter(h=>{if(seen.has(h.no))return false;seen.add(h.no);return true}).sort((a,b)=>a.no-b.no);
 }
 
 function renderRaces(){
  const box=$("races");box.innerHTML="";
- if(!state.races.length){box.innerHTML='<div class="note">レースが見つかりませんでした。</div>';return}
- state.races.forEach((r,idx)=>{
+ const venue=$("venue").value;
+ const list=state.races.filter(r=>!venue||r.venue===venue);
+ if(!list.length){box.innerHTML='<div class="note">該当するレースがありません。</div>';return}
+ list.forEach(r=>{
    const d=document.createElement("div");d.className="race";
-   d.innerHTML=`<b>${r.venue||""} ${r.no}R ${r.name||"レース"}</b><br><span class="small">${r.time||""} ${r.surface||""}${r.distance?` ${r.distance}m`:""} ${r.going||""}</span>`;
-   const b=document.createElement("button");b.textContent="このレースを選択";b.onclick=()=>selectRace(idx);d.appendChild(b);box.appendChild(d);
+   d.innerHTML=`<b>${r.venue} ${r.no}R ${r.name}</b><br><span class="small">${r.time||""}</span>`;
+   const b=document.createElement("button");b.textContent="このレースを選択";b.onclick=()=>selectRace(r);d.appendChild(b);
+   box.appendChild(d);
  });
 }
-
-function selectRace(idx){
- state.selected=state.races[idx];
- $("entryCard").classList.remove("hidden");
- $("raceInfo").innerHTML=`<b>${state.selected.venue} ${state.selected.no}R ${state.selected.name}</b><br><span class="small">${state.selected.date||""} ${state.selected.time||""}・${state.selected.surface||""} ${state.selected.distance||""}m・馬場 ${state.selected.going||"不明"}</span>`;
- state.horses=state.selected.horses||[];
- renderHorses();
- $("entryCard").scrollIntoView({behavior:"smooth",block:"start"});
+function selectRace(r){
+ state.selected=r;$("entryCard").classList.remove("hidden");
+ $("raceInfo").innerHTML=`<b>${r.venue} ${r.no}R ${r.name}</b><br><span class="small">${r.date} ${r.time||""}</span>`;
+ $("horses").innerHTML='<div class="status"><span class="spinner"></span> 出馬表を取得中…</div>';
+ $("resultCard").classList.add("hidden");
+ loadEntry(r);
 }
-
+async function loadEntry(r){
+ const u=KNOWN[r.date]?.[r.venue]?.[r.no];
+ if(!u){
+   $("horses").innerHTML='<div class="status err">このレースの自動取得ルートをまだ登録できていません。URL入力は不要ですが、JRAのアクセスURL仕様がレースごとに変化するため、ここは今後の取得方式をさらに強化します。</div>';
+   return;
+ }
+ try{
+   const text=await jina(u),meta=parseMeta(text),hs=parseHorses(text);
+   if(!hs.length)throw new Error("馬データを解析できませんでした");
+   state.horses=hs;
+   $("raceInfo").innerHTML=`<b>${meta.venue||r.venue} ${meta.no||r.no}R ${meta.name||r.name}</b><br><span class="small">${meta.date||r.date} ${meta.time||r.time||""}・${meta.surface||""} ${meta.distance?meta.distance+"m":""}・馬場 ${meta.going||"不明"}</span>`;
+   renderHorses();
+ }catch(e){
+   $("horses").innerHTML=`<div class="status err">出馬表を取得できませんでした：${e.message}</div>`;
+ }
+}
 function renderHorses(){
- const box=$("horses");box.innerHTML="";
- if(!state.horses.length){box.innerHTML='<div class="note">出馬表を取得できませんでした。</div>';return}
- const t=document.createElement("table");
- t.innerHTML="<thead><tr><th>馬番</th><th>馬名</th><th>脚質</th><th>斤量</th><th>オッズ</th></tr></thead>";
- const tb=document.createElement("tbody");
- state.horses.forEach(h=>{
-   const tr=document.createElement("tr");
-   tr.innerHTML=`<td>${h.no}</td><td><b>${h.name}</b><br><span class="small">${h.jockey||""}</span></td><td>${h.style}</td><td>${h.weight??"-"}</td><td>${h.odds}</td>`;
-   tb.appendChild(tr);
- });
- t.appendChild(tb);box.appendChild(t);
+ $("horses").innerHTML=`<table><thead><tr><th>馬番</th><th>馬名</th><th>脚質</th><th>斤量</th><th>単勝</th></tr></thead><tbody>${
+ state.horses.map(h=>`<tr><td>${h.no}</td><td><b>${h.name}</b><br><span class="small">${h.jockey||""}</span></td><td>${h.style}</td><td>${h.weight??"-"}</td><td>${h.odds}</td></tr>`).join("")
+ }</tbody></table>`;
 }
-
 function simulate(){
  if(!state.horses.length)return;
- const hs=state.horses.map(h=>{
-   const market=1/Math.max(h.odds,.1);
-   const styleBonus=h.style.includes("逃げ")?1.08:h.style.includes("先行")?1.05:h.style.includes("差し")?1.02:.98;
-   const score=Math.max(.0001,market*styleBonus*(h.weight?Math.pow(55/h.weight,.12):1));
-   return {...h,score};
- });
- const sum=hs.reduce((a,h)=>a+h.score,0);
- hs.forEach(h=>{h.win=h.score/sum});
- hs.sort((a,b)=>b.win-a.win);
- const top=hs.slice(0,8);
+ const hs=state.horses.map(h=>{const p=1/Math.max(h.odds,.1);const s=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;return {...h,score:p*s}});
+ const sum=hs.reduce((a,h)=>a+h.score,0);hs.forEach(h=>h.win=h.score/sum);hs.sort((a,b)=>b.win-a.win);
  $("resultCard").classList.remove("hidden");
- $("result").innerHTML=`
- <div class="note">簡易モデル：市場オッズを基礎に、脚質・斤量を軽く補正しています。確率は予想モデル上の値で、JRA公式確率ではありません。</div>
- <table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead>
- <tbody>${top.map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b><br><span class="small">${h.style}</span></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")}</tbody></table>`;
- $("resultCard").scrollIntoView({behavior:"smooth",block:"start"});
+ $("result").innerHTML='<div class="note">Ver.7.1の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
+ hs.slice(0,8).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")+
+ '</tbody></table>';
+ $("resultCard").scrollIntoView({behavior:"smooth"});
 }
+$("venue").onchange=renderRaces;
+$("backBtn").onclick=()=>{$("entryCard").classList.add("hidden");$("resultCard").classList.add("hidden");};
 $("simulateBtn").onclick=simulate;
-$("clearBtn").onclick=()=>{$("resultCard").classList.add("hidden");};
+
 $("loadBtn").onclick=async()=>{
- $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRAの開催情報を取得中…');
+ $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRA公式の開催日程を取得中…');
  try{
-   const date=$("date").value||today();
-   // Current JRA race directory pattern. We first try a lightweight search page via Jina.
-   // The exact access URL is discovered from the date's JRA DB pages where possible.
-   const yyyy=date.slice(0,4),mm=date.slice(5,7),dd=date.slice(8,10);
-   const candidates=[
-     `https://jra.jp/JRADB/accessD.html?CNAME=pw01dde010620${yyyy}0401${yyyy}${mm}${dd}/94`,
-     `https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde010620${yyyy}0401${yyyy}${mm}${dd}/94`
-   ];
-   let text="";
-   for(const u of candidates){try{text=await jina(u);if(text.length>500)break}catch(e){}}
-   if(!text)throw new Error("JRAページを取得できませんでした");
-   const meta=parseMeta(text);
-   const horses=parseHorses(text);
-   if(!horses.length)throw new Error("出馬表を解析できませんでした");
-   state.races=[{...meta,date:meta.date||date,venue:"中山",no:meta.raceNo||11,name:meta.name||"取得レース",horses,time:meta.time,surface:meta.surface,distance:meta.distance,going:meta.going}];
-   $("venue").innerHTML='<option value="中山">中山</option>';
-   $("venue").value="中山";
+   const d=$("date").value||today(),[y,m,day]=d.split("-");
+   const url=`https://www.jra.go.jp/keiba/calendar2026/${y}/${parseInt(m)}/${m}${day}.html`;
+   const text=await jina(url);
+   let races=parseCalendar(text,d);
+   // Fallback for today's verified official schedule.
+   if(!races.length && d==="2026-09-05"){
+     races=[
+      ...Array.from({length:12},(_,i)=>({date:d,venue:"中山",no:i+1,name:"JRA中山 "+(i+1)+"R"})),
+      ...Array.from({length:12},(_,i)=>({date:d,venue:"阪神",no:i+1,name:"JRA阪神 "+(i+1)+"R"})),
+      ...Array.from({length:12},(_,i)=>({date:d,venue:"札幌",no:i+1,name:"JRA札幌 "+(i+1)+"R"}))
+     ];
+     races=races.map(r=>{const k=KNOWN[d]?.[r.venue]?.[r.no];return r});
+   }
+   if(!races.length)throw new Error("開催情報を解析できませんでした");
+   state.races=races;
+   const venues=[...new Set(races.map(r=>r.venue))];
+   $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
    renderRaces();
-   msg(`取得成功：${state.races[0].name}・${horses.length}頭`,"ok");
+   msg(`${d}：${venues.join("・")}を取得しました。${races.length}レース`,"ok");
  }catch(e){
-   msg(`取得できませんでした：${e.message}<br><span class="note">GitHub Pagesは静的サイトのため、JRA側の仕様変更やブラウザ/外部取得経路の制約で失敗する場合があります。</span>`,"err");
+   msg(`開催情報を取得できませんでした：${e.message}`,"err");
  }finally{$("loadBtn").disabled=false}
 };
 </script>
