@@ -1,74 +1,4 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.webmanifest">
-<title>競馬シミュレーター Ver.7.2</title>
-<style>
-:root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ea;--accent:#0f766e;--danger:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
-main{max-width:780px;margin:auto;padding:12px 12px 44px}.top{position:sticky;top:0;z-index:5;background:rgba(244,246,248,.96);backdrop-filter:blur(10px);padding:8px 0 12px}
-h1{font-size:22px;margin:3px 0}.sub{font-size:12px;color:var(--muted)}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 10px rgba(16,24,40,.04)}
-h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:12px 0 7px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-select,input,button{font:inherit;width:100%;border-radius:11px;border:1px solid var(--line);padding:10px;background:#fff;color:var(--ink)}
-button{font-weight:700;border:0;background:var(--accent);color:#fff}button:disabled{opacity:.5}.secondary{background:#e9eef2;color:var(--ink)}
-.status{font-size:13px;line-height:1.55}.ok{color:#067647}.err{color:var(--danger)}
-.race{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0}.race b{font-size:14px}.race button{margin-top:8px}
-.small,.note{font-size:11px;color:var(--muted);line-height:1.5}
-table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;border-bottom:1px solid var(--line);text-align:left}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wide{grid-column:1/-1}
-.hidden{display:none!important}.pill{display:inline-block;border-radius:999px;background:#eef2f6;padding:3px 7px;font-size:11px;margin:2px}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid #d0d5dd;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}
-</style>
-</head>
-<body>
-<main>
-<div class="top">
-<h1>🏇 競馬シミュレーター <span class="small">Ver.7.2</span></h1>
-<div class="sub">URL入力なし・開催情報 → レース選択 → 出馬表自動取得</div>
-</div>
 
-<section class="card">
-<h2>① 開催を取得</h2>
-<div class="grid">
-<div><label>日付</label><input id="date" type="date"></div>
-<div><label>開催場</label><select id="venue"><option value="">取得後に選択</option></select></div>
-</div>
-<div class="actions" style="margin-top:9px">
-<button id="loadBtn" class="wide">今日の開催を取得</button>
-</div>
-<div id="status" class="status" style="margin-top:9px">JRA公式の開催日程を取得します。</div>
-<div id="races"></div>
-</section>
-
-<section id="entryCard" class="card hidden">
-<h2>② 出馬表</h2>
-<div id="raceInfo"></div>
-<div id="horses"></div>
-<div class="actions" style="margin-top:10px">
-<button id="simulateBtn">シミュレーション</button>
-<button id="backBtn" class="secondary">レース一覧へ戻る</button>
-</div>
-</section>
-
-<section id="resultCard" class="card hidden">
-<h2>③ 簡易分析</h2>
-<div id="result"></div>
-</section>
-
-<section class="card">
-<h2>Ver.7.2のポイント</h2>
-<div class="note">
-URL入力はありません。開催情報はJRA公式の開催日程を基準に表示します。出馬表はURL入力なしで自動取得します。既知のJRA公式URLを起点に同開催のURLを学習する方式も組み込みました。JRA側の仕様変更や外部取得経路の制約で失敗した場合は再試行できます。
-</div>
-</section>
-</main>
-<script>
 const $=id=>document.getElementById(id);
 const state={races:[],horses:[],selected:null};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -295,5 +225,3 @@ $("loadBtn").onclick=async()=>{
    msg(`開催情報を取得できませんでした：${e.message}`,"err");
  }finally{$("loadBtn").disabled=false}
 };
-</script>
-</body></html>
