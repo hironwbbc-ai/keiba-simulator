@@ -2,14 +2,13 @@ name: JRA data sync and Pages deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   schedule:
     - cron: "*/15 0-8 * * 6,0"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -20,125 +19,48 @@ concurrency:
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Sync official JRA program links
+      - name: Sync JRA official daily calendar
         shell: bash
         run: |
           set -euo pipefail
-
           mkdir -p data
-
           python3 - <<'PY'
-          import datetime
-          import json
-          import re
-          import urllib.request
+          import datetime, json, re, urllib.request
           from zoneinfo import ZoneInfo
 
-          jst = ZoneInfo("Asia/Tokyo")
-          now = datetime.datetime.now(jst)
+          now=datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
+          y=now.strftime("%Y"); m=now.strftime("%m"); d=now.strftime("%d")
+          url=f"https://www.jra.go.jp/keiba/calendar{y}/{y}/{int(m)}/{m}{d}.html"
+          req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+          html=urllib.request.urlopen(req,timeout=30).read().decode("utf-8","ignore")
 
-          date = now.strftime("%Y%m%d")
-          human = now.strftime("%Y年%-m月%-d日")
+          links=[]
+          for h in re.findall(r'href=["\']([^"\']+)["\']',html,re.I):
+              if "accessD.html" in h:
+                  if h.startswith("/"): h="https://www.jra.go.jp"+h
+                  elif h.startswith("./"): h=f"https://www.jra.go.jp/keiba/calendar{y}/{y}/{int(m)}/{h[2:]}"
+                  if h.startswith("http"): links.append(h)
 
-          url = "https://www.jra.go.jp/keiba/rpdf/"
+          obj={"date":now.strftime("%Y-%m-%d"),
+               "updated_at":now.isoformat(),
+               "calendar_url":url,
+               "official_race_links":sorted(set(links)),
+               "source":"JRA公式開催日程"}
 
-          req = urllib.request.Request(
-              url,
-              headers={
-                  "User-Agent": "Mozilla/5.0"
-              }
-          )
-
-          html = urllib.request.urlopen(
-              req,
-              timeout=30
-          ).read().decode(
-              "utf-8",
-              "ignore"
-          )
-
-          links = sorted(
-              set(
-                  re.findall(
-                      r'href=["\']([^"\']*'
-                      + date +
-                      r'[^"\']*\.pdf)["\']',
-                      html,
-                      re.I
-                  )
-              )
-          )
-
-          links = [
-              "https://www.jra.go.jp" + x
-              if x.startswith("/")
-              else x
-              for x in links
-          ]
-
-          venues = [
-              "nakayama",
-              "hanshin",
-              "sapporo",
-              "tokyo",
-              "kyoto",
-              "chukyo",
-              "niigata",
-              "fukushima",
-              "kokura",
-              "hakodate"
-          ]
-
-          links = [
-              x
-              for x in links
-              if any(
-                  venue in x.lower()
-                  for venue in venues
-              )
-          ]
-
-          obj = {
-              "date": now.strftime("%Y-%m-%d"),
-              "updated_at": now.isoformat(),
-              "source": "JRA公式 開催場別出馬表",
-              "source_url": url,
-              "human_date": human,
-              "pdfs": links
-          }
-
-          with open(
-              "data/official_programs.json",
-              "w",
-              encoding="utf-8"
-          ) as f:
-              json.dump(
-                  obj,
-                  f,
-                  ensure_ascii=False,
-                  indent=2
-              )
-
-          print(
-              json.dumps(
-                  obj,
-                  ensure_ascii=False,
-                  indent=2
-              )
-          )
+          with open("data/jra_daily.json","w",encoding="utf-8") as f:
+              json.dump(obj,f,ensure_ascii=False,indent=2)
+          print(json.dumps(obj,ensure_ascii=False,indent=2))
           PY
 
       - name: Upload Pages artifact
