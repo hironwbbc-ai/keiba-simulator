@@ -141,42 +141,40 @@ function selectRace(r){
  $("resultCard").classList.add("hidden");
  loadEntry(r);
 }
+
+let DAILY=null;
+async function getDaily(){
+  if(DAILY)return DAILY;
+  const r=await fetch("./data/jra_daily.json?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw new Error("同期データがまだありません");
+  DAILY=await r.json();
+  return DAILY;
+}
+
 async function loadEntry(r){
- let u=KNOWN[r.date]?.[r.venue]?.[r.no];
  try{
-   // まず既知の公式URL。取得できたページ内に同開催のaccessDリンクがあれば、
-   // そこから他レースのURLも学習して次回以降に使う。
-   if(!u){
-     const seed=Object.values(KNOWN[r.date]?.[r.venue]||{})[0];
-     if(seed){
-       const seedText=await jina(seed);
-       const links=extractAccessLinks(seedText);
-       const hit=links.find(x=>{const z=identifyRaceFromUrl(x);return z&&z.date===r.date&&z.no===r.no});
-       if(hit)u=hit;
-     }
+   const d=await getDaily();
+   const rr=(d.races||[]).find(x=>x.date===r.date&&x.venue===r.venue&&Number(x.no)===Number(r.no));
+   if(!rr)throw new Error("このレースのJRA公式同期データがありません。次回同期を待つか再実行してください。");
+
+   if(Array.isArray(rr.horses)&&rr.horses.length){
+     state.horses=rr.horses;
+     $("raceInfo").innerHTML=`<b>${rr.venue} ${rr.no}R ${rr.name||r.name}</b><br><span class="small">${rr.date} ${rr.time||r.time||""}・${rr.surface||""} ${rr.distance?rr.distance+"m":""}・馬場 ${rr.going||"不明"}</span>`;
+     renderHorses();
+     return;
    }
-   if(!u){
-     throw new Error("この日・競馬場の出馬表URLを自動発見できませんでした。JRAのURL仕様上、識別子はレースごとに異なります。");
-   }
-   const text=await jina(u);
-   // 取得ページから同開催のURLを抽出してキャッシュ
-   const links=extractAccessLinks(text);
-   for(const link of links){
-     const z=identifyRaceFromUrl(link);
-     if(z&&z.date===r.date){
-       const venue=Object.keys(VENUES).find(v=>VENUES[v].code===z.venueCode);
-       if(venue){
-         KNOWN[r.date]??={};KNOWN[r.date][venue]??={};KNOWN[r.date][venue][z.no]=link;
-       }
-     }
-   }
+
+   // サーバー側で馬データを解析できなかった場合のみ、公式URLを
+   // 既存の外部取得経路で再試行する。
+   if(!rr.url)throw new Error("JRA公式出馬表URLがありません");
+   const text=await jina(rr.url);
    const meta=parseMeta(text),hs=parseHorses(text);
    if(!hs.length)throw new Error("JRAページは取得できましたが、馬データを解析できませんでした");
    state.horses=hs;
    $("raceInfo").innerHTML=`<b>${meta.venue||r.venue} ${meta.no||r.no}R ${meta.name||r.name}</b><br><span class="small">${meta.date||r.date} ${meta.time||r.time||""}・${meta.surface||""} ${meta.distance?meta.distance+"m":""}・馬場 ${meta.going||"不明"}</span>`;
    renderHorses();
  }catch(e){
-   $("horses").innerHTML=`<div class="status err">出馬表を取得できませんでした：${e.message}<br><span class="small">JRA公式ページ自体が存在する場合でも、外部取得経路の一時的な制限で失敗することがあります。もう一度選択すると再試行します。</span></div>`;
+   $("horses").innerHTML=`<div class="status err">出馬表を取得できませんでした：${e.message}<br><span class="small">GitHub ActionsでJRA公式データを同期してから、もう一度レースを選択してください。</span></div>`;
  }
 }
 
@@ -200,28 +198,33 @@ $("backBtn").onclick=()=>{$("entryCard").classList.add("hidden");$("resultCard")
 $("simulateBtn").onclick=simulate;
 
 $("loadBtn").onclick=async()=>{
- $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRA公式の開催日程を取得中…');
+ $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRA公式同期データを読み込み中…');
  try{
-   const d=$("date").value||today(),[y,m,day]=d.split("-");
-   const url=`https://www.jra.go.jp/keiba/calendar2026/${y}/${parseInt(m)}/${m}${day}.html`;
-   const text=await jina(url);
-   let races=parseCalendar(text,d);
-   // Fallback for today's verified official schedule.
-   if(!races.length && d==="2026-09-05"){
-     races=[
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"中山",no:i+1,name:"JRA中山 "+(i+1)+"R"})),
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"阪神",no:i+1,name:"JRA阪神 "+(i+1)+"R"})),
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"札幌",no:i+1,name:"JRA札幌 "+(i+1)+"R"}))
-     ];
-     races=races.map(r=>{const k=KNOWN[d]?.[r.venue]?.[r.no];return r});
+   const d=$("date").value||today();
+   const daily=await getDaily();
+
+   if(d===daily.date && Array.isArray(daily.races) && daily.races.length){
+     state.races=daily.races.map(r=>({...r,date:r.date||d}));
+     const venues=[...new Set(state.races.map(r=>r.venue))];
+     $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
+     renderRaces();
+     msg(`${d}：JRA公式同期済み。${venues.join("・")}・${state.races.length}レース`,"ok");
+     return;
    }
+
+   // 過去日・将来日の選択時は従来の開催日程取得へフォールバック。
+   const [y,m,day]=d.split("-");
+   const url=`https://www.jra.go.jp/keiba/calendar${y}/${y}/${parseInt(m)}/${m}${day}.html`;
+   const text=await jina(url);
+   const races=parseCalendar(text,d);
    if(!races.length)throw new Error("開催情報を解析できませんでした");
    state.races=races;
    const venues=[...new Set(races.map(r=>r.venue))];
    $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
    renderRaces();
-   msg(`${d}：${venues.join("・")}を取得しました。${races.length}レース`,"ok");
+   msg(`${d}：開催日程を取得しました。出馬表は当日同期後に利用できます。`,"ok");
  }catch(e){
    msg(`開催情報を取得できませんでした：${e.message}`,"err");
  }finally{$("loadBtn").disabled=false}
 };
+

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
-<title>競馬シミュレーター Ver.8.1</title>
+<title>競馬シミュレーター Ver.8.2</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ea;--accent:#0f766e;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -29,8 +29,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 <body>
 <main>
 <div class="top">
-<h1>🏇 競馬シミュレーター <span class="small">Ver.8.1</span></h1>
-<div class="sub">URL入力なし・開催情報 → レース選択 → 出馬表自動取得</div>
+<h1>🏇 競馬シミュレーター <span class="small">Ver.8.2</span></h1>
+<div class="sub">URL入力なし・JRA公式同期 → レース選択 → 出馬表自動取得</div>
 </div>
 
 <section class="card">
@@ -62,9 +62,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 </section>
 
 <section class="card">
-<h2>Ver.8.1のポイント</h2>
+<h2>Ver.8.2のポイント</h2>
 <div class="note">
-URL入力はありません。開催情報はJRA公式の開催日程を基準に表示します。出馬表はURL入力なしで自動取得します。既知のJRA公式URLを起点に同開催のURLを学習する方式も組み込みました。JRA側の仕様変更や外部取得経路の制約で失敗した場合は再試行できます。
+URL入力はありません。GitHub ActionsがJRA公式の出馬表ルートを自動巡回し、当日の各競馬場・各レースの出馬表と単勝オッズを同期します。iPhone側は同期済みJSONを読むため、ブラウザからJRAへ直接アクセスする必要がありません。
 </div>
 </section>
 </main>
@@ -298,7 +298,7 @@ function simulate(){
  const hs=state.horses.map(h=>{const p=1/Math.max(h.odds,.1);const s=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;return {...h,score:p*s}});
  const sum=hs.reduce((a,h)=>a+h.score,0);hs.forEach(h=>h.win=h.score/sum);hs.sort((a,b)=>b.win-a.win);
  $("resultCard").classList.remove("hidden");
- $("result").innerHTML='<div class="note">Ver.8.1の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
+ $("result").innerHTML='<div class="note">Ver.8.2の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
  hs.slice(0,8).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")+
  '</tbody></table>';
  $("resultCard").scrollIntoView({behavior:"smooth"});
