@@ -1,0 +1,151 @@
+name: JRA data sync and Pages deploy
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "*/15 0-8 * * 6,0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Sync official JRA program links
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p data
+
+          python3 - <<'PY'
+          import datetime
+          import json
+          import re
+          import urllib.request
+          from zoneinfo import ZoneInfo
+
+          jst = ZoneInfo("Asia/Tokyo")
+          now = datetime.datetime.now(jst)
+
+          date = now.strftime("%Y%m%d")
+          human = now.strftime("%Y年%-m月%-d日")
+
+          url = "https://www.jra.go.jp/keiba/rpdf/"
+
+          req = urllib.request.Request(
+              url,
+              headers={
+                  "User-Agent": "Mozilla/5.0"
+              }
+          )
+
+          html = urllib.request.urlopen(
+              req,
+              timeout=30
+          ).read().decode(
+              "utf-8",
+              "ignore"
+          )
+
+          links = sorted(
+              set(
+                  re.findall(
+                      r'href=["\']([^"\']*'
+                      + date +
+                      r'[^"\']*\.pdf)["\']',
+                      html,
+                      re.I
+                  )
+              )
+          )
+
+          links = [
+              "https://www.jra.go.jp" + x
+              if x.startswith("/")
+              else x
+              for x in links
+          ]
+
+          venues = [
+              "nakayama",
+              "hanshin",
+              "sapporo",
+              "tokyo",
+              "kyoto",
+              "chukyo",
+              "niigata",
+              "fukushima",
+              "kokura",
+              "hakodate"
+          ]
+
+          links = [
+              x
+              for x in links
+              if any(
+                  venue in x.lower()
+                  for venue in venues
+              )
+          ]
+
+          obj = {
+              "date": now.strftime("%Y-%m-%d"),
+              "updated_at": now.isoformat(),
+              "source": "JRA公式 開催場別出馬表",
+              "source_url": url,
+              "human_date": human,
+              "pdfs": links
+          }
+
+          with open(
+              "data/official_programs.json",
+              "w",
+              encoding="utf-8"
+          ) as f:
+              json.dump(
+                  obj,
+                  f,
+                  ensure_ascii=False,
+                  indent=2
+              )
+
+          print(
+              json.dumps(
+                  obj,
+                  ensure_ascii=False,
+                  indent=2
+              )
+          )
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
