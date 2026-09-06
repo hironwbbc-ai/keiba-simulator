@@ -1,898 +1,595 @@
-name: JRA data sync and Pages deploy
+name: JRA connection diagnostic
 
 on:
-  push:
-    branches: [main]
-
-  schedule:
-    - cron: "*/15 0-8 * * 6,0"
-
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  sync-and-deploy:
+  diagnostic:
 
     runs-on: ubuntu-latest
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
 
-      # ============================================================
-      # Checkout
-      # ============================================================
+      # ==========================================
+      # 1. GitHub Actions が起動するか
+      # ==========================================
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
-
-      # ============================================================
-      # Setup Pages
-      # ============================================================
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-
-      # ============================================================
-      # JRA official data sync
-      # ============================================================
-
-      - name: Sync JRA official race pages
+      - name: STEP 1 - Basic test
         shell: bash
         run: |
+          set -eux
 
-          set -euo pipefail
+          echo "======================================"
+          echo "STEP 1 - BASIC TEST"
+          echo "======================================"
 
-          mkdir -p data
+          echo "Runner:"
+          uname -a
+
+          echo "Python:"
+          python3 --version
+
+          echo "Working directory:"
+          pwd
+
+          echo "Files:"
+          ls -la
+
+          echo "STEP 1 SUCCESS"
+
+
+      # ==========================================
+      # 2. Pythonが正常に動くか
+      # ==========================================
+
+      - name: STEP 2 - Python test
+        shell: bash
+        run: |
+          set -eux
+
+          echo "======================================"
+          echo "STEP 2 - PYTHON TEST"
+          echo "======================================"
 
           python3 - <<'PY'
 
-          import datetime
-          import json
-          import re
-          import time
-          import urllib.parse
-          import urllib.request
-          import urllib.error
-          import http.cookiejar
+          print("Python execution started")
 
-          from html.parser import HTMLParser
+          import sys
+          import urllib.request
+          import urllib.parse
+          import re
+          import json
+          import datetime
+
+          print("Python version:")
+          print(sys.version)
+
+          print("Required modules imported successfully")
+
+          PY
+
+          echo "STEP 2 SUCCESS"
+
+
+      # ==========================================
+      # 3. JRAのトップページに接続
+      # ==========================================
+
+      - name: STEP 3 - JRA connection test
+        shell: bash
+        run: |
+          set -eux
+
+          echo "======================================"
+          echo "STEP 3 - JRA CONNECTION TEST"
+          echo "======================================"
+
+          python3 - <<'PY'
+
+          import urllib.request
+
+          url = "https://www.jra.go.jp/"
+
+          print("Target URL:")
+          print(url)
+
+          headers = {
+              "User-Agent":
+                  "Mozilla/5.0 "
+                  "(X11; Linux x86_64) "
+                  "AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) "
+                  "Chrome/140.0 Safari/537.36"
+          }
+
+          print("Creating request...")
+
+          req = urllib.request.Request(
+              url,
+              headers=headers,
+              method="GET"
+          )
+
+          print("Sending request...")
+
+          try:
+
+              with urllib.request.urlopen(
+                  req,
+                  timeout=30
+              ) as response:
+
+                  raw = response.read()
+
+                  print("HTTP STATUS:")
+                  print(response.status)
+
+                  print("CONTENT LENGTH:")
+                  print(len(raw))
+
+                  print("CONTENT TYPE:")
+                  print(
+                      response.headers.get(
+                          "Content-Type"
+                      )
+                  )
+
+                  print("JRA CONNECTION SUCCESS")
+
+          except Exception as e:
+
+              print()
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+              print("JRA CONNECTION FAILED")
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+              print(
+                  type(e).__name__
+              )
+              print(
+                  repr(e)
+              )
+
+              raise
+
+          PY
+
+          echo "STEP 3 SUCCESS"
+
+
+      # ==========================================
+      # 4. JRAカレンダーに接続
+      # ==========================================
+
+      - name: STEP 4 - JRA calendar test
+        shell: bash
+        run: |
+          set -eux
+
+          echo "======================================"
+          echo "STEP 4 - JRA CALENDAR TEST"
+          echo "======================================"
+
+          python3 - <<'PY'
+
+          import urllib.request
+          import datetime
+
           from zoneinfo import ZoneInfo
 
 
-          # ============================================================
-          # Basic settings
-          # ============================================================
+          now = datetime.datetime.now(
+              ZoneInfo("Asia/Tokyo")
+          )
 
-          BASE = "https://www.jra.go.jp"
+          year = now.strftime("%Y")
+          month = int(
+              now.strftime("%m")
+          )
+          day = now.strftime("%d")
+
+          url = (
+              f"https://www.jra.go.jp/"
+              f"keiba/calendar{year}/"
+              f"{year}/{month}/"
+              f"{month:02d}{day}.html"
+          )
+
+          print("Current JST:")
+          print(now)
+
+          print()
+          print("Calendar URL:")
+          print(url)
+
+          headers = {
+              "User-Agent":
+                  "Mozilla/5.0 "
+                  "(X11; Linux x86_64) "
+                  "AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) "
+                  "Chrome/140.0 Safari/537.36",
+              "Accept-Language":
+                  "ja,en;q=0.8",
+          }
+
+          req = urllib.request.Request(
+              url,
+              headers=headers,
+              method="GET"
+          )
+
+          try:
+
+              with urllib.request.urlopen(
+                  req,
+                  timeout=30
+              ) as response:
+
+                  raw = response.read()
+
+                  print()
+                  print("HTTP STATUS:")
+                  print(response.status)
+
+                  print()
+                  print("CONTENT LENGTH:")
+                  print(len(raw))
+
+                  print()
+                  print("CONTENT TYPE:")
+                  print(
+                      response.headers.get(
+                          "Content-Type"
+                      )
+                  )
+
+                  # UTF-8 / CP932を試す
+                  text = None
+
+                  for encoding in (
+                      "utf-8",
+                      "cp932",
+                      "shift_jis"
+                  ):
+
+                      try:
+
+                          candidate = raw.decode(
+                              encoding
+                          )
+
+                          if (
+                              "競馬" in candidate
+                              or "JRA" in candidate
+                              or "出馬表" in candidate
+                          ):
+
+                              text = candidate
+                              print(
+                                  "DECODE:",
+                                  encoding
+                              )
+                              break
+
+                      except Exception:
+                          pass
+
+                  if text is None:
+
+                      text = raw.decode(
+                          "utf-8",
+                          "ignore"
+                      )
+
+                  print()
+                  print("TEXT LENGTH:")
+                  print(len(text))
+
+                  print()
+                  print("JRA KEYWORDS:")
+
+                  for keyword in (
+                      "出馬表",
+                      "競馬",
+                      "中山",
+                      "阪神",
+                      "札幌",
+                      "JRA",
+                      "race",
+                  ):
+
+                      print(
+                          keyword,
+                          ":",
+                          keyword in text
+                      )
+
+                  print()
+                  print("FIRST 3000 CHARACTERS")
+                  print("--------------------------------------")
+
+                  print(
+                      text[:3000]
+                  )
+
+                  print("--------------------------------------")
+
+                  print()
+                  print(
+                      "STEP 4 JRA CALENDAR SUCCESS"
+                  )
+
+          except Exception as e:
+
+              print()
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+              print("JRA CALENDAR FAILED")
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+              print(
+                  type(e).__name__
+              )
+
+              print(
+                  repr(e)
+              )
+
+              raise
+
+          PY
+
+          echo "STEP 4 SUCCESS"
+
+
+      # ==========================================
+      # 5. JRA accessD POST テスト
+      # ==========================================
+
+      - name: STEP 5 - JRA accessD POST test
+        shell: bash
+        run: |
+          set -eux
+
+          echo "======================================"
+          echo "STEP 5 - JRA ACCESSD POST TEST"
+          echo "======================================"
+
+          python3 - <<'PY'
+
+          import urllib.request
+          import urllib.parse
+          import http.cookiejar
+
+
+          BASE = (
+              "https://www.jra.go.jp"
+          )
 
           ACCESS = (
               BASE +
               "/JRADB/accessD.html"
           )
 
-          UA = (
-              "Mozilla/5.0 "
-              "(X11; Linux x86_64) "
-              "AppleWebKit/537.36 "
-              "(KHTML, like Gecko) "
-              "Chrome/140.0 Safari/537.36 "
-              "keiba-simulator/9.0"
-          )
-
-
-          # ============================================================
-          # HTTP session
-          # ============================================================
-
-          cookie_jar = http.cookiejar.CookieJar()
-
-          opener = urllib.request.build_opener(
-              urllib.request.HTTPCookieProcessor(
-                  cookie_jar
-              )
-          )
-
-          opener.addheaders = [
-              ("User-Agent", UA),
-              ("Accept-Language", "ja,en;q=0.8"),
-              (
-                  "Accept",
-                  "text/html,application/xhtml+xml,"
-                  "application/xml;q=0.9,*/*;q=0.8"
-              ),
-              ("Connection", "keep-alive"),
-          ]
-
-
-          def decode_html(raw):
-
-              # JRAページは環境によってUTF-8/Shift-JIS系が
-              # 混在することがあるため複数候補で試す。
-
-              encodings = [
-                  "utf-8",
-                  "cp932",
-                  "shift_jis",
-                  "euc_jp",
-              ]
-
-              for encoding in encodings:
-
-                  try:
-                      text = raw.decode(encoding)
-
-                      # 日本語がある程度含まれているか確認
-                      if (
-                          "競馬" in text
-                          or "馬名" in text
-                          or "出馬表" in text
-                          or "騎手" in text
-                          or "オッズ" in text
-                      ):
-                          return text
-
-                  except Exception:
-                      pass
-
-              return raw.decode(
-                  "utf-8",
-                  "ignore"
-              )
-
-
-          def request_get(
-              url,
-              referer=None,
-              retries=3
-          ):
-
-              last_error = None
-
-              for attempt in range(
-                  1,
-                  retries + 1
-              ):
-
-                  try:
-
-                      headers = {
-                          "User-Agent": UA,
-                          "Accept-Language": "ja,en;q=0.8",
-                          (
-                              "Accept"
-                          ):
-                              "text/html,"
-                              "application/xhtml+xml,"
-                              "application/xml;q=0.9,"
-                              "*/*;q=0.8",
-                      }
-
-                      if referer:
-                          headers["Referer"] = referer
-
-                      req = urllib.request.Request(
-                          url,
-                          headers=headers,
-                          method="GET"
-                      )
-
-                      with opener.open(
-                          req,
-                          timeout=40
-                      ) as response:
-
-                          raw = response.read()
-
-                          print(
-                              "GET",
-                              response.status,
-                              url
-                          )
-
-                          return decode_html(raw)
-
-                  except Exception as e:
-
-                      last_error = e
-
-                      print(
-                          "GET warning",
-                          attempt,
-                          url,
-                          repr(e)
-                      )
-
-                      time.sleep(
-                          attempt * 2
-                      )
-
-              raise RuntimeError(
-                  f"GET failed: {url} / {last_error}"
-              )
-
-
-          def request_post(
-              cname,
-              referer=None,
-              retries=3
-          ):
-
-              data = urllib.parse.urlencode({
-                  "cname": cname
-              }).encode()
-
-              last_error = None
-
-              for attempt in range(
-                  1,
-                  retries + 1
-              ):
-
-                  try:
-
-                      headers = {
-                          "User-Agent": UA,
-                          "Accept-Language": "ja,en;q=0.8",
-                          (
-                              "Accept"
-                          ):
-                              "text/html,"
-                              "application/xhtml+xml,"
-                              "application/xml;q=0.9,"
-                              "*/*;q=0.8",
-                          "Content-Type":
-                              "application/x-www-form-urlencoded",
-                      }
-
-                      if referer:
-                          headers["Referer"] = referer
-
-                      req = urllib.request.Request(
-                          ACCESS,
-                          data=data,
-                          headers=headers,
-                          method="POST"
-                      )
-
-                      with opener.open(
-                          req,
-                          timeout=40
-                      ) as response:
-
-                          raw = response.read()
-
-                          print(
-                              "POST",
-                              response.status,
-                              cname
-                          )
-
-                          return decode_html(raw)
-
-                  except Exception as e:
-
-                      last_error = e
-
-                      print(
-                          "POST warning",
-                          attempt,
-                          cname,
-                          repr(e)
-                      )
-
-                      time.sleep(
-                          attempt * 2
-                      )
-
-              raise RuntimeError(
-                  f"POST failed: {cname} / {last_error}"
-              )
-
-
-          # ============================================================
-          # Current date
-          # ============================================================
-
-          now = datetime.datetime.now(
-              ZoneInfo("Asia/Tokyo")
-          )
-
-          date = now.strftime(
-              "%Y-%m-%d"
-          )
-
-          ymd = now.strftime(
-              "%Y%m%d"
-          )
-
-          year = now.strftime(
-              "%Y"
-          )
-
-          month = int(
-              now.strftime("%m")
-          )
-
-          day = now.strftime(
-              "%d"
-          )
-
-
-          calendar_url = (
-              f"{BASE}/keiba/calendar{year}/"
-              f"{year}/{month}/{month:02d}{day}.html"
-          )
-
-
-          print()
-          print(
-              "======================================"
-          )
-          print(
-              "JRA KEIBA SIMULATOR SYNC"
-          )
-          print(
-              "DATE:",
-              date
-          )
-          print(
-              "CALENDAR:",
-              calendar_url
-          )
-          print(
-              "======================================"
-          )
-          print()
-
-
-          # ============================================================
-          # Calendar
-          # ============================================================
-
-          calendar_html = request_get(
-              calendar_url
-          )
-
-          print(
-              "Calendar HTML length:",
-              len(calendar_html)
-          )
-
-
-          # ============================================================
-          # JRA token patterns
-          # ============================================================
-
-          RACE_TOKEN_RE = re.compile(
-              r"pw01dde"
-              r"(?P<prefix>\d{2})"
-              r"(?P<venue>\d{2})"
-              r"(?P<year>\d{4})"
-              r"(?P<meet>\d{4})"
-              r"(?P<race>\d{2})"
-              r"(?P<date>\d{8})"
-              r"/(?P<hex>[0-9A-Fa-f]{2})",
-              re.I
-          )
-
-
-          ACTION_RE = re.compile(
-              r"doAction\s*\(\s*"
-              r"['\"]([^'\"]*accessD\.html)['\"]"
-              r"\s*,\s*"
-              r"['\"]([^'\"]+)['\"]",
-              re.I
-          )
-
-
-          CNAME_RE = re.compile(
-              r"(?:"
-              r"CNAME\s*=\s*"
-              r"|"
-              r"cname['\"]?\s*"
-              r"value\s*=\s*['\"]?"
-              r")"
-              r"(pw01d[0-9A-Za-z]+/[0-9A-Fa-f]{2})",
-              re.I
-          )
-
-
-          # ============================================================
-          # Token extraction
-          # ============================================================
-
-          def extract_access_tokens(
-              html
-          ):
-
-              result = []
-
-              for match in ACTION_RE.finditer(
-                  html
-              ):
-
-                  token = (
-                      match.group(2)
-                      .strip()
-                  )
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-              for match in CNAME_RE.finditer(
-                  html
-              ):
-
-                  token = (
-                      match.group(1)
-                      .strip()
-                  )
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-              return result
-
-
-          def extract_race_tokens(
-              html
-          ):
-
-              result = []
-
-              for match in RACE_TOKEN_RE.finditer(
-                  html
-              ):
-
-                  token = match.group(0)
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-              return result
-
-
-          # ============================================================
-          # Discover all 36 official race tokens
-          # ============================================================
-
-          ENTRY_TOKEN = (
+          TOKEN = (
               "pw01dli00/F3"
           )
 
-          queue = [
-              ENTRY_TOKEN
-          ]
 
-          visited = set()
-
-          race_tokens = []
-
-          MAX_PAGES = 100
-
-
-          while (
-              queue
-              and
-              len(visited) < MAX_PAGES
-          ):
-
-              token = queue.pop(0)
-
-              if token in visited:
-                  continue
-
-              visited.add(token)
-
-              print()
-              print(
-                  f"[{len(visited)}] "
-                  f"Access:",
-                  token
-              )
-
-              try:
-
-                  html = request_post(
-                      token,
-                      calendar_url
-                  )
-
-              except Exception as e:
-
-                  print(
-                      "access warning:",
-                      repr(e)
-                  )
-
-                  continue
-
-
-              discovered_races = (
-                  extract_race_tokens(
-                      html
-                  )
-              )
-
-              for race_token in (
-                  discovered_races
-              ):
-
-                  match = (
-                      RACE_TOKEN_RE.fullmatch(
-                          race_token
-                      )
-                  )
-
-                  if not match:
-                      continue
-
-                  if (
-                      match.group("date")
-                      != ymd
-                  ):
-                      continue
-
-                  if (
-                      race_token
-                      not in race_tokens
-                  ):
-
-                      race_tokens.append(
-                          race_token
-                      )
-
-
-              next_tokens = (
-                  extract_access_tokens(
-                      html
-                  )
-              )
-
-              print(
-                  "navigation tokens:",
-                  len(next_tokens)
-              )
-
-              for next_token in (
-                  next_tokens
-              ):
-
-                  if (
-                      next_token
-                      in visited
-                  ):
-                      continue
-
-                  if not next_token.startswith(
-                      "pw01d"
-                  ):
-                      continue
-
-                  queue.append(
-                      next_token
-                  )
-
-              print(
-                  "race tokens so far:",
-                  len(race_tokens)
-              )
-
-              if len(race_tokens) >= 36:
-                  break
-
-              time.sleep(
-                  0.25
-              )
-
-
-          race_tokens = list(
-              dict.fromkeys(
-                  race_tokens
-              )
-          )
-
-
-          # ============================================================
-          # Sort
-          # ============================================================
-
-          def race_sort_key(
-              token
-          ):
-
-              match = (
-                  RACE_TOKEN_RE.fullmatch(
-                      token
-                  )
-              )
-
-              return (
-                  match.group("venue"),
-                  int(
-                      match.group("race")
-                  )
-              )
-
-
-          race_tokens.sort(
-              key=race_sort_key
-          )
-
+          print("ACCESS URL:")
+          print(ACCESS)
 
           print()
-          print(
-              "======================================"
-          )
-          print(
-              "DISCOVERED RACE TOKENS:",
-              len(race_tokens)
-          )
-          print(
-              "======================================"
+          print("TOKEN:")
+          print(TOKEN)
+
+
+          cookie_jar = (
+              http.cookiejar.CookieJar()
           )
 
+          opener = (
+              urllib.request.build_opener(
+                  urllib.request.HTTPCookieProcessor(
+                      cookie_jar
+                  )
+              )
+          )
 
-          venue_names = {
 
-              "01": "札幌",
-              "02": "函館",
-              "03": "福島",
-              "04": "新潟",
-              "05": "東京",
-              "06": "中山",
-              "07": "中京",
-              "08": "京都",
-              "09": "阪神",
-              "10": "小倉",
+          data = urllib.parse.urlencode({
+              "cname": TOKEN
+          }).encode()
 
+
+          headers = {
+              "User-Agent":
+                  "Mozilla/5.0 "
+                  "(X11; Linux x86_64) "
+                  "AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) "
+                  "Chrome/140.0 Safari/537.36",
+
+              "Accept-Language":
+                  "ja,en;q=0.8",
+
+              "Accept":
+                  "text/html,"
+                  "application/xhtml+xml,"
+                  "application/xml;q=0.9,"
+                  "*/*;q=0.8",
+
+              "Content-Type":
+                  "application/x-www-form-urlencoded",
           }
 
 
-          # ============================================================
-          # Token → official URL
-          # ============================================================
+          req = urllib.request.Request(
+              ACCESS,
+              data=data,
+              headers=headers,
+              method="POST"
+          )
 
-          def token_to_url(
-              token
-          ):
 
-              return (
-                  ACCESS
-                  + "?CNAME="
-                  + urllib.parse.quote(
-                      token,
-                      safe=""
+          try:
+
+              print()
+              print("Sending POST...")
+
+              with opener.open(
+                  req,
+                  timeout=40
+              ) as response:
+
+                  raw = response.read()
+
+                  print()
+                  print("HTTP STATUS:")
+                  print(response.status)
+
+                  print()
+                  print("CONTENT LENGTH:")
+                  print(len(raw))
+
+                  print()
+                  print("CONTENT TYPE:")
+                  print(
+                      response.headers.get(
+                          "Content-Type"
+                      )
                   )
-              )
 
 
-          # ============================================================
-          # HTML → readable text
-          # ============================================================
+                  text = None
 
-          class TextParser(
-              HTMLParser
-          ):
-
-              def __init__(self):
-
-                  super().__init__(
-                      convert_charrefs=True
-                  )
-
-                  self.parts = []
-
-              def handle_starttag(
-                  self,
-                  tag,
-                  attrs
-              ):
-
-                  if tag.lower() in (
-                      "br",
-                      "tr",
-                      "p",
-                      "li",
-                      "div",
-                      "section",
-                      "article",
-                      "header",
-                      "footer",
+                  for encoding in (
+                      "utf-8",
+                      "cp932",
+                      "shift_jis"
                   ):
 
-                      self.parts.append(
-                          "\n"
+                      try:
+
+                          candidate = raw.decode(
+                              encoding
+                          )
+
+                          if (
+                              "出馬表" in candidate
+                              or "競馬" in candidate
+                              or "JRA" in candidate
+                          ):
+
+                              text = candidate
+
+                              print(
+                                  "DECODE:",
+                                  encoding
+                              )
+
+                              break
+
+                      except Exception:
+                          pass
+
+
+                  if text is None:
+
+                      text = raw.decode(
+                          "utf-8",
+                          "ignore"
                       )
 
-              def handle_endtag(
-                  self,
-                  tag
-              ):
 
-                  if tag.lower() in (
-                      "tr",
-                      "p",
-                      "li",
-                      "div",
-                      "section",
-                      "article",
+                  print()
+                  print("TEXT LENGTH:")
+                  print(len(text))
+
+
+                  print()
+                  print("IMPORTANT KEYWORDS:")
+
+                  for keyword in (
+                      "出馬表",
+                      "札幌",
+                      "中山",
+                      "阪神",
+                      "1R",
+                      "2R",
+                      "3R",
+                      "馬名",
+                      "騎手",
+                      "オッズ",
+                      "doAction",
+                      "accessD",
                   ):
 
-                      self.parts.append(
-                          "\n"
+                      print(
+                          keyword,
+                          ":",
+                          keyword in text
                       )
 
-              def handle_data(
-                  self,
-                  data
-              ):
 
-                  self.parts.append(
-                      data
+                  print()
+                  print(
+                      "ACCESSD RESPONSE "
+                      "FIRST 5000 CHARACTERS"
                   )
 
-              def get_text(
-                  self
-              ):
+                  print(
+                      "--------------------------------------"
+                  )
 
-                  return "".join(
-                      self.parts
+                  print(
+                      text[:5000]
+                  )
+
+                  print(
+                      "--------------------------------------"
                   )
 
 
-          def html_to_text(
-              html
-          ):
-
-              parser = TextParser()
-
-              try:
-
-                  parser.feed(
-                      html
+                  print()
+                  print(
+                      "STEP 5 ACCESSD POST SUCCESS"
                   )
 
-                  text = (
-                      parser.get_text()
-                  )
 
-              except Exception:
+          except Exception as e:
 
-                  text = re.sub(
-                      r"<[^>]+>",
-                      "\n",
-                      html
-                  )
+              print()
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+              print("ACCESSD POST FAILED")
+              print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-              text = (
-                  text
-                  .replace("\r\n", "\n")
-                  .replace("\r", "\n")
+              print(
+                  type(e).__name__
               )
 
-              text = re.sub(
-                  r"[ \t]+",
-                  " ",
-                  text
+              print(
+                  repr(e)
               )
 
-              text = re.sub(
-                  r"\n{3,}",
-                  "\n\n",
-                  text
-              )
+              raise
 
-              return text.strip()
+          PY
+
+          echo "STEP 5 SUCCESS"
 
 
-          def clean_text(
-              value
-          ):
+      # ==========================================
+      # 終了
+      # ==========================================
 
-              if value is None:
-                  return ""
+      - name: Diagnostic completed
+        shell: bash
+        run: |
 
-              value = (
-                  value
-                  .replace(
-                      "\u3000",
-                      " "
-                  )
-                  .replace(
-                      "\xa0",
-                      " "
-                  )
-              )
-
-              value = re.sub(
-                  r"\s+",
-                  " ",
-                  value
-              )
-
-              return value.strip()
-
-
-          # ============================================================
-          # Horse extraction
-          # ============================================================
-
-          HORSE_ODDS_RE = re.compile(
-              r"(?P<no>1[0-8]|[1-9])"
-              r"\s+"
-              r"(?P<name>"
-              r"[^\d\n]{1,40}?"
-              r")"
-              r"\s+"
-              r"(?P<odds>"
-              r"\d+(?:\.\d+)?"
-              r")"
-              r"\s*"
-              r"\("
-              r"(?P<pop>\d+)"
-              r"番人気"
-              r"\)"
-          )
-
-
-          HORSE_SIMPLE_RE = re.compile(
-              r"(?m)"
-              r"^\s*"
-              r"(?P<no>1[0-8]|[1-9])"
-              r"\s+"
-              r"(?P<name>"
-              r"[^\d\n]{2,40}"
-              r")"
-              r"(?:\s+|$)"
-          )
-
-
-          WEIGHT_RE = re.compile(
-              r"(\d{2,3}(?:\.\d+)?)\s*kg"
-          )
-
-
-          JOCKEY_RE = re.compile(
-              r"([一-龥ぁ-んァ-ヶA-Za-z"
-              r"．・\.]{2,12})"
-              r"\s*"
-              r"\("
-              r"(\d+(?:\.\d+)?)"
-              r"\)"
-          )
-
-
-          def normalize_horse_name(
-              name
-          ):
-
-              name = clean_text(
-                  name
-              )
-
-              name = re.sub(
-                  r"^(?:"
-                 
+          echo "======================================"
+          echo "ALL DIAGNOSTIC STEPS SUCCESS"
+          echo "======================================"
