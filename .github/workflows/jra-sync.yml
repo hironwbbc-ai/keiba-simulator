@@ -17,9 +17,9 @@ jobs:
         run: |
           python - <<'PY'
           import requests
-          from bs4 import BeautifulSoup
-          from urllib.parse import unquote
           import re
+          from html import unescape
+          from urllib.parse import urljoin
 
           print("=" * 70)
           print("JRA CONNECTION / HTML DIAGNOSTIC")
@@ -33,52 +33,163 @@ jobs:
                   "AppleWebKit/605.1.15 (KHTML, like Gecko) "
                   "Version/18.0 Mobile/15E148 Safari/604.1",
               "Accept":
-                  "text/html,application/xhtml+xml,application/xml;q=0.9,"
-                  "*/*;q=0.8",
-              "Accept-Language": "ja-JP,ja;q=0.9",
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language": "ja-JP,ja;q=0.9"
           })
 
-          # ------------------------------------------------------------
-          # 1. JRAトップ
-          # ------------------------------------------------------------
+          def decode_response(r):
+              enc = r.apparent_encoding or "utf-8"
+              try:
+                  return r.content.decode(enc, errors="replace")
+              except:
+                  return r.text
 
-          print()
-          print("STEP 1 : JRA TOP")
-          print("-" * 70)
-
-          url = "https://www.jra.go.jp/"
-
-          try:
-              r = s.get(
-                  url,
-                  timeout=30,
-                  allow_redirects=True
+          def clean_html(html):
+              text = re.sub(
+                  r'(?is)<script.*?</script>',
+                  ' ',
+                  html
               )
+
+              text = re.sub(
+                  r'(?is)<style.*?</style>',
+                  ' ',
+                  text
+              )
+
+              text = re.sub(
+                  r'(?is)<[^>]+>',
+                  ' ',
+                  text
+              )
+
+              text = unescape(text)
+
+              text = re.sub(
+                  r'\s+',
+                  ' ',
+                  text
+              )
+
+              return text.strip()
+
+          def show_result(name, r, html):
+              print()
+              print("=" * 70)
+              print(name)
+              print("=" * 70)
 
               print("STATUS       :", r.status_code)
               print("FINAL URL    :", r.url)
               print("CONTENT TYPE :", r.headers.get("content-type"))
               print("BYTES        :", len(r.content))
+              print("CHARACTERS   :", len(html))
 
-              text = r.content.decode(
-                  r.apparent_encoding or "utf-8",
-                  errors="replace"
+              print()
+              print("KEYWORDS")
+
+              words = [
+                  "出馬表",
+                  "馬名",
+                  "騎手",
+                  "オッズ",
+                  "馬体重",
+                  "札幌",
+                  "中山",
+                  "阪神",
+                  "1R",
+                  "2R"
+              ]
+
+              for word in words:
+                  print(
+                      f"{word:<10}:",
+                      "YES" if word in html else "NO"
+                  )
+
+              print()
+              print("TITLE")
+
+              m = re.search(
+                  r'(?is)<title[^>]*>(.*?)</title>',
+                  html
               )
 
-              print("CHARACTERS   :", len(text))
-              print("JRA          :", "JRA" in text)
-              print("出馬表       :", "出馬表" in text)
+              if m:
+                  title = clean_html(m.group(1))
+                  print(title[:500])
+              else:
+                  print("(NO TITLE)")
+
+              print()
+              print("ACCESSD LINKS")
+              print("-" * 70)
+
+              links = re.findall(
+                  r'(?is)<a\b[^>]*href\s*=\s*["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+                  html
+              )
+
+              access_count = 0
+
+              for href, label in links:
+                  href = unescape(href)
+                  label = clean_html(label)
+
+                  if "accessD" in href:
+                      print("TEXT:", label[:150])
+                      print("HREF:", href[:500])
+                      print()
+
+                      access_count += 1
+
+                      if access_count >= 30:
+                          break
+
+              print(
+                  "ACCESSD LINK COUNT:",
+                  access_count
+              )
+
+              print()
+              print("PAGE TEXT PREVIEW")
+              print("-" * 70)
+
+              text = clean_html(html)
+
+              print(text[:5000])
+
+          # ============================================================
+          # STEP 1
+          # ============================================================
+
+          print()
+          print("STEP 1 : JRA TOP")
+
+          try:
+              r = s.get(
+                  "https://www.jra.go.jp/",
+                  timeout=30,
+                  allow_redirects=True
+              )
+
+              html = decode_response(r)
+
+              show_result(
+                  "STEP 1 RESULT",
+                  r,
+                  html
+              )
 
           except Exception as e:
               print("ERROR:", repr(e))
 
-          # ------------------------------------------------------------
-          # 2. JRA calendar
-          # ------------------------------------------------------------
+          # ============================================================
+          # STEP 2
+          # ============================================================
 
           print()
           print("STEP 2 : JRA CALENDAR")
-          print("-" * 70)
 
           calendar_url = (
               "https://www.jra.go.jp/keiba/calendar2026/"
@@ -88,54 +199,40 @@ jobs:
           try:
               r = s.get(
                   calendar_url,
-                  timeout=30
+                  timeout=30,
+                  allow_redirects=True
               )
 
-              print("STATUS       :", r.status_code)
-              print("URL          :", r.url)
-              print("CONTENT TYPE :", r.headers.get("content-type"))
-              print("BYTES        :", len(r.content))
+              html = decode_response(r)
 
-              text = r.content.decode(
-                  r.apparent_encoding or "utf-8",
-                  errors="replace"
+              show_result(
+                  "STEP 2 RESULT",
+                  r,
+                  html
               )
-
-              print("CHARACTERS   :", len(text))
-
-              for word in [
-                  "札幌",
-                  "中山",
-                  "阪神",
-                  "出馬表",
-                  "9月6日"
-              ]:
-                  print(
-                      f"{word:<10}:",
-                      word in text
-                  )
-
-              print()
-              print("CALENDAR TEXT PREVIEW")
-              print(text[:3000])
 
           except Exception as e:
               print("ERROR:", repr(e))
 
-          # ------------------------------------------------------------
-          # 3. 既知の札幌1R公式URL
-          # ------------------------------------------------------------
+          # ============================================================
+          # STEP 3
+          # 既知の札幌1R
+          # ============================================================
 
           print()
-          print("STEP 3 : KNOWN SAPPORO 1R")
-          print("-" * 70)
+          print("STEP 3 : SAPPORO 1R")
+
+          race_token = (
+              "pw01dde0101202602060120260906/6A"
+          )
 
           race_url = (
               "https://www.jra.go.jp/JRADB/accessD.html?"
-              "CNAME=pw01dde0101202602060120260906/XX"
+              "CNAME=" + race_token
           )
 
-          print("TEST URL:", race_url)
+          print("REQUEST URL:")
+          print(race_url)
 
           try:
               r = s.get(
@@ -144,187 +241,94 @@ jobs:
                   allow_redirects=True
               )
 
-              print("STATUS       :", r.status_code)
-              print("FINAL URL    :", r.url)
-              print("CONTENT TYPE :", r.headers.get("content-type"))
-              print("BYTES        :", len(r.content))
+              html = decode_response(r)
 
-              text = r.content.decode(
-                  r.apparent_encoding or "utf-8",
-                  errors="replace"
+              show_result(
+                  "STEP 3 GET RESULT",
+                  r,
+                  html
               )
-
-              print("CHARACTERS   :", len(text))
-
-              print()
-              print("KEYWORDS")
-
-              for word in [
-                  "出馬表",
-                  "馬名",
-                  "騎手",
-                  "オッズ",
-                  "馬体重",
-                  "札幌",
-                  "1R"
-              ]:
-                  print(
-                      f"{word:<10}:",
-                      word in text
-                  )
-
-              soup = BeautifulSoup(
-                  text,
-                  "html.parser"
-              )
-
-              print()
-              print("TITLE")
-              print(
-                  soup.title.get_text(
-                      " ",
-                      strip=True
-                  )
-                  if soup.title
-                  else "(NO TITLE)"
-              )
-
-              print()
-              print("ALL LINKS CONTAINING accessD")
-              print("-" * 70)
-
-              count = 0
-
-              for a in soup.find_all("a"):
-                  href = a.get("href", "")
-                  label = a.get_text(
-                      " ",
-                      strip=True
-                  )
-
-                  if "accessD" in href:
-                      print(
-                          "TEXT:",
-                          label[:100]
-                      )
-                      print(
-                          "HREF:",
-                          href[:500]
-                      )
-                      print()
-
-                      count += 1
-
-                      if count >= 30:
-                          break
-
-              print(
-                  "ACCESSD LINK COUNT:",
-                  count
-              )
-
-              print()
-              print("HTML TEXT PREVIEW")
-              print("-" * 70)
-
-              body = soup.get_text(
-                  " ",
-                  strip=True
-              )
-
-              print(body[:5000])
 
           except Exception as e:
               print("ERROR:", repr(e))
 
-          # ------------------------------------------------------------
-          # 4. app.jra.jp
-          # ------------------------------------------------------------
+          # ============================================================
+          # STEP 4
+          # 同じ札幌1RをPOST
+          # ============================================================
 
           print()
-          print("STEP 4 : APP.JRA.JP")
-          print("-" * 70)
-
-          app_url = "https://app.jra.jp/"
+          print("STEP 4 : SAPPORO 1R POST")
 
           try:
-              r = s.get(
-                  app_url,
+              r = s.post(
+                  "https://www.jra.go.jp/JRADB/accessD.html",
+                  data={
+                      "cname": race_token
+                  },
                   timeout=30,
                   allow_redirects=True
               )
 
-              print("STATUS       :", r.status_code)
-              print("FINAL URL    :", r.url)
-              print("CONTENT TYPE :", r.headers.get("content-type"))
-              print("BYTES        :", len(r.content))
+              html = decode_response(r)
 
-              text = r.content.decode(
-                  r.apparent_encoding or "utf-8",
-                  errors="replace"
+              show_result(
+                  "STEP 4 POST RESULT",
+                  r,
+                  html
               )
-
-              print("CHARACTERS   :", len(text))
-
-              for word in [
-                  "出馬表",
-                  "馬名",
-                  "騎手",
-                  "オッズ"
-              ]:
-                  print(
-                      f"{word:<10}:",
-                      word in text
-                  )
-
-              print()
-              print(text[:3000])
 
           except Exception as e:
               print("ERROR:", repr(e))
 
-          # ------------------------------------------------------------
-          # 5. sp.jra.jp
-          # ------------------------------------------------------------
+          # ============================================================
+          # STEP 5
+          # app.jra.jp
+          # ============================================================
 
           print()
-          print("STEP 5 : SP.JRA.JP")
-          print("-" * 70)
-
-          sp_url = "https://sp.jra.jp/"
+          print("STEP 5 : APP.JRA.JP")
 
           try:
               r = s.get(
-                  sp_url,
+                  "https://app.jra.jp/",
                   timeout=30,
                   allow_redirects=True
               )
 
-              print("STATUS       :", r.status_code)
-              print("FINAL URL    :", r.url)
-              print("CONTENT TYPE :", r.headers.get("content-type"))
-              print("BYTES        :", len(r.content))
+              html = decode_response(r)
 
-              text = r.content.decode(
-                  r.apparent_encoding or "utf-8",
-                  errors="replace"
+              show_result(
+                  "STEP 5 RESULT",
+                  r,
+                  html
               )
 
-              print("CHARACTERS   :", len(text))
+          except Exception as e:
+              print("ERROR:", repr(e))
 
-              for word in [
-                  "出馬表",
-                  "馬名",
-                  "騎手",
-                  "オッズ"
-              ]:
-                  print(
-                      f"{word:<10}:",
-                      word in text
-                  )
+          # ============================================================
+          # STEP 6
+          # sp.jra.jp
+          # ============================================================
 
-              print()
-              print(text[:3000])
+          print()
+          print("STEP 6 : SP.JRA.JP")
+
+          try:
+              r = s.get(
+                  "https://sp.jra.jp/",
+                  timeout=30,
+                  allow_redirects=True
+              )
+
+              html = decode_response(r)
+
+              show_result(
+                  "STEP 6 RESULT",
+                  r,
+                  html
+              )
 
           except Exception as e:
               print("ERROR:", repr(e))
