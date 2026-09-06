@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   sync-and-deploy:
+
     runs-on: ubuntu-latest
 
     environment:
@@ -28,11 +29,25 @@ jobs:
 
     steps:
 
+      # ============================================================
+      # Checkout
+      # ============================================================
+
       - name: Checkout
         uses: actions/checkout@v4
 
+
+      # ============================================================
+      # Setup Pages
+      # ============================================================
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+
+      # ============================================================
+      # JRA official data sync
+      # ============================================================
 
       - name: Sync JRA official race pages
         shell: bash
@@ -50,6 +65,7 @@ jobs:
           import time
           import urllib.parse
           import urllib.request
+          import urllib.error
           import http.cookiejar
 
           from html.parser import HTMLParser
@@ -69,8 +85,11 @@ jobs:
 
           UA = (
               "Mozilla/5.0 "
-              "(compatible; "
-              "keiba-simulator/8.2)"
+              "(X11; Linux x86_64) "
+              "AppleWebKit/537.36 "
+              "(KHTML, like Gecko) "
+              "Chrome/140.0 Safari/537.36 "
+              "keiba-simulator/9.0"
           )
 
 
@@ -89,115 +108,202 @@ jobs:
           opener.addheaders = [
               ("User-Agent", UA),
               ("Accept-Language", "ja,en;q=0.8"),
-              ("Accept", "text/html,application/xhtml+xml"),
+              (
+                  "Accept",
+                  "text/html,application/xhtml+xml,"
+                  "application/xml;q=0.9,*/*;q=0.8"
+              ),
+              ("Connection", "keep-alive"),
           ]
 
 
-          def request_get(url, referer=None):
+          def decode_html(raw):
 
-              headers = {
-                  "User-Agent": UA,
-                  "Accept-Language": "ja,en;q=0.8",
-                  "Accept": "text/html,application/xhtml+xml",
-              }
+              # JRAページは環境によってUTF-8/Shift-JIS系が
+              # 混在することがあるため複数候補で試す。
 
-              if referer:
-                  headers["Referer"] = referer
+              encodings = [
+                  "utf-8",
+                  "cp932",
+                  "shift_jis",
+                  "euc_jp",
+              ]
 
-              req = urllib.request.Request(
-                  url,
-                  headers=headers
+              for encoding in encodings:
+
+                  try:
+                      text = raw.decode(encoding)
+
+                      # 日本語がある程度含まれているか確認
+                      if (
+                          "競馬" in text
+                          or "馬名" in text
+                          or "出馬表" in text
+                          or "騎手" in text
+                          or "オッズ" in text
+                      ):
+                          return text
+
+                  except Exception:
+                      pass
+
+              return raw.decode(
+                  "utf-8",
+                  "ignore"
               )
 
-              with opener.open(
-                  req,
-                  timeout=40
-              ) as response:
 
-                  raw = response.read()
+          def request_get(
+              url,
+              referer=None,
+              retries=3
+          ):
 
-                  # JRA normally uses Shift-JIS / CP932.
-                  # Try the encodings in a safe order.
-                  for encoding in (
-                      "utf-8",
-                      "cp932",
-                      "shift_jis"
-                  ):
+              last_error = None
 
-                      try:
+              for attempt in range(
+                  1,
+                  retries + 1
+              ):
 
-                          return raw.decode(
-                              encoding
+                  try:
+
+                      headers = {
+                          "User-Agent": UA,
+                          "Accept-Language": "ja,en;q=0.8",
+                          (
+                              "Accept"
+                          ):
+                              "text/html,"
+                              "application/xhtml+xml,"
+                              "application/xml;q=0.9,"
+                              "*/*;q=0.8",
+                      }
+
+                      if referer:
+                          headers["Referer"] = referer
+
+                      req = urllib.request.Request(
+                          url,
+                          headers=headers,
+                          method="GET"
+                      )
+
+                      with opener.open(
+                          req,
+                          timeout=40
+                      ) as response:
+
+                          raw = response.read()
+
+                          print(
+                              "GET",
+                              response.status,
+                              url
                           )
 
-                      except UnicodeDecodeError:
+                          return decode_html(raw)
 
-                          pass
+                  except Exception as e:
 
-                  return raw.decode(
-                      "utf-8",
-                      "ignore"
-                  )
+                      last_error = e
+
+                      print(
+                          "GET warning",
+                          attempt,
+                          url,
+                          repr(e)
+                      )
+
+                      time.sleep(
+                          attempt * 2
+                      )
+
+              raise RuntimeError(
+                  f"GET failed: {url} / {last_error}"
+              )
 
 
           def request_post(
               cname,
-              referer=None
+              referer=None,
+              retries=3
           ):
 
               data = urllib.parse.urlencode({
                   "cname": cname
               }).encode()
 
-              headers = {
-                  "User-Agent": UA,
-                  "Accept-Language": "ja,en;q=0.8",
-                  "Accept": "text/html,application/xhtml+xml",
-                  "Content-Type":
-                      "application/x-www-form-urlencoded",
-              }
+              last_error = None
 
-              if referer:
-                  headers["Referer"] = referer
+              for attempt in range(
+                  1,
+                  retries + 1
+              ):
 
-              req = urllib.request.Request(
-                  ACCESS,
-                  data=data,
-                  headers=headers,
-                  method="POST"
-              )
+                  try:
 
-              with opener.open(
-                  req,
-                  timeout=40
-              ) as response:
+                      headers = {
+                          "User-Agent": UA,
+                          "Accept-Language": "ja,en;q=0.8",
+                          (
+                              "Accept"
+                          ):
+                              "text/html,"
+                              "application/xhtml+xml,"
+                              "application/xml;q=0.9,"
+                              "*/*;q=0.8",
+                          "Content-Type":
+                              "application/x-www-form-urlencoded",
+                      }
 
-                  raw = response.read()
+                      if referer:
+                          headers["Referer"] = referer
 
-                  for encoding in (
-                      "utf-8",
-                      "cp932",
-                      "shift_jis"
-                  ):
+                      req = urllib.request.Request(
+                          ACCESS,
+                          data=data,
+                          headers=headers,
+                          method="POST"
+                      )
 
-                      try:
+                      with opener.open(
+                          req,
+                          timeout=40
+                      ) as response:
 
-                          return raw.decode(
-                              encoding
+                          raw = response.read()
+
+                          print(
+                              "POST",
+                              response.status,
+                              cname
                           )
 
-                      except UnicodeDecodeError:
+                          return decode_html(raw)
 
-                          pass
+                  except Exception as e:
 
-                  return raw.decode(
-                      "utf-8",
-                      "ignore"
-                  )
+                      last_error = e
+
+                      print(
+                          "POST warning",
+                          attempt,
+                          cname,
+                          repr(e)
+                      )
+
+                      time.sleep(
+                          attempt * 2
+                      )
+
+              raise RuntimeError(
+                  f"POST failed: {cname} / {last_error}"
+              )
 
 
           # ============================================================
-          # Date
+          # Current date
           # ============================================================
 
           now = datetime.datetime.now(
@@ -231,74 +337,82 @@ jobs:
           )
 
 
-          print("Calendar:")
-          print(calendar_url)
+          print()
+          print(
+              "======================================"
+          )
+          print(
+              "JRA KEIBA SIMULATOR SYNC"
+          )
+          print(
+              "DATE:",
+              date
+          )
+          print(
+              "CALENDAR:",
+              calendar_url
+          )
+          print(
+              "======================================"
+          )
           print()
 
+
+          # ============================================================
+          # Calendar
+          # ============================================================
 
           calendar_html = request_get(
               calendar_url
           )
 
-
-          # ============================================================
-          # Race token
-          # ============================================================
-
-          RACE_TOKEN_RE = re.compile(
-
-              r"pw01dde"
-
-              r"(?P<prefix>\d{2})"
-
-              r"(?P<venue>\d{2})"
-
-              r"(?P<year>\d{4})"
-
-              r"(?P<meet>\d{4})"
-
-              r"(?P<race>\d{2})"
-
-              r"(?P<date>\d{8})"
-
-              r"/(?P<hex>[0-9A-Fa-f]{2})",
-
-              re.I
-
+          print(
+              "Calendar HTML length:",
+              len(calendar_html)
           )
 
 
           # ============================================================
-          # Navigation tokens
+          # JRA token patterns
           # ============================================================
 
-          ACTION_RE = re.compile(
-
-              r"doAction\s*\(\s*"
-
-              r"['\"]([^'\"]*accessD\.html)['\"]"
-
-              r"\s*,\s*"
-
-              r"['\"]([^'\"]+)['\"]",
-
+          RACE_TOKEN_RE = re.compile(
+              r"pw01dde"
+              r"(?P<prefix>\d{2})"
+              r"(?P<venue>\d{2})"
+              r"(?P<year>\d{4})"
+              r"(?P<meet>\d{4})"
+              r"(?P<race>\d{2})"
+              r"(?P<date>\d{8})"
+              r"/(?P<hex>[0-9A-Fa-f]{2})",
               re.I
+          )
 
+
+          ACTION_RE = re.compile(
+              r"doAction\s*\(\s*"
+              r"['\"]([^'\"]*accessD\.html)['\"]"
+              r"\s*,\s*"
+              r"['\"]([^'\"]+)['\"]",
+              re.I
           )
 
 
           CNAME_RE = re.compile(
-
-              r"(?:CNAME=|"
-
-              r"cname['\"]?\s*value\s*=\s*['\"]?)"
-
+              r"(?:"
+              r"CNAME\s*=\s*"
+              r"|"
+              r"cname['\"]?\s*"
+              r"value\s*=\s*['\"]?"
+              r")"
               r"(pw01d[0-9A-Za-z]+/[0-9A-Fa-f]{2})",
-
               re.I
-
           )
 
+
+          # ============================================================
+          # Token extraction
+          # ============================================================
 
           def extract_access_tokens(
               html
@@ -321,7 +435,6 @@ jobs:
                           token
                       )
 
-
               for match in CNAME_RE.finditer(
                   html
               ):
@@ -336,7 +449,6 @@ jobs:
                       result.append(
                           token
                       )
-
 
               return result
 
@@ -359,15 +471,16 @@ jobs:
                           token
                       )
 
-
               return result
 
 
           # ============================================================
-          # Discover all race URLs
+          # Discover all 36 official race tokens
           # ============================================================
 
-          ENTRY_TOKEN = "pw01dli00/F3"
+          ENTRY_TOKEN = (
+              "pw01dli00/F3"
+          )
 
           queue = [
               ENTRY_TOKEN
@@ -389,19 +502,16 @@ jobs:
               token = queue.pop(0)
 
               if token in visited:
-
                   continue
 
-              visited.add(
-                  token
-              )
+              visited.add(token)
 
-
+              print()
               print(
-                  f"[{len(visited)}] Access:",
+                  f"[{len(visited)}] "
+                  f"Access:",
                   token
               )
-
 
               try:
 
@@ -413,90 +523,90 @@ jobs:
               except Exception as e:
 
                   print(
-                      "  access warning:",
-                      e
+                      "access warning:",
+                      repr(e)
                   )
 
                   continue
 
 
-              # --------------------------------------------------------
-              # Race links
-              # --------------------------------------------------------
+              discovered_races = (
+                  extract_race_tokens(
+                      html
+                  )
+              )
 
-              for race_token in extract_race_tokens(
-                  html
+              for race_token in (
+                  discovered_races
               ):
 
-                  match = RACE_TOKEN_RE.fullmatch(
-                      race_token
+                  match = (
+                      RACE_TOKEN_RE.fullmatch(
+                          race_token
+                      )
                   )
 
                   if not match:
-
                       continue
-
 
                   if (
                       match.group("date")
                       != ymd
                   ):
-
                       continue
 
-
-                  if race_token not in race_tokens:
+                  if (
+                      race_token
+                      not in race_tokens
+                  ):
 
                       race_tokens.append(
                           race_token
                       )
 
 
-              # --------------------------------------------------------
-              # Navigation
-              # --------------------------------------------------------
-
-              next_tokens = extract_access_tokens(
-                  html
+              next_tokens = (
+                  extract_access_tokens(
+                      html
+                  )
               )
 
-
               print(
-                  "  navigation tokens:",
+                  "navigation tokens:",
                   len(next_tokens)
               )
 
+              for next_token in (
+                  next_tokens
+              ):
 
-              for next_token in next_tokens:
-
-                  if next_token in visited:
-
+                  if (
+                      next_token
+                      in visited
+                  ):
                       continue
 
                   if not next_token.startswith(
                       "pw01d"
                   ):
-
                       continue
 
                   queue.append(
                       next_token
                   )
 
+              print(
+                  "race tokens so far:",
+                  len(race_tokens)
+              )
 
               if len(race_tokens) >= 36:
-
                   break
-
 
               time.sleep(
                   0.25
               )
 
-
-          # ============================================================
-          # Unique / sort
-          # ============================================================
 
           race_tokens = list(
               dict.fromkeys(
@@ -505,18 +615,24 @@ jobs:
           )
 
 
+          # ============================================================
+          # Sort
+          # ============================================================
+
           def race_sort_key(
               token
           ):
 
-              m = RACE_TOKEN_RE.fullmatch(
-                  token
+              match = (
+                  RACE_TOKEN_RE.fullmatch(
+                      token
+                  )
               )
 
               return (
-                  m.group("venue"),
+                  match.group("venue"),
                   int(
-                      m.group("race")
+                      match.group("race")
                   )
               )
 
@@ -539,10 +655,6 @@ jobs:
           )
 
 
-          # ============================================================
-          # Venue names
-          # ============================================================
-
           venue_names = {
 
               "01": "札幌",
@@ -559,6 +671,10 @@ jobs:
           }
 
 
+          # ============================================================
+          # Token → official URL
+          # ============================================================
+
           def token_to_url(
               token
           ):
@@ -574,46 +690,20 @@ jobs:
 
 
           # ============================================================
-          # HTML table parser
-          #
-          # This is the important change.
-          #
-          # We do NOT try to reconstruct the horse row using a single
-          # regular expression.
-          #
-          # Instead:
-          #
-          # HTML
-          #  ↓
-          # TR
-          #  ↓
-          # TD
-          #  ↓
-          # identify horse number / horse name / odds / weight / jockey
-          #
-          # This matches the actual JRA table structure.
+          # HTML → readable text
           # ============================================================
 
-          class TableParser(
+          class TextParser(
               HTMLParser
           ):
 
-              def __init__(
-                  self
-              ):
+              def __init__(self):
 
                   super().__init__(
                       convert_charrefs=True
                   )
 
-                  self.rows = []
-
-                  self.current_row = None
-
-                  self.current_cell = None
-
-                  self.in_td = False
-
+                  self.parts = []
 
               def handle_starttag(
                   self,
@@ -621,121 +711,112 @@ jobs:
                   attrs
               ):
 
-                  tag = tag.lower()
-
-
-                  if tag == "tr":
-
-                      self.current_row = []
-
-                      self.current_cell = None
-
-
-                  elif (
-                      tag in ("td", "th")
-                      and
-                      self.current_row
-                      is not None
+                  if tag.lower() in (
+                      "br",
+                      "tr",
+                      "p",
+                      "li",
+                      "div",
+                      "section",
+                      "article",
+                      "header",
+                      "footer",
                   ):
 
-                      self.current_cell = []
-
-                      self.in_td = True
-
+                      self.parts.append(
+                          "\n"
+                      )
 
               def handle_endtag(
                   self,
                   tag
               ):
 
-                  tag = tag.lower()
-
-
-                  if (
-                      tag in ("td", "th")
-                      and
-                      self.current_row
-                      is not None
-                      and
-                      self.current_cell
-                      is not None
+                  if tag.lower() in (
+                      "tr",
+                      "p",
+                      "li",
+                      "div",
+                      "section",
+                      "article",
                   ):
 
-                      text = "".join(
-                          self.current_cell
+                      self.parts.append(
+                          "\n"
                       )
-
-                      text = (
-                          text
-                          .replace(
-                              "\u3000",
-                              " "
-                          )
-                          .replace(
-                              "\xa0",
-                              " "
-                          )
-                      )
-
-                      text = re.sub(
-                          r"\s+",
-                          " ",
-                          text
-                      ).strip()
-
-
-                      self.current_row.append(
-                          text
-                      )
-
-                      self.current_cell = None
-
-                      self.in_td = False
-
-
-                  elif tag == "tr":
-
-                      if (
-                          self.current_row
-                          is not None
-                      ):
-
-                          if self.current_row:
-
-                              self.rows.append(
-                                  self.current_row
-                              )
-
-                      self.current_row = None
-
-                      self.current_cell = None
-
 
               def handle_data(
                   self,
                   data
               ):
 
-                  if (
-                      self.current_cell
-                      is not None
-                  ):
+                  self.parts.append(
+                      data
+                  )
 
-                      self.current_cell.append(
-                          data
-                      )
+              def get_text(
+                  self
+              ):
+
+                  return "".join(
+                      self.parts
+                  )
 
 
-          # ============================================================
-          # Helpers
-          # ============================================================
-
-          def clean_text(
-              text
+          def html_to_text(
+              html
           ):
+
+              parser = TextParser()
+
+              try:
+
+                  parser.feed(
+                      html
+                  )
+
+                  text = (
+                      parser.get_text()
+                  )
+
+              except Exception:
+
+                  text = re.sub(
+                      r"<[^>]+>",
+                      "\n",
+                      html
+                  )
 
               text = (
                   text
+                  .replace("\r\n", "\n")
+                  .replace("\r", "\n")
+              )
+
+              text = re.sub(
+                  r"[ \t]+",
+                  " ",
+                  text
+              )
+
+              text = re.sub(
+                  r"\n{3,}",
+                  "\n\n",
+                  text
+              )
+
+              return text.strip()
+
+
+          def clean_text(
+              value
+          ):
+
+              if value is None:
+                  return ""
+
+              value = (
+                  value
                   .replace(
                       "\u3000",
                       " "
@@ -746,1160 +827,72 @@ jobs:
                   )
               )
 
-              text = re.sub(
+              value = re.sub(
                   r"\s+",
                   " ",
-                  text
+                  value
               )
 
-              return text.strip()
+              return value.strip()
 
 
-          def is_horse_number(
-              text
+          # ============================================================
+          # Horse extraction
+          # ============================================================
+
+          HORSE_ODDS_RE = re.compile(
+              r"(?P<no>1[0-8]|[1-9])"
+              r"\s+"
+              r"(?P<name>"
+              r"[^\d\n]{1,40}?"
+              r")"
+              r"\s+"
+              r"(?P<odds>"
+              r"\d+(?:\.\d+)?"
+              r")"
+              r"\s*"
+              r"\("
+              r"(?P<pop>\d+)"
+              r"番人気"
+              r"\)"
+          )
+
+
+          HORSE_SIMPLE_RE = re.compile(
+              r"(?m)"
+              r"^\s*"
+              r"(?P<no>1[0-8]|[1-9])"
+              r"\s+"
+              r"(?P<name>"
+              r"[^\d\n]{2,40}"
+              r")"
+              r"(?:\s+|$)"
+          )
+
+
+          WEIGHT_RE = re.compile(
+              r"(\d{2,3}(?:\.\d+)?)\s*kg"
+          )
+
+
+          JOCKEY_RE = re.compile(
+              r"([一-龥ぁ-んァ-ヶA-Za-z"
+              r"．・\.]{2,12})"
+              r"\s*"
+              r"\("
+              r"(\d+(?:\.\d+)?)"
+              r"\)"
+          )
+
+
+          def normalize_horse_name(
+              name
           ):
 
-              text = clean_text(
-                  text
+              name = clean_text(
+                  name
               )
 
-              if not re.fullmatch(
-                  r"\d{1,2}",
-                  text
-              ):
-
-                  return None
-
-
-              value = int(
-                  text
-              )
-
-
-              if 1 <= value <= 18:
-
-                  return value
-
-
-              return None
-
-
-          # ============================================================
-          # Extract horse from a JRA table row
-          # ============================================================
-
-          def parse_horse_row(
-              row
-          ):
-
-              if not row:
-
-                  return None
-
-
-              cells = [
-                  clean_text(
-                      x
-                  )
-                  for x in row
-                  if clean_text(x)
-              ]
-
-
-              if not cells:
-
-                  return None
-
-
-              # --------------------------------------------------------
-              # Horse number
-              #
-              # Usually the first numeric cell after the frame cell.
-              # --------------------------------------------------------
-
-              horse_no = None
-
-              horse_no_index = None
-
-
-              for i, cell in enumerate(
-                  cells
-              ):
-
-                  value = is_horse_number(
-                      cell
-                  )
-
-                  if value is None:
-
-                      continue
-
-
-                  horse_no = value
-
-                  horse_no_index = i
-
-                  break
-
-
-              if horse_no is None:
-
-                  return None
-
-
-              # --------------------------------------------------------
-              # Horse name
-              #
-              # The name cell normally contains:
-              #
-              # Image: マルチ
-              # ヴェストラン
-              # 12.5(6番人気)
-              #
-              # or:
-              #
-              # エーオーキング
-              # 3.7(2番人気)
-              # --------------------------------------------------------
-
-              horse_name = ""
-
-              odds = None
-
-              popularity = None
-
-
-              for cell in cells[
-                  horse_no_index + 1:
-              ]:
-
-                  # Odds + popularity
-                  odds_match = re.search(
-
-                      r"(?P<odds>"
-                      r"\d+(?:\.\d+)?"
-                      r")\s*"
-                      r"\("
-                      r"(?P<pop>\d+)"
-                      r"番人気\)",
-
-                      cell
-
-                  )
-
-
-                  if odds_match:
-
-                      odds = float(
-                          odds_match.group(
-                              "odds"
-                          )
-                      )
-
-                      popularity = int(
-                          odds_match.group(
-                              "pop"
-                          )
-                      )
-
-
-                      candidate = (
-                          cell[
-                              :odds_match.start()
-                          ]
-                      )
-
-
-                      candidate = re.sub(
-                          r"Image:\s*",
-                          " ",
-                          candidate
-                      )
-
-
-                      candidate = re.sub(
-                          r"マルチ",
-                          " ",
-                          candidate
-                      )
-
-
-                      candidate = clean_text(
-                          candidate
-                      )
-
-
-                      # Some cells may contain trainer
-                      # information after the horse name.
-                      #
-                      # We only want the first reasonable
-                      # horse-name segment.
-                      #
-
-                      if candidate:
-
-                          horse_name = candidate
-
-                          break
-
-
-                  else:
-
-                      # Candidate name-only cell
-                      candidate = re.sub(
-                          r"Image:\s*",
-                          " ",
-                          cell
-                      )
-
-                      candidate = re.sub(
-                          r"マルチ",
-                          " ",
-                          candidate
-                      )
-
-                      candidate = clean_text(
-                          candidate
-                      )
-
-
-                      if (
-                          candidate
-                          and
-                          not re.search(
-                              r"調教師|美浦|栗東|本賞金|"
-                              r"血統|馬体重|性齢",
-                              candidate
-                          )
-                          and
-                          len(candidate) <= 40
-                      ):
-
-                          # Keep as temporary name.
-                          if not horse_name:
-
-                              horse_name = candidate
-
-
-              # --------------------------------------------------------
-              # If no odds were found, the row is still a valid horse.
-              #
-              # This is important because odds can temporarily be
-              # unavailable depending on JRA update timing.
-              # --------------------------------------------------------
-
-              if not horse_name:
-
-                  return None
-
-
-              # --------------------------------------------------------
-              # Weight
-              # --------------------------------------------------------
-
-              weight = None
-
-              for cell in cells:
-
-                  weight_match = re.search(
-                      r"(\d+(?:\.\d+)?)\s*kg",
-                      cell
-                  )
-
-                  if weight_match:
-
-                      weight = float(
-                          weight_match.group(
-                              1
-                          )
-                      )
-
-                      break
-
-
-              # --------------------------------------------------------
-              # Jockey
-              #
-              # The current JRA row contains:
-              #
-              # 騎手名(負担重量)
-              #
-              # We first look for a cell containing kg.
-              # --------------------------------------------------------
-
-              jockey = ""
-
-
-              for cell in cells:
-
-                  kg_match = re.search(
-                      r"kg",
-                      cell
-                  )
-
-                  if not kg_match:
-
-                      continue
-
-
-                  candidate = re.sub(
-                      r"\d+(?:\.\d+)?\s*kg",
-                      "",
-                      cell
-                  )
-
-                  candidate = clean_text(
-                      candidate
-                  )
-
-
-                  if candidate:
-
-                      jockey = candidate
-
-                      break
-
-
-              # --------------------------------------------------------
-              # Remove obvious non-jockey text
-              # --------------------------------------------------------
-
-              jockey = re.sub(
-                  r"\s*\(美浦\)\s*$",
-                  "",
-                  jockey
-              )
-
-              jockey = re.sub(
-                  r"\s*\(栗東\)\s*$",
-                  "",
-                  jockey
-              )
-
-
-              return {
-
-                  "no":
-                      horse_no,
-
-                  "name":
-                      horse_name,
-
-                  "odds":
-                      odds,
-
-                  "popularity":
-                      popularity,
-
-                  "weight":
-                      weight,
-
-                  "jockey":
-                      jockey,
-
-              }
-
-
-          # ============================================================
-          # Extract all horses from raw HTML
-          # ============================================================
-
-          def extract_horses(
-              raw
-          ):
-
-              parser = TableParser()
-
-              parser.feed(
-                  raw
-              )
-
-
-              horses = []
-
-
-              for row in parser.rows:
-
-                  horse = parse_horse_row(
-                      row
-                  )
-
-
-                  if horse is None:
-
-                      continue
-
-
-                  horses.append(
-                      horse
-                  )
-
-
-              # --------------------------------------------------------
-              # Deduplicate
-              # --------------------------------------------------------
-
-              unique = {}
-
-
-              for horse in horses:
-
-                  no = horse[
-                      "no"
-                  ]
-
-
-                  if no not in unique:
-
-                      unique[
-                          no
-                      ] = horse
-
-
-              horses = sorted(
-                  unique.values(),
-                  key=lambda x:
-                      x["no"]
-              )
-
-
-              return horses
-
-
-          # ============================================================
-          # Parse race information
-          # ============================================================
-
-          def parse_race(
-              raw,
-              token
-          ):
-
-              # --------------------------------------------------------
-              # Text version
-              # --------------------------------------------------------
-
-              class SimpleParser(
-                  HTMLParser
-              ):
-
-                  def __init__(
-                      self
-                  ):
-
-                      super().__init__(
-                          convert_charrefs=True
-                      )
-
-                      self.out = []
-
-
-                  def handle_starttag(
-                      self,
-                      tag,
-                      attrs
-                  ):
-
-                      if tag.lower() in (
-                          "br",
-                          "tr",
-                          "p"
-                      ):
-
-                          self.out.append(
-                              "\n"
-                          )
-
-
-                  def handle_data(
-                      self,
-                      data
-                  ):
-
-                      self.out.append(
-                          data
-                      )
-
-
-                  def get_text(
-                      self
-                  ):
-
-                      text = "".join(
-                          self.out
-                      )
-
-                      text = re.sub(
-                          r"[ \t]+",
-                          " ",
-                          text
-                      )
-
-                      return text
-
-
-              simple = SimpleParser()
-
-              simple.feed(
-                  raw
-              )
-
-              text = simple.get_text()
-
-
-              # --------------------------------------------------------
-              # Token
-              # --------------------------------------------------------
-
-              match = RACE_TOKEN_RE.fullmatch(
-                  token
-              )
-
-              if not match:
-
-                  return None
-
-
-              venue_code = match.group(
-                  "venue"
-              )
-
-              race_no = int(
-                  match.group(
-                      "race"
-                  )
-              )
-
-
-              # --------------------------------------------------------
-              # Start time
-              # --------------------------------------------------------
-
-              start_time = ""
-
-
-              time_match = re.search(
-                  r"発走時刻：?\s*"
-                  r"(\d{1,2})時"
-                  r"(\d{2})分",
-                  text
-              )
-
-
-              if time_match:
-
-                  start_time = (
-                      f"{int(time_match.group(1)):02d}:"
-                      f"{time_match.group(2)}"
-                  )
-
-
-              # --------------------------------------------------------
-              # Race name
-              # --------------------------------------------------------
-
-              race_name = ""
-
-
-              # Try the h2-like pattern first.
-              race_match = re.search(
-                  r"\n\s*([^\n]+)\n"
-                  r"\s*[^\n]*"
-                  r"コース：",
-                  text
-              )
-
-
-              if race_match:
-
-                  candidate = clean_text(
-                      race_match.group(1)
-                  )
-
-                  if candidate:
-
-                      race_name = candidate
-
-
-              if not race_name:
-
-                  race_name = "レース"
-
-
-              # --------------------------------------------------------
-              # Distance / surface
-              # --------------------------------------------------------
-
-              distance = None
-
-              surface = ""
-
-              course = ""
-
-
-              distance_match = re.search(
-                  r"コース：\s*"
-                  r"([\d,]+)メートル"
-                  r"（([^）]+)）",
-                  text
-              )
-
-
-              if distance_match:
-
-                  distance = int(
-                      distance_match.group(
-                          1
-                      ).replace(
-                          ",",
-                          ""
-                      )
-                  )
-
-
-                  course_info = (
-                      distance_match.group(
-                          2
-                      )
-                  )
-
-
-                  if "芝" in course_info:
-
-                      surface = "芝"
-
-                  elif "ダート" in course_info:
-
-                      surface = "ダート"
-
-
-                  course = course_info
-
-
-              # --------------------------------------------------------
-              # Going
-              # --------------------------------------------------------
-
-              going = ""
-
-
-              for value in (
-                  "不良",
-                  "重",
-                  "稍重",
-                  "良"
-              ):
-
-                  if re.search(
-                      rf"(芝|ダート)[^。\n]*{value}",
-                      text
-                  ):
-
-                      going = value
-
-                      break
-
-
-              # --------------------------------------------------------
-              # Horses
-              # --------------------------------------------------------
-
-              horses = extract_horses(
-                  raw
-              )
-
-
-              print(
-                  "  parsed horses:",
-                  len(horses)
-              )
-
-
-              # Debug first race if zero
-              if len(horses) == 0:
-
-                  print(
-                      "  WARNING: no horse rows detected"
-                  )
-
-                  print(
-                      "  HTML length:",
-                      len(raw)
-                  )
-
-                  # Show useful snippets for debugging.
-                  #
-                  # This will make the next failure diagnosable
-                  # without another blind rewrite.
-                  #
-
-                  for keyword in (
-                      "番人気",
-                      "負担重量",
-                      "馬番",
-                      "馬名"
-                  ):
-
-                      pos = raw.find(
-                          keyword
-                      )
-
-                      if pos >= 0:
-
-                          print(
-                              "  FOUND:",
-                              keyword,
-                              "at",
-                              pos
-                          )
-
-                          print(
-                              raw[
-                                  max(
-                                      0,
-                                      pos - 300
-                                  ):
-                                  pos + 700
-                              ]
-                          )
-
-
-              return {
-
-                  "venue":
-                      venue_names.get(
-                          venue_code,
-                          venue_code
-                      ),
-
-                  "venue_code":
-                      venue_code,
-
-                  "race_no":
-                      race_no,
-
-                  "date":
-                      date,
-
-                  "time":
-                      start_time,
-
-                  "name":
-                      race_name,
-
-                  "distance":
-                      distance,
-
-                  "surface":
-                      surface,
-
-                  "course":
-                      course,
-
-                  "going":
-                      going,
-
-                  "url":
-                      token_to_url(
-                          token
-                      ),
-
-                  "horses":
-                      horses,
-
-              }
-
-
-          # ============================================================
-          # Fetch races
-          # ============================================================
-
-          races = []
-
-
-          for token in race_tokens:
-
-              match = RACE_TOKEN_RE.fullmatch(
-                  token
-              )
-
-
-              venue_code = match.group(
-                  "venue"
-              )
-
-              race_no = int(
-                  match.group(
-                      "race"
-                  )
-              )
-
-
-              url = token_to_url(
-                  token
-              )
-
-
-              print()
-
-              print(
-                  "Fetching:",
-                  venue_names.get(
-                      venue_code,
-                      venue_code
-                  ),
-                  race_no
-              )
-
-              print(
-                  url
-              )
-
-
-              try:
-
-                  raw = request_get(
-                      url,
-                      ACCESS
-                  )
-
-
-                  race = parse_race(
-                      raw,
-                      token
-                  )
-
-
-                  if race:
-
-                      races.append(
-                          race
-                      )
-
-
-              except Exception as e:
-
-                  print(
-                      "  race fetch warning:",
-                      e
-                  )
-
-
-              time.sleep(
-                  0.4
-              )
-
-
-          # ============================================================
-          # Sort
-          # ============================================================
-
-          races.sort(
-
-              key=lambda r: (
-
-                  r["venue_code"],
-
-                  r["race_no"]
-
-              )
-
-          )
-
-
-          # ============================================================
-          # Venue counts
-          # ============================================================
-
-          venue_counts = {}
-
-
-          for race in races:
-
-              venue = race[
-                  "venue"
-              ]
-
-              venue_counts[
-                  venue
-              ] = venue_counts.get(
-                  venue,
-                  0
-              ) + 1
-
-
-          print()
-
-          print(
-              "======================================"
-          )
-
-          print(
-              "VENUE COUNTS"
-          )
-
-          print(
-              "======================================"
-          )
-
-
-          for venue in sorted(
-              venue_counts
-          ):
-
-              print(
-                  venue,
-                  venue_counts[
-                      venue
-                  ]
-              )
-
-
-          print()
-
-          print(
-              "======================================"
-          )
-
-          print(
-              "FINAL_RACES:",
-              len(races)
-          )
-
-          print(
-              "OFFICIAL_LINKS:",
-              len(races)
-          )
-
-          print(
-              "======================================"
-          )
-
-
-          # ============================================================
-          # Race validation
-          # ============================================================
-
-          discovered_venues = set(
-
-              RACE_TOKEN_RE.fullmatch(
-                  token
-              ).group("venue")
-
-              for token
-              in race_tokens
-
-          )
-
-
-          expected_races = (
-              len(
-                  discovered_venues
-              )
-              * 12
-          )
-
-
-          if len(races) != expected_races:
-
-              raise RuntimeError(
-
-                  "JRAレース取得数が不正です: "
-
-                  f"{len(races)}件 / "
-
-                  f"期待値{expected_races}件"
-
-              )
-
-
-          for venue_code in discovered_venues:
-
-              venue = venue_names.get(
-                  venue_code,
-                  venue_code
-              )
-
-
-              if venue_counts.get(
-                  venue,
-                  0
-              ) != 12:
-
-                  raise RuntimeError(
-
-                      f"{venue}の取得数が"
-                      f"12件ではありません: "
-                      f"{venue_counts.get(venue, 0)}件"
-
-                  )
-
-
-          # ============================================================
-          # Horse validation
-          # ============================================================
-
-          empty = [
-
-              race
-
-              for race in races
-
-              if len(
-                  race["horses"]
-              ) == 0
-
-          ]
-
-
-          if empty:
-
-              names = [
-
-                  f'{race["venue"]}'
-                  f'{race["race_no"]}R'
-
-                  for race
-                  in empty
-
-              ]
-
-
-              raise RuntimeError(
-
-                  "馬データを取得できない"
-                  "レースがあります: "
-
-                  + ", ".join(
-                      names
-                  )
-
-              )
-
-
-          # ============================================================
-          # Save JSON
-          # ============================================================
-
-          result = {
-
-              "date":
-                  date,
-
-              "updated_at":
-                  now.isoformat(),
-
-              "calendar_url":
-                  calendar_url,
-
-              "official_race_links": [
-
-                  race["url"]
-
-                  for race in races
-
-              ],
-
-              "races":
-                  races,
-
-              "source":
-                  "JRA公式 accessD",
-
-              "race_count":
-                  len(races),
-
-              "venue_counts":
-                  venue_counts,
-
-          }
-
-
-          with open(
-              "data/jra_daily.json",
-              "w",
-              encoding="utf-8"
-          ) as f:
-
-              json.dump(
-                  result,
-                  f,
-                  ensure_ascii=False,
-                  indent=2
-              )
-
-
-          # ============================================================
-          # Final summary
-          # ============================================================
-
-          total_horses = sum(
-
-              len(
-                  race["horses"]
-              )
-
-              for race
-              in races
-
-          )
-
-
-          print()
-
-          print(
-              "======================================"
-          )
-
-          print(
-              "JRA SYNC SUMMARY"
-          )
-
-          print(
-              "======================================"
-
-          )
-
-          print(
-              "DATE:",
-              date
-          )
-
-          print(
-              "VENUES:",
-              len(
-                  discovered_venues
-              )
-          )
-
-          print(
-              "RACES:",
-              len(races)
-          )
-
-          print(
-              "HORSES:",
-              total_horses
-          )
-
-          print(
-              "======================================"
-          )
-
-          print(
-              "JRA sync completed successfully."
-          )
-
-
-          PY
-
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "."
-
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+              name = re.sub(
+                  r"^(?:"
+                 
