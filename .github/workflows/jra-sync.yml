@@ -26,6 +26,7 @@ jobs:
           import re
           import json
           import html as htmlmod
+          from html.parser import HTMLParser
           from urllib.parse import quote
           from datetime import datetime, timezone, timedelta
 
@@ -35,11 +36,13 @@ jobs:
 
           JST = timezone(timedelta(hours=9))
           now = datetime.now(JST)
+          target_date = now.strftime("%Y%m%d")
 
           print("=" * 70)
           print("JRA DAILY SYNC")
           print("=" * 70)
           print("JST:", now.strftime("%Y-%m-%d %H:%M:%S"))
+          print("TARGET DATE:", target_date)
 
           session = requests.Session()
 
@@ -55,134 +58,207 @@ jobs:
           })
 
           # ============================================================
-          # 共通処理
+          # 共通
           # ============================================================
 
-          def decode(r):
-
+          def decode_response(r):
               enc = r.apparent_encoding or "utf-8"
 
               try:
-
                   return r.content.decode(
                       enc,
                       errors="replace"
                   )
-
               except Exception:
-
                   return r.text
 
+
           def clean_text(s):
-
-              s = htmlmod.unescape(s)
-
-              s = re.sub(
-                  r"(?is)<script.*?</script>",
-                  " ",
-                  s
-              )
-
-              s = re.sub(
-                  r"(?is)<style.*?</style>",
-                  " ",
-                  s
-              )
-
-              s = re.sub(
-                  r"(?is)<[^>]+>",
-                  " ",
-                  s
-              )
-
-              s = re.sub(
-                  r"\s+",
-                  " ",
-                  s
-              )
-
+              s = htmlmod.unescape(s or "")
+              s = re.sub(r"\s+", " ", s)
               return s.strip()
 
-          def to_int(s):
-
-              if s is None:
-                  return None
-
-              try:
-
-                  s = s.replace(
-                      "−",
-                      "-"
-                  )
-
-                  s = s.replace(
-                      "±",
-                      "+"
-                  )
-
-                  return int(s)
-
-              except:
-
-                  return None
 
           def to_float(s):
-
               if s is None:
                   return None
 
               try:
-
-                  return float(s)
-
-              except:
-
+                  return float(
+                      str(s)
+                      .replace(",", "")
+                      .replace("−", "-")
+                  )
+              except Exception:
                   return None
 
+
+          def to_int(s):
+              if s is None:
+                  return None
+
+              try:
+                  return int(
+                      str(s)
+                      .replace(",", "")
+                      .replace("−", "-")
+                  )
+              except Exception:
+                  return None
+
+
           # ============================================================
-          # 1. JRA 出馬表入口
+          # HTML TABLE PARSER
+          #
+          # BeautifulSoup不要。
+          # Python標準ライブラリだけでJRAのtable/tr/tdを解析する。
+          # ============================================================
+
+          class TableParser(HTMLParser):
+
+              def __init__(self):
+                  super().__init__(
+                      convert_charrefs=True
+                  )
+
+                  self.rows = []
+                  self.current_row = None
+                  self.current_cell = None
+
+                  self.links = []
+
+                  self.in_table = False
+                  self.in_row = False
+                  self.in_cell = False
+                  self.in_link = False
+
+                  self.current_href = None
+                  self.current_link_text = []
+
+
+              def handle_starttag(self, tag, attrs):
+
+                  tag = tag.lower()
+
+                  attrs_dict = dict(attrs)
+
+                  if tag == "table":
+                      self.in_table = True
+
+                  elif tag == "tr" and self.in_table:
+
+                      self.in_row = True
+                      self.current_row = []
+
+
+                  elif tag in ("td", "th") and self.in_row:
+
+                      self.in_cell = True
+                      self.current_cell = []
+
+
+                  elif tag == "a":
+
+                      self.in_link = True
+                      self.current_href = attrs_dict.get("href")
+                      self.current_link_text = []
+
+
+              def handle_data(self, data):
+
+                  if self.in_cell:
+
+                      self.current_cell.append(data)
+
+                  if self.in_link:
+
+                      self.current_link_text.append(data)
+
+
+              def handle_endtag(self, tag):
+
+                  tag = tag.lower()
+
+                  if tag == "a":
+
+                      if self.in_link:
+
+                          text = clean_text(
+                              "".join(
+                                  self.current_link_text
+                              )
+                          )
+
+                          if text:
+                              self.links.append({
+                                  "text": text,
+                                  "href": self.current_href
+                              })
+
+                      self.in_link = False
+                      self.current_href = None
+                      self.current_link_text = []
+
+
+                  elif tag in ("td", "th"):
+
+                      if self.in_cell:
+
+                          value = clean_text(
+                              "".join(
+                                  self.current_cell
+                              )
+                          )
+
+                          self.current_row.append(value)
+
+                      self.current_cell = None
+                      self.in_cell = False
+
+
+                  elif tag == "tr":
+
+                      if self.in_row:
+
+                          if self.current_row:
+
+                              self.rows.append(
+                                  self.current_row
+                              )
+
+                      self.current_row = None
+                      self.in_row = False
+
+
+                  elif tag == "table":
+
+                      self.in_table = False
+
+
+          # ============================================================
+          # JRA ENTRY
           # ============================================================
 
           print()
           print("[1] JRA ENTRY")
 
-          try:
+          r = session.post(
+              ACCESSD,
+              data={
+                  "cname": ENTRY_TOKEN
+              },
+              timeout=30,
+              allow_redirects=True
+          )
 
-              r = session.post(
-                  ACCESSD,
-                  data={
-                      "cname": ENTRY_TOKEN
-                  },
-                  timeout=30,
-                  allow_redirects=True
-              )
+          entry_html = decode_response(r)
 
-              entry_html = decode(r)
-
-              print(
-                  "STATUS:",
-                  r.status_code
-              )
-
-              print(
-                  "URL:",
-                  r.url
-              )
-
-              print(
-                  "BYTES:",
-                  len(r.content)
-              )
-
-          except Exception as e:
-
-              raise RuntimeError(
-                  "JRA出馬表入口の取得に失敗しました: "
-                  + repr(e)
-              )
+          print("STATUS:", r.status_code)
+          print("URL:", r.url)
+          print("BYTES:", len(r.content))
 
           # ============================================================
-          # 2. race token discovery
+          # RACE TOKEN DISCOVERY
           # ============================================================
 
           race_pattern = re.compile(
@@ -198,14 +274,11 @@ jobs:
 
           print()
           print(
-              "[2] ENTRY RACE TOKENS:",
+              "[2] INITIAL TOKENS:",
               len(race_tokens)
           )
 
-          queue = list(
-              race_tokens
-          )
-
+          queue = list(race_tokens)
           visited = set()
 
           while queue and len(visited) < 100:
@@ -234,7 +307,7 @@ jobs:
                       allow_redirects=True
                   )
 
-                  hh = decode(rr)
+                  hh = decode_response(rr)
 
                   found = race_pattern.findall(
                       hh
@@ -255,40 +328,14 @@ jobs:
                       repr(e)
                   )
 
+
           print(
-              "TOTAL DISCOVERED TOKENS:",
+              "TOTAL DISCOVERED:",
               len(race_tokens)
           )
 
           # ============================================================
-          # 3. 対象日
-          # ============================================================
-
-          target_date = now.strftime(
-              "%Y%m%d"
-          )
-
-          target_tokens = [
-              token
-              for token in sorted(
-                  race_tokens
-              )
-              if target_date in token
-          ]
-
-          print()
-          print(
-              "TARGET DATE:",
-              target_date
-          )
-
-          print(
-              "TARGET RACES:",
-              len(target_tokens)
-          )
-
-          # ============================================================
-          # 4. token解析
+          # TOKEN PARSER
           # ============================================================
 
           race_info_pattern = re.compile(
@@ -314,6 +361,7 @@ jobs:
               "10": "小倉"
           }
 
+
           def parse_token(token):
 
               m = race_info_pattern.search(
@@ -325,16 +373,14 @@ jobs:
 
               d = m.groupdict()
 
-              venue_code = d["venue"]
-
               return {
                   "venue_code":
-                      venue_code,
+                      d["venue"],
 
                   "venue":
                       venue_names.get(
-                          venue_code,
-                          venue_code
+                          d["venue"],
+                          d["venue"]
                       ),
 
                   "year":
@@ -353,196 +399,297 @@ jobs:
                       token
               }
 
-          # ============================================================
-          # 5. 馬ヘッダー
-          #
-          # 重要：
-          #
-          # 通常
-          #   464kg (+2)
-          #
-          # 新馬
-          #   464kg (初出走)
-          #
-          # の両方に対応。
-          # ============================================================
 
-          horse_header = re.compile(
-              r'(?<!\d)'
-              r'(?P<number>1[0-8]|[1-9])'
-              r'\s+'
-              r'(?P<name>.+?)'
-              r'\s+'
-              r'(?P<odds>[0-9]+(?:\.[0-9]+)?)'
-              r'\s*'
-              r'\('
-              r'\s*'
-              r'(?P<popularity>[0-9]+)'
-              r'\s*'
-              r'番人気'
-              r'\s*'
-              r'\)'
-              r'\s+'
-              r'(?P<weight>[0-9]{3})'
-              r'kg'
-              r'\s*'
-              r'\('
-              r'(?P<weight_info>[^)]*)'
-              r'\)'
+          target_tokens = [
+              token
+              for token in sorted(
+                  race_tokens
+              )
+              if target_date in token
+          ]
+
+          print()
+          print(
+              "TARGET RACES:",
+              len(target_tokens)
           )
 
           # ============================================================
-          # 6. 馬データ
+          # 馬名・オッズ解析
+          # ============================================================
+
+          horse_market_pattern = re.compile(
+              r'^(.+?)'
+              r'\s+'
+              r'([0-9]+(?:\.[0-9]+)?)'
+              r'\s*'
+              r'\('
+              r'\s*'
+              r'([0-9]+)'
+              r'\s*番人気'
+              r'\s*\)'
+          )
+
+
+          horse_weight_pattern = re.compile(
+              r'([0-9]{3})kg'
+              r'\s*'
+              r'\('
+              r'\s*'
+              r'([+-]?[0-9]+|初出走)'
+              r'\s*'
+              r'\)'
+          )
+
+
+          sex_age_pattern = re.compile(
+              r'([牡牝セ騙])([0-9]+)'
+          )
+
+
+          carried_pattern = re.compile(
+              r'([0-9]{2}(?:\.[0-9])?)\s*kg'
+          )
+
+
+          # ============================================================
+          # 馬データ解析
           # ============================================================
 
           def parse_horses(page_html):
 
-              text = clean_text(
-                  page_html
-              )
+              parser = TableParser()
 
-              matches = list(
-                  horse_header.finditer(
-                      text
-                  )
+              parser.feed(
+                  page_html
               )
 
               horses = []
 
-              for i, m in enumerate(
-                  matches
-              ):
+              for row in parser.rows:
 
-                  number = int(
-                      m.group("number")
+                  if not row:
+                      continue
+
+                  # 行全体
+                  joined = " ".join(
+                      row
                   )
 
-                  start = m.start()
-
-                  end = (
-                      matches[i + 1].start()
-                      if i + 1 < len(matches)
-                      else len(text)
+                  joined = clean_text(
+                      joined
                   )
 
-                  block = text[
-                      start:end
-                  ]
+                  # ----------------------------------------------------
+                  # 馬番
+                  # ----------------------------------------------------
 
-                  name = m.group(
-                      "name"
-                  ).strip()
+                  number = None
+
+                  for cell in row[:3]:
+
+                      m = re.fullmatch(
+                          r'(?:Image:\s*)?'
+                          r'([1-9]|1[0-8])',
+                          clean_text(cell)
+                      )
+
+                      if m:
+
+                          number = int(
+                              m.group(1)
+                          )
+
+                          break
+
+                  if number is None:
+                      continue
+
+                  # ----------------------------------------------------
+                  # 馬名 + オッズ + 人気
+                  #
+                  # JRAの表では同じセルに
+                  #
+                  # 馬名 3.2(1番人気) 446kg(-8)
+                  #
+                  # が入っている。
+                  # ----------------------------------------------------
+
+                  market_match = None
+                  market_cell_index = None
+
+                  for idx, cell in enumerate(row):
+
+                      m = horse_market_pattern.search(
+                          clean_text(cell)
+                      )
+
+                      if m:
+
+                          market_match = m
+                          market_cell_index = idx
+                          break
+
+                  if not market_match:
+                      continue
+
+                  name = clean_text(
+                      market_match.group(1)
+                  )
 
                   odds = to_float(
-                      m.group("odds")
+                      market_match.group(2)
                   )
 
                   popularity = int(
-                      m.group(
-                          "popularity"
-                      )
-                  )
-
-                  body_weight = int(
-                      m.group("weight")
-                  )
-
-                  weight_info = (
-                      m.group(
-                          "weight_info"
-                      )
-                      .strip()
+                      market_match.group(3)
                   )
 
                   # ----------------------------------------------------
-                  # 馬体重増減
+                  # 馬名の安全チェック
                   # ----------------------------------------------------
 
+                  if not name:
+                      continue
+
+                  # 馬名に明らかな過去走情報が入っていたら除外
+                  bad_name_patterns = [
+                      r'\d{4}年',
+                      r'着\s*\d+',
+                      r'頭\s*\d+',
+                      r'3F',
+                      r'前走',
+                      r'前々走',
+                      r'父：',
+                      r'母：'
+                  ]
+
+                  if any(
+                      re.search(
+                          p,
+                          name
+                      )
+                      for p in bad_name_patterns
+                  ):
+                      continue
+
+                  # ----------------------------------------------------
+                  # 馬体重
+                  # ----------------------------------------------------
+
+                  body_weight = None
                   body_weight_diff = None
 
-                  if weight_info != "初出走":
+                  for cell in row:
 
-                      body_weight_diff = to_int(
-                          weight_info
+                      wm = horse_weight_pattern.search(
+                          clean_text(cell)
                       )
 
+                      if wm:
+
+                          body_weight = int(
+                              wm.group(1)
+                          )
+
+                          diff = wm.group(2)
+
+                          if diff != "初出走":
+
+                              body_weight_diff = to_int(
+                                  diff
+                              )
+
+                          break
+
                   # ----------------------------------------------------
-                  # 性齢
+                  # 性齢・斤量・騎手
+                  #
+                  # 通常は4番目付近のセル。
                   # ----------------------------------------------------
 
                   sex_age = None
-
-                  sex_age_match = re.search(
-                      r'([牡牝セ騙])([0-9]+)',
-                      block
-                  )
-
-                  if sex_age_match:
-
-                      sex_age = (
-                          sex_age_match.group(1)
-                          + sex_age_match.group(2)
-                      )
-
-                  # ----------------------------------------------------
-                  # 負担重量・騎手
-                  # ----------------------------------------------------
-
                   carried_weight = None
                   jockey = None
 
-                  carried_match = re.search(
-                      r'([0-9]{2}(?:\.[0-9])?)'
-                      r'\s*kg'
-                      r'\s+'
-                      r'(?:★|▲|△|◇|☆)?'
-                      r'\s*'
-                      r'([^0-9]{1,30}?)'
-                      r'\s+'
-                      r'(?:前走|前々走|3走前|4走前|5走前|調教師|騎手)',
-                      block
-                  )
+                  for cell in row:
 
-                  if carried_match:
-
-                      carried_weight = to_float(
-                          carried_match.group(1)
+                      cell = clean_text(
+                          cell
                       )
 
-                      jockey = (
-                          carried_match.group(2)
-                          .strip()
+                      sm = sex_age_pattern.search(
+                          cell
                       )
 
-                  # ----------------------------------------------------
-                  # 騎手の別パターン
-                  # ----------------------------------------------------
+                      if sm and sex_age is None:
 
-                  if jockey is None:
-
-                      jockey_match = re.search(
-                          r'([0-9]{2}(?:\.[0-9])?)'
-                          r'\s*kg'
-                          r'\s+'
-                          r'(?:★|▲|△|◇|☆)?'
-                          r'\s*'
-                          r'([^0-9]{1,30}?)'
-                          r'(?=\s+[0-9]+\s)',
-                          block
-                      )
-
-                      if jockey_match:
-
-                          carried_weight = to_float(
-                              jockey_match.group(1)
+                          sex_age = (
+                              sm.group(1)
+                              + sm.group(2)
                           )
 
-                          jockey = (
-                              jockey_match.group(2)
-                              .strip()
+                          # 同じセルから斤量を取得
+                          cm = carried_pattern.search(
+                              cell
                           )
+
+                          if cm:
+
+                              carried_weight = to_float(
+                                  cm.group(1)
+                              )
+
+                              # 斤量の後ろに騎手名
+                              after = cell[
+                                  cm.end():
+                              ]
+
+                              after = re.sub(
+                                  r'^[★▲△◇☆\s]+',
+                                  '',
+                                  after
+                              )
+
+                              # 余計な記号等を除去
+                              after = re.sub(
+                                  r'\s+',
+                                  ' ',
+                                  after
+                              ).strip()
+
+                              if after:
+
+                                  # 過去走が同じセルに入る場合は
+                                  # 最初の区切りまで
+                                  after = re.split(
+                                      r'\s+\d{4}年',
+                                      after
+                                  )[0].strip()
+
+                                  if after:
+                                      jockey = after
+
+                  # ----------------------------------------------------
+                  # 騎手名の最終クリーニング
+                  # ----------------------------------------------------
+
+                  if jockey:
+
+                      jockey = re.sub(
+                          r'^[★▲△◇☆]+',
+                          '',
+                          jockey
+                      ).strip()
+
+                      jockey = re.sub(
+                          r'\s*\|\s*',
+                          ' ',
+                          jockey
+                      ).strip()
 
                   horses.append({
+
                       "number":
                           number,
 
@@ -571,9 +718,10 @@ jobs:
                           jockey
                   })
 
-              # ========================================================
+
+              # --------------------------------------------------------
               # 重複除去
-              # ========================================================
+              # --------------------------------------------------------
 
               unique = {}
 
@@ -587,6 +735,7 @@ jobs:
 
                       unique[number] = horse
 
+
               horses = [
                   unique[n]
                   for n in sorted(
@@ -596,27 +745,25 @@ jobs:
 
               return horses
 
+
           # ============================================================
-          # 7. レース取得
+          # レース取得
           # ============================================================
 
           races = []
-
           failures = []
+          quality_warnings = []
 
           venue_count = {}
 
           sorted_tokens = sorted(
               target_tokens,
               key=lambda x: (
-                  parse_token(x)[
-                      "venue_code"
-                  ],
-                  parse_token(x)[
-                      "race_number"
-                  ]
+                  parse_token(x)["venue_code"],
+                  parse_token(x)["race_number"]
               )
           )
+
 
           for index, token in enumerate(
               sorted_tokens,
@@ -661,7 +808,7 @@ jobs:
                       allow_redirects=True
                   )
 
-                  hh = decode(
+                  page_html = decode_response(
                       rr
                   )
 
@@ -673,7 +820,7 @@ jobs:
                   )
 
                   horses = parse_horses(
-                      hh
+                      page_html
                   )
 
                   print(
@@ -682,10 +829,10 @@ jobs:
                   )
 
                   # ----------------------------------------------------
-                  # 0頭なら失敗
+                  # 0頭
                   # ----------------------------------------------------
 
-                  if len(horses) == 0:
+                  if not horses:
 
                       failures.append({
                           "venue":
@@ -703,6 +850,64 @@ jobs:
 
                       continue
 
+                  # ----------------------------------------------------
+                  # 品質チェック
+                  # ----------------------------------------------------
+
+                  for horse in horses:
+
+                      warning = []
+
+                      if not horse["name"]:
+                          warning.append(
+                              "name missing"
+                          )
+
+                      if horse["odds"] is None:
+                          warning.append(
+                              "odds missing"
+                          )
+
+                      if horse["popularity"] is None:
+                          warning.append(
+                              "popularity missing"
+                          )
+
+                      if horse["body_weight"] is None:
+                          warning.append(
+                              "body weight missing"
+                          )
+
+                      if (
+                          re.search(
+                              r'\d{4}年|着\s*\d+|3F|前走',
+                              horse["name"]
+                          )
+                      ):
+                          warning.append(
+                              "name looks corrupted"
+                          )
+
+                      if warning:
+
+                          quality_warnings.append({
+                              "venue":
+                                  venue,
+
+                              "race_number":
+                                  race_no,
+
+                              "horse_number":
+                                  horse["number"],
+
+                              "name":
+                                  horse["name"],
+
+                              "warnings":
+                                  warning
+                          })
+
+
                   venue_count[
                       venue
                   ] = (
@@ -712,7 +917,9 @@ jobs:
                       ) + 1
                   )
 
+
                   races.append({
+
                       "date":
                           info["date"],
 
@@ -735,6 +942,7 @@ jobs:
                           horses
                   })
 
+
               except Exception as e:
 
                   print(
@@ -743,6 +951,7 @@ jobs:
                   )
 
                   failures.append({
+
                       "venue":
                           venue,
 
@@ -756,8 +965,9 @@ jobs:
                           repr(e)
                   })
 
+
           # ============================================================
-          # 8. 結果
+          # 結果
           # ============================================================
 
           print()
@@ -775,6 +985,12 @@ jobs:
               len(failures)
           )
 
+          print(
+              "QUALITY WARNINGS:",
+              len(quality_warnings)
+          )
+
+
           for venue in [
               "札幌",
               "中山",
@@ -791,33 +1007,49 @@ jobs:
                   "/12"
               )
 
-          if failures:
 
-              print()
+          # ------------------------------------------------------------
+          # 馬名サンプル
+          # ------------------------------------------------------------
+
+          print()
+          print("HORSE NAME CHECK")
+
+          for race in races[:3]:
+
               print(
-                  "FAILURE DETAILS"
+                  race["venue"],
+                  race["race_number"],
+                  "R"
               )
 
-              for failure in failures:
+              for horse in race["horses"][:5]:
 
                   print(
-                      failure[
-                          "venue"
-                      ],
-                      failure[
-                          "race_number"
-                      ],
-                      "R:",
-                      failure[
-                          "reason"
-                      ]
+                      " ",
+                      horse["number"],
+                      horse["name"],
+                      "| odds=",
+                      horse["odds"],
+                      "| pop=",
+                      horse["popularity"],
+                      "| weight=",
+                      horse["body_weight"],
+                      "| diff=",
+                      horse["body_weight_diff"],
+                      "| carried=",
+                      horse["carried_weight"],
+                      "| jockey=",
+                      horse["jockey"]
                   )
 
+
           # ============================================================
-          # 9. JSON保存
+          # JSON
           # ============================================================
 
           output = {
+
               "updated_at":
                   now.isoformat(),
 
@@ -837,8 +1069,12 @@ jobs:
                   races,
 
               "failures":
-                  failures
+                  failures,
+
+              "quality_warnings":
+                  quality_warnings
           }
+
 
           import os
 
@@ -846,6 +1082,7 @@ jobs:
               "data",
               exist_ok=True
           )
+
 
           with open(
               "data/jra_daily.json",
@@ -860,14 +1097,9 @@ jobs:
                   indent=2
               )
 
-          print()
-          print(
-              "JSON:",
-              "data/jra_daily.json"
-          )
 
           # ============================================================
-          # 10. GitHub Actions Summary
+          # Actions Summary
           # ============================================================
 
           summary = []
@@ -890,6 +1122,10 @@ jobs:
               f"- failures: `{len(failures)}`"
           )
 
+          summary.append(
+              f"- quality warnings: `{len(quality_warnings)}`"
+          )
+
           summary.append("")
 
           summary.append(
@@ -906,6 +1142,7 @@ jobs:
                   f"- {venue}: "
                   f"{venue_count.get(venue, 0)}/12"
               )
+
 
           summary.append("")
 
@@ -927,9 +1164,30 @@ jobs:
                   f"{len(race['horses'])}頭"
               )
 
+
+          if quality_warnings:
+
+              summary.append("")
+
+              summary.append(
+                  "## Quality warnings"
+              )
+
+              for warning in quality_warnings[:50]:
+
+                  summary.append(
+                      f"- {warning['venue']}"
+                      f"{warning['race_number']}R "
+                      f"{warning['horse_number']}番 "
+                      f"{warning['name']}: "
+                      f"{', '.join(warning['warnings'])}"
+                  )
+
+
           if failures:
 
               summary.append("")
+
               summary.append(
                   "## Failures"
               )
@@ -941,6 +1199,7 @@ jobs:
                       f"{failure['race_number']}R: "
                       f"{failure['reason']}"
                   )
+
 
           with open(
               os.environ[
@@ -954,24 +1213,52 @@ jobs:
                   "\n".join(summary)
               )
 
+
           # ============================================================
-          # 11. 完全失敗の場合のみエラー
+          # 最終判定
           # ============================================================
 
+          # 36レースを想定。
+          # 1レースでも取得できなければ失敗。
           if len(races) == 0:
 
               raise RuntimeError(
                   "JRAのレースデータを1件も取得できませんでした。"
               )
 
+
+          if failures:
+
+              raise RuntimeError(
+                  f"JRAレース取得失敗: "
+                  f"{len(failures)}件"
+              )
+
+
+          # 馬名破損は重大なので失敗扱い。
+          corrupted = [
+              w
+              for w in quality_warnings
+              if "name looks corrupted"
+              in w["warnings"]
+          ]
+
+          if corrupted:
+
+              raise RuntimeError(
+                  "馬名データに破損の可能性があります: "
+                  + str(len(corrupted))
+                  + "件"
+              )
+
+
           print()
           print("=" * 70)
-          print(
-              "JRA SYNC FINISHED"
-          )
+          print("JRA SYNC FINISHED SUCCESSFULLY")
           print("=" * 70)
 
           PY
+
 
       - name: Commit JSON
         run: |
