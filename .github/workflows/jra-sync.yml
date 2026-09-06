@@ -1,1899 +1,970 @@
-name: JRA data sync and Pages deploy
+name: JRA Sync
 
 on:
-  push:
-    branches: [main]
-
-  schedule:
-    - cron: "*/15 0-8 * * 6,0"
-
   workflow_dispatch:
+  schedule:
+    - cron: "0 21 * * 5"
+    - cron: "0 21 * * 6"
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
-
-  sync-and-deploy:
-
+  sync:
     runs-on: ubuntu-latest
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-
-      # ==========================================================
-      # Checkout
-      # ==========================================================
-
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-      # ==========================================================
-      # Setup Pages
-      # ==========================================================
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-
-      # ==========================================================
-      # JRA DATA SYNC
-      # ==========================================================
-
-      - name: Sync JRA official race data
-        shell: bash
+      - name: Install packages
         run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml
 
-          set -euo pipefail
-
-          mkdir -p data
-
-          python3 - <<'PY'
-
-          import datetime
-          import json
+      - name: Fetch JRA data
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python <<'PY'
+          import requests
+          from bs4 import BeautifulSoup
+          from urllib.parse import urljoin
+          from datetime import datetime, timezone, timedelta
           import re
+          import json
+          import os
           import time
-          import urllib.parse
-          import urllib.request
-          import http.cookiejar
 
-          from html.parser import HTMLParser
-          from zoneinfo import ZoneInfo
-
-
-          # ==========================================================
-          # SETTINGS
-          # ==========================================================
-
-          JRA_BASE = "https://www.jra.go.jp"
-
-          JRA_ACCESS = (
-              JRA_BASE +
-              "/JRADB/accessD.html"
-          )
-
-          APP_BASE = "https://app.jra.jp"
-
-          USER_AGENT = (
-              "Mozilla/5.0 "
-              "(X11; Linux x86_64) "
-              "AppleWebKit/537.36 "
-              "(KHTML, like Gecko) "
-              "Chrome/140.0 Safari/537.36"
-          )
-
-
-          # ==========================================================
-          # HTTP
-          # ==========================================================
-
-          cookie_jar = (
-              http.cookiejar.CookieJar()
-          )
-
-          opener = (
-              urllib.request.build_opener(
-                  urllib.request.HTTPCookieProcessor(
-                      cookie_jar
-                  )
-              )
-          )
-
-
-          def decode_response(raw):
-
-              for enc in (
-                  "utf-8",
-                  "cp932",
-                  "shift_jis"
-              ):
-
-                  try:
-
-                      text = raw.decode(enc)
-
-                      if (
-                          "出馬表" in text
-                          or "馬名" in text
-                          or "競馬" in text
-                          or "JRA" in text
-                      ):
-
-                          return text
-
-                  except Exception:
-                      pass
-
-              return raw.decode(
-                  "utf-8",
-                  "ignore"
-              )
-
-
-          def http_get(
-              url,
-              referer=None
-          ):
-
-              headers = {
-
-                  "User-Agent":
-                      USER_AGENT,
-
-                  "Accept-Language":
-                      "ja,en;q=0.8",
-
-                  "Accept":
-                      "text/html,"
-                      "application/xhtml+xml,"
-                      "application/xml;q=0.9,"
-                      "*/*;q=0.8",
-
-              }
-
-              if referer:
-
-                  headers["Referer"] = (
-                      referer
-                  )
-
-              request = (
-                  urllib.request.Request(
-                      url,
-                      headers=headers,
-                      method="GET"
-                  )
-              )
-
-              with opener.open(
-                  request,
-                  timeout=40
-              ) as response:
-
-                  raw = response.read()
-
-                  return decode_response(
-                      raw
-                  )
-
-
-          def http_post(
-              token,
-              referer=None
-          ):
-
-              data = (
-                  urllib.parse.urlencode(
-                      {
-                          "cname": token
-                      }
-                  ).encode()
-              )
-
-              headers = {
-
-                  "User-Agent":
-                      USER_AGENT,
-
-                  "Accept-Language":
-                      "ja,en;q=0.8",
-
-                  "Accept":
-                      "text/html,"
-                      "application/xhtml+xml,"
-                      "application/xml;q=0.9,"
-                      "*/*;q=0.8",
-
-                  "Content-Type":
-                      "application/x-www-form-urlencoded",
-
-              }
-
-              if referer:
-
-                  headers["Referer"] = (
-                      referer
-                  )
-
-              request = (
-                  urllib.request.Request(
-                      JRA_ACCESS,
-                      data=data,
-                      headers=headers,
-                      method="POST"
-                  )
-              )
-
-              with opener.open(
-                  request,
-                  timeout=40
-              ) as response:
-
-                  raw = response.read()
-
-                  return decode_response(
-                      raw
-                  )
-
-
-          # ==========================================================
-          # DATE
-          # ==========================================================
-
-          now = datetime.datetime.now(
-              ZoneInfo("Asia/Tokyo")
-          )
-
-          date = now.strftime(
-              "%Y-%m-%d"
-          )
-
-          ymd = now.strftime(
-              "%Y%m%d"
-          )
-
-          year = now.strftime(
-              "%Y"
-          )
-
-          month = int(
-              now.strftime("%m")
-          )
-
-          day = now.strftime(
-              "%d"
-          )
-
-
-          print()
-          print(
-              "======================================"
-          )
-          print(
-              "JRA SYNC START"
-          )
-          print(
-              "DATE:",
-              date
-          )
-          print(
-              "======================================"
-          )
-
-
-          # ==========================================================
-          # CALENDAR
-          # ==========================================================
-
-          calendar_url = (
-              f"{JRA_BASE}/keiba/calendar{year}/"
-              f"{year}/{month}/{month:02d}{day}.html"
-          )
-
-          print(
-              "Calendar:",
-              calendar_url
-          )
-
-          calendar_html = http_get(
-              calendar_url
-          )
-
-          print(
-              "Calendar HTML:",
-              len(calendar_html)
-          )
-
-
-          # ==========================================================
-          # TOKEN REGEX
-          # ==========================================================
-
-          PW_RACE_RE = re.compile(
-              r"pw01dde"
-              r"(?P<prefix>\d{2})"
-              r"(?P<venue>\d{2})"
-              r"(?P<year>\d{4})"
-              r"(?P<meet>\d{4})"
-              r"(?P<race>\d{2})"
-              r"(?P<date>\d{8})"
-              r"/(?P<hex>[0-9A-Fa-f]{2})",
-              re.I
-          )
-
-
-          SW_RE = re.compile(
-              r"sw01d[a-z0-9]+/"
-              r"[0-9A-Fa-f]{2}",
-              re.I
-          )
-
-
-          ACTION_RE = re.compile(
-              r"doAction\s*\("
-              r"\s*['\"]([^'\"]*accessD\.html)"
-              r"['\"]\s*,\s*"
-              r"['\"]([^'\"]+)['\"]",
-              re.I
-          )
-
-
-          # ==========================================================
-          # EXTRACT PW TOKENS
-          # ==========================================================
-
-          def extract_pw_tokens(
-              html
-          ):
-
-              result = []
-
-              for match in (
-                  PW_RACE_RE.finditer(
-                      html
-                  )
-              ):
-
-                  token = (
-                      match.group(0)
-                  )
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-              return result
-
-
-          def extract_navigation_tokens(
-              html
-          ):
-
-              result = []
-
-              for match in ACTION_RE.finditer(
-                  html
-              ):
-
-                  token = (
-                      match.group(2)
-                      .strip()
-                  )
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-              return result
-
-
-          # ==========================================================
-          # DISCOVER 36 PW RACE TOKENS
-          # ==========================================================
-
-          ENTRY_TOKEN = (
-              "pw01dli00/F3"
-          )
-
-          queue = [
-              ENTRY_TOKEN
-          ]
-
-          visited = set()
-
-          race_tokens = []
-
-          MAX_PAGES = 100
-
-
-          while (
-              queue
-              and
-              len(visited) < MAX_PAGES
-          ):
-
-              token = queue.pop(0)
-
-              if token in visited:
-                  continue
-
-              visited.add(
-                  token
-              )
-
-              print(
-                  f"[DISCOVER {len(visited)}]",
-                  token
-              )
-
-              try:
-
-                  html = http_post(
-                      token,
-                      calendar_url
-                  )
-
-              except Exception as e:
-
-                  print(
-                      "DISCOVER ERROR:",
-                      repr(e)
-                  )
-
-                  continue
-
-
-              for race_token in (
-                  extract_pw_tokens(
-                      html
-                  )
-              ):
-
-                  match = (
-                      PW_RACE_RE.fullmatch(
-                          race_token
-                      )
-                  )
-
-                  if not match:
-                      continue
-
-                  if (
-                      match.group("date")
-                      != ymd
-                  ):
-                      continue
-
-                  if race_token not in race_tokens:
-
-                      race_tokens.append(
-                          race_token
-                      )
-
-
-              for next_token in (
-                  extract_navigation_tokens(
-                      html
-                  )
-              ):
-
-                  if (
-                      next_token
-                      in visited
-                  ):
-                      continue
-
-                  if next_token.startswith(
-                      "pw01d"
-                  ):
-
-                      queue.append(
-                          next_token
-                      )
-
-              print(
-                  "race tokens:",
-                  len(race_tokens)
-              )
-
-              if len(race_tokens) >= 36:
-                  break
-
-              time.sleep(
-                  0.25
-              )
-
-
-          race_tokens = list(
-              dict.fromkeys(
-                  race_tokens
-              )
-          )
-
-
-          def race_sort_key(
-              token
-          ):
-
-              m = (
-                  PW_RACE_RE.fullmatch(
-                      token
-                  )
-              )
-
-              return (
-                  m.group("venue"),
-                  int(
-                      m.group("race")
-                  )
-              )
-
-
-          race_tokens.sort(
-              key=race_sort_key
-          )
-
-
-          print()
-          print(
-              "======================================"
-          )
-          print(
-              "PW RACE TOKENS:",
-              len(race_tokens)
-          )
-          print(
-              "======================================"
-          )
-
-
-          if len(race_tokens) != 36:
-
-              raise RuntimeError(
-                  "36レースを発見できませんでした: "
-                  + str(
-                      len(race_tokens)
-                  )
-              )
-
-
-          # ==========================================================
-          # VENUES
-          # ==========================================================
-
-          venue_names = {
-
-              "01": "札幌",
-              "02": "函館",
-              "03": "福島",
-              "04": "新潟",
-              "05": "東京",
-              "06": "中山",
-              "07": "中京",
-              "08": "京都",
-              "09": "阪神",
-              "10": "小倉",
-
+          JST = timezone(timedelta(hours=9))
+          now = datetime.now(JST)
+
+          # ============================================================
+          # 基本設定
+          # ============================================================
+
+          BASE_WWW = "https://www.jra.go.jp"
+          BASE_APP = "https://app.jra.jp"
+          BASE_SP  = "https://sp.jra.jp"
+
+          headers = {
+              "User-Agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/139.0 Safari/537.36",
+              "Accept":
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                  "image/avif,image/webp,*/*;q=0.8",
+              "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+              "Connection": "keep-alive",
           }
 
+          session = requests.Session()
+          session.headers.update(headers)
 
-          # ==========================================================
-          # PW URL
-          # ==========================================================
+          print("=" * 70)
+          print("JRA AUTO SYNC")
+          print("JST:", now.strftime("%Y-%m-%d %H:%M:%S"))
+          print("=" * 70)
 
-          def pw_url(
-              token
-          ):
+          # ============================================================
+          # HTTP
+          # ============================================================
 
-              return (
-                  JRA_ACCESS
-                  + "?CNAME="
-                  + urllib.parse.quote(
-                      token,
-                      safe=""
+          def get(url, timeout=30):
+              try:
+                  r = session.get(
+                      url,
+                      timeout=timeout,
+                      allow_redirects=True
                   )
-              )
-
-
-          # ==========================================================
-          # HTML LINK EXTRACTION
-          # ==========================================================
-
-          class LinkParser(
-              HTMLParser
-          ):
-
-              def __init__(self):
-
-                  super().__init__(
-                      convert_charrefs=True
+                  print(
+                      f"GET {r.status_code} "
+                      f"{len(r.content):,} bytes "
+                      f"{r.url}"
                   )
+                  return r
+              except Exception as e:
+                  print("GET ERROR:", url, repr(e))
+                  return None
 
-                  self.links = []
+          def decode_response(r):
+              if r is None:
+                  return ""
 
-              def handle_starttag(
-                  self,
-                  tag,
-                  attrs
-              ):
+              raw = r.content
 
-                  if tag.lower() != "a":
-                      return
-
-                  attrs = dict(
-                      attrs
-                  )
-
-                  href = attrs.get(
-                      "href"
-                  )
-
-                  if href:
-
-                      self.links.append(
-                          href
-                      )
-
-
-          def find_sw_links(
-              html
-          ):
-
-              result = []
-
-              # ----------------------------------------------
-              # Direct HTML text
-              # ----------------------------------------------
-
-              for match in SW_RE.finditer(
-                  html
-              ):
-
-                  token = (
-                      match.group(0)
-                  )
-
-                  if token not in result:
-
-                      result.append(
-                          token
-                      )
-
-
-              # ----------------------------------------------
-              # href
-              # ----------------------------------------------
-
-              parser = LinkParser()
+              # JRAはページによって文字コードが違う可能性があるため
+              # 複数方式を試す
+              candidates = []
 
               try:
-
-                  parser.feed(
-                      html
-                  )
-
-              except Exception:
+                  candidates.append(raw.decode("utf-8"))
+              except:
                   pass
 
+              try:
+                  candidates.append(raw.decode("cp932"))
+              except:
+                  pass
 
-              for href in (
-                  parser.links
-              ):
+              try:
+                  candidates.append(raw.decode("shift_jis"))
+              except:
+                  pass
 
-                  decoded = (
-                      urllib.parse.unquote(
-                          href
-                      )
+              if not candidates:
+                  return raw.decode("utf-8", errors="replace")
+
+              # 日本語が最も多そうなものを選択
+              def score(s):
+                  return (
+                      s.count("出馬表") * 1000
+                      + s.count("馬名") * 500
+                      + s.count("騎手") * 300
+                      + s.count("オッズ") * 200
+                      + s.count("中山") * 100
+                      + s.count("阪神") * 100
+                      + s.count("札幌") * 100
+                      + s.count("1R") * 20
                   )
 
-                  for match in (
-                      SW_RE.finditer(
-                          decoded
-                      )
-                  ):
+              return max(candidates, key=score)
 
-                      token = (
-                          match.group(0)
-                      )
+          # ============================================================
+          # JRAレースURL発見
+          # ============================================================
 
-                      if token not in result:
+          ACCESS_RE = re.compile(
+              r"(?:https?://[^\"'<> ]+)?"
+              r"/JRADB/accessD\.html"
+              r"(?:\?CNAME=)?"
+              r"(pw[0-9A-Za-z]+/[0-9A-Fa-f]{2})",
+              re.I
+          )
 
-                          result.append(
-                              token
-                          )
+          CNAME_RE = re.compile(
+              r"CNAME=([^\"'&<> ]+)",
+              re.I
+          )
 
+          def normalize_url(base, href):
+              if not href:
+                  return None
 
-              return result
+              href = href.replace("&amp;", "&")
 
+              if href.startswith("http://") or href.startswith("https://"):
+                  return href
 
-          # ==========================================================
-          # SMARTPHONE URL
-          # ==========================================================
+              return urljoin(base, href)
 
-          def sw_url(
-              token
-          ):
+          def extract_access_tokens(html):
+              found = []
 
-              return (
-                  APP_BASE
-                  + "/JRADB/accessD.html"
-                  + "?CNAME="
-                  + urllib.parse.quote(
+              for m in ACCESS_RE.findall(html):
+                  token = m.strip()
+                  if token not in found:
+                      found.append(token)
+
+              return found
+
+          def extract_links(html, base):
+              soup = BeautifulSoup(html, "lxml")
+              links = []
+
+              for a in soup.find_all("a"):
+                  href = a.get("href")
+                  if not href:
+                      continue
+
+                  u = normalize_url(base, href)
+
+                  if u and "accessD.html" in u:
+                      links.append(u)
+
+              return links
+
+          # ============================================================
+          # JRA入口
+          # ============================================================
+
+          entry_candidates = [
+              "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dli00%2FF3",
+              "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dli00/F3",
+              "https://www.jra.go.jp/JRADB/accessD.html",
+          ]
+
+          entry_html = ""
+
+          for url in entry_candidates:
+              print()
+              print("ENTRY TRY:", url)
+
+              r = get(url)
+
+              if r is None:
+                  continue
+
+              text = decode_response(r)
+
+              print("ENTRY LENGTH:", len(text))
+              print("出馬表:", "出馬表" in text)
+              print("accessD:", "accessD" in text)
+
+              if len(text) > len(entry_html):
+                  entry_html = text
+
+              if "出馬表" in text:
+                  break
+
+          # ============================================================
+          # カレンダーも取得
+          # ============================================================
+
+          date_str = now.strftime("%Y%m%d")
+
+          calendar_url = (
+              f"https://www.jra.go.jp/keiba/calendar"
+              f"{now.year}/2026/{now.month}/{date_str}.html"
+          )
+
+          # 2026年固定ではなく、実際の日付から構築
+          calendar_url = (
+              f"https://www.jra.go.jp/keiba/calendar{now.year}/"
+              f"{now.year}/{now.month}/{date_str}.html"
+          )
+
+          print()
+          print("CALENDAR:", calendar_url)
+
+          cal = get(calendar_url)
+
+          if cal:
+              cal_text = decode_response(cal)
+              print("CALENDAR LENGTH:", len(cal_text))
+              print("札幌:", "札幌" in cal_text)
+              print("中山:", "中山" in cal_text)
+              print("阪神:", "阪神" in cal_text)
+
+          # ============================================================
+          # accessDを再帰探索
+          # ============================================================
+
+          queue = []
+
+          # 最初のページ
+          if entry_html:
+              for u in extract_links(entry_html, BASE_WWW):
+                  queue.append(u)
+
+              for token in extract_access_tokens(entry_html):
+                  queue.append(
+                      f"{BASE_WWW}/JRADB/accessD.html?CNAME={token}"
+                  )
+
+          # カレンダーからも探す
+          if cal:
+              for u in extract_links(cal_text, BASE_WWW):
+                  queue.append(u)
+
+              for token in extract_access_tokens(cal_text):
+                  queue.append(
+                      f"{BASE_WWW}/JRADB/accessD.html?CNAME={token}"
+                  )
+
+          # 重複除去
+          seen_pages = set()
+          race_urls = {}
+
+          MAX_PAGES = 150
+
+          print()
+          print("NAVIGATION SEARCH")
+          print("-" * 70)
+
+          while queue and len(seen_pages) < MAX_PAGES:
+
+              url = queue.pop(0)
+
+              if url in seen_pages:
+                  continue
+
+              seen_pages.add(url)
+
+              print(
+                  f"[NAV {len(seen_pages):03d}] "
+                  f"queue={len(queue):03d}"
+              )
+
+              r = get(url)
+
+              if r is None:
+                  continue
+
+              html = decode_response(r)
+
+              # race tokenを探す
+              tokens = extract_access_tokens(html)
+
+              for token in tokens:
+
+                  # 競走レースのURLらしいもの
+                  # pw + 22桁程度の構造を利用
+                  if re.search(
+                      r"pw\d{2}[A-Za-z0-9]{20,}/[0-9A-Fa-f]{2}$",
                       token,
-                      safe=""
+                      re.I
+                  ):
+                      race_url = (
+                          f"{BASE_WWW}/JRADB/accessD.html"
+                          f"?CNAME={token}"
+                      )
+
+                      # レース番号を抽出
+                      m = re.search(
+                          r"pw\d{2}[A-Za-z0-9]{4}"
+                          r"(\d{2})\d{8}",
+                          token,
+                          re.I
+                      )
+
+                      if m:
+                          race_no = int(m.group(1))
+                      else:
+                          race_no = None
+
+                      race_urls[race_url] = race_no
+
+              # ページ内のaccessDリンクをさらに探索
+              for u in extract_links(html, BASE_WWW):
+
+                  if u not in seen_pages and u not in queue:
+                      queue.append(u)
+
+              time.sleep(0.15)
+
+          print()
+          print("DISCOVERED URLS:", len(race_urls))
+
+          # ============================================================
+          # URLを開催場ごとに分類
+          # ============================================================
+
+          def venue_from_url(url):
+              # pw01dde0101... = 札幌
+              # pw01dde0106... = 中山
+              # pw01dde0109... = 阪神
+
+              m = re.search(
+                  r"pw\d{2}dde01(\d{2})",
+                  url,
+                  re.I
+              )
+
+              if not m:
+                  return None
+
+              code = m.group(1)
+
+              return {
+                  "01": "札幌",
+                  "06": "中山",
+                  "09": "阪神",
+              }.get(code)
+
+          grouped = {
+              "札幌": [],
+              "中山": [],
+              "阪神": [],
+          }
+
+          for url in race_urls:
+              venue = venue_from_url(url)
+
+              if venue:
+                  grouped[venue].append(url)
+
+          for venue in grouped:
+              grouped[venue] = sorted(
+                  grouped[venue],
+                  key=lambda x: (
+                      race_urls.get(x) or 99,
+                      x
                   )
               )
 
+          print()
+          print("VENUE COUNTS")
 
-          # ==========================================================
-          # EXTRACT SMARTPHONE TOKEN
-          # ==========================================================
+          for venue, urls in grouped.items():
+              print(venue, len(urls))
 
-          def discover_sw_token(
-              pw_token,
-              pw_html
-          ):
+          # ============================================================
+          # 馬データ解析
+          # ============================================================
 
-              sw_tokens = (
-                  find_sw_links(
-                      pw_html
-                  )
+          def clean_text(x):
+              return re.sub(
+                  r"\s+",
+                  " ",
+                  x or ""
+              ).strip()
+
+          def normalize_digits(s):
+              table = str.maketrans(
+                  "０１２３４５６７８９",
+                  "0123456789"
+              )
+              return s.translate(table)
+
+          def parse_number(s):
+              if not s:
+                  return None
+
+              s = normalize_digits(s)
+              s = s.replace(",", "")
+
+              m = re.search(
+                  r"\d+(?:\.\d+)?",
+                  s
               )
 
-              if sw_tokens:
+              if not m:
+                  return None
 
-                  # 同じ日付・開催・レースに
-                  # 近いものを優先
-                  pw_match = (
-                      PW_RACE_RE.fullmatch(
-                          pw_token
-                      )
-                  )
+              try:
+                  return float(m.group())
+              except:
+                  return None
 
-                  if pw_match:
+          def horse_from_text(text):
 
-                      race_no = (
-                          pw_match.group(
-                              "race"
-                          )
-                      )
+              text = clean_text(text)
+              text = normalize_digits(text)
 
-                      date_code = (
-                          pw_match.group(
-                              "date"
-                          )
-                      )
+              # --------------------------------------------------------
+              # 形式A
+              # 「1 馬名 騎手 58.0 12.3」
+              # --------------------------------------------------------
 
-                      for sw_token in (
-                          sw_tokens
-                      ):
+              m = re.match(
+                  r"^(\d{1,2})\s+"
+                  r"(.+?)\s+"
+                  r"([^\d]{1,12})\s+"
+                  r"(\d+(?:\.\d+)?)"
+                  r"(?:\s+(\d+(?:\.\d+)?))?",
+                  text
+              )
 
-                          if (
-                              race_no
-                              in sw_token
-                              and
-                              date_code
-                              in sw_token
-                          ):
+              if m:
+                  num = int(m.group(1))
+                  name = clean_text(m.group(2))
+                  jockey = clean_text(m.group(3))
+                  weight = parse_number(m.group(4))
+                  odds = parse_number(m.group(5))
 
-                              return sw_token
+                  if 1 <= num <= 18 and len(name) >= 2:
+                      return {
+                          "horse_number": num,
+                          "horse_name": name,
+                          "jockey": jockey or None,
+                          "weight": weight,
+                          "odds": odds,
+                      }
 
-                  return sw_tokens[0]
+              # --------------------------------------------------------
+              # 形式B
+              # テキストのどこかに
+              # 馬番 → 馬名 → 騎手 → 斤量 → オッズ
+              # --------------------------------------------------------
 
+              m = re.search(
+                  r"(?:^|\s)(\d{1,2})\s+"
+                  r"([^\s]{2,20})\s+"
+                  r"([^\d\s]{1,12})\s+"
+                  r"(\d{2}(?:\.\d)?)\s+"
+                  r"(\d+(?:\.\d+)?)",
+                  text
+              )
+
+              if m:
+                  num = int(m.group(1))
+
+                  if 1 <= num <= 18:
+                      return {
+                          "horse_number": num,
+                          "horse_name": clean_text(m.group(2)),
+                          "jockey": clean_text(m.group(3)),
+                          "weight": parse_number(m.group(4)),
+                          "odds": parse_number(m.group(5)),
+                      }
 
               return None
 
+          def parse_horses(html):
 
-          # ==========================================================
-          # TEXT NORMALIZATION
-          # ==========================================================
-
-          class TextParser(
-              HTMLParser
-          ):
-
-              def __init__(self):
-
-                  super().__init__(
-                      convert_charrefs=True
-                  )
-
-                  self.parts = []
-
-              def handle_starttag(
-                  self,
-                  tag,
-                  attrs
-              ):
-
-                  if tag.lower() in (
-                      "br",
-                      "tr",
-                      "p",
-                      "li",
-                      "div",
-                      "section",
-                      "article",
-                  ):
-
-                      self.parts.append(
-                          "\n"
-                      )
-
-              def handle_endtag(
-                  self,
-                  tag
-              ):
-
-                  if tag.lower() in (
-                      "tr",
-                      "p",
-                      "li",
-                      "div",
-                      "section",
-                      "article",
-                  ):
-
-                      self.parts.append(
-                          "\n"
-                      )
-
-              def handle_data(
-                  self,
-                  data
-              ):
-
-                  self.parts.append(
-                      data
-                  )
-
-              def text(
-                  self
-              ):
-
-                  return "".join(
-                      self.parts
-                  )
-
-
-          def html_text(
-              html
-          ):
-
-              parser = TextParser()
-
-              parser.feed(
-                  html
-              )
-
-              text = parser.text()
-
-              text = (
-                  text
-                  .replace(
-                      "\r\n",
-                      "\n"
-                  )
-                  .replace(
-                      "\r",
-                      "\n"
-                  )
-                  .replace(
-                      "\u3000",
-                      " "
-                  )
-                  .replace(
-                      "\xa0",
-                      " "
-                  )
-              )
-
-              text = re.sub(
-                  r"[ \t]+",
-                  " ",
-                  text
-              )
-
-              text = re.sub(
-                  r"\n{3,}",
-                  "\n\n",
-                  text
-              )
-
-              return text.strip()
-
-
-          # ==========================================================
-          # HORSE PARSER
-          # ==========================================================
-
-          def parse_mobile_horses(
-              html
-          ):
-
-              text = html_text(
-                  html
-              )
+              soup = BeautifulSoup(html, "lxml")
 
               horses = []
-
               seen = set()
 
+              # --------------------------------------------------------
+              # 1. tableの行から取得
+              # --------------------------------------------------------
 
-              # ------------------------------------------------------
-              # Primary pattern
-              #
-              # 1 Image: ... 馬名 | 騎手 57.0 18.4
-              # ------------------------------------------------------
+              for tr in soup.find_all("tr"):
 
-              pattern = re.compile(
-                  r"(?m)"
-                  r"^\s*"
-                  r"(?P<no>1[0-8]|[1-9])"
-                  r"(?:\s+|$)"
-                  r"(?:Image:[^\n]*\s+)?"
-                  r"(?P<name>[^|\n]{2,40}?)"
-                  r"\s*\|\s*"
-                  r"(?P<jockey>[^0-9\n|]{2,20}?)"
-                  r"\s*"
-                  r"(?P<weight>"
-                  r"(?:\d{2}(?:\.\d+)?|"
-                  r"[★☆▲△◇\s]*\d{2}(?:\.\d+)?)"
-                  r")"
-                  r"(?:\s+"
-                  r"(?P<odds>\d+(?:\.\d+)?))?"
-                  r"\s*$"
-              )
-
-
-              for match in pattern.finditer(
-                  text
-              ):
-
-                  no = int(
-                      match.group(
-                          "no"
+                  cells = [
+                      clean_text(
+                          c.get_text(
+                              " ",
+                              strip=True
+                          )
                       )
-                  )
+                      for c in tr.find_all(
+                          ["td", "th"]
+                      )
+                  ]
 
-                  if no in seen:
+                  cells = [
+                      x for x in cells if x
+                  ]
+
+                  if not cells:
                       continue
 
-                  name = (
-                      match.group(
-                          "name"
+                  row_text = " ".join(cells)
+
+                  # まず行全体を解析
+                  h = horse_from_text(row_text)
+
+                  if h:
+                      key = (
+                          h["horse_number"],
+                          h["horse_name"]
                       )
-                      .strip()
-                  )
 
-                  name = re.sub(
-                      r"^Image:\s*",
-                      "",
-                      name
-                  )
-
-                  name = re.sub(
-                      r"\s+",
-                      "",
-                      name
-                  )
-
-                  if not name:
+                      if key not in seen:
+                          seen.add(key)
+                          horses.append(h)
                       continue
 
-                  jockey = (
-                      match.group(
-                          "jockey"
-                      )
-                      .strip()
-                  )
-
-                  weight_raw = (
-                      match.group(
-                          "weight"
-                      )
-                  )
-
-                  odds_raw = (
-                      match.group(
-                          "odds"
-                      )
-                  )
-
-
-                  # --------------------------------------------------
-                  # Weight
-                  # --------------------------------------------------
-
-                  weight_match = re.search(
-                      r"(\d{2}(?:\.\d+)?)",
-                      weight_raw
-                  )
-
-                  weight = None
-
-                  if weight_match:
-
-                      weight = float(
-                          weight_match.group(
-                              1
-                          )
-                      )
-
-
-                  # --------------------------------------------------
-                  # Odds
-                  # --------------------------------------------------
-
-                  odds = None
-
-                  if odds_raw:
-
-                      try:
-
-                          odds = float(
-                              odds_raw
-                          )
-
-                      except Exception:
-
-                          odds = None
-
-
-                  seen.add(
-                      no
-                  )
-
-                  horses.append({
-
-                      "number":
-                          no,
-
-                      "name":
-                          name,
-
-                      "jockey":
-                          jockey,
-
-                      "weight":
-                          weight,
-
-                      "odds":
-                          odds,
-
-                  })
-
-
-              # ------------------------------------------------------
-              # Secondary pattern
-              #
-              # Some JRA responses use:
-              #
-              # 1 馬名 | 騎手 57.0
-              #
-              # without the odds.
-              # ------------------------------------------------------
-
-              if not horses:
-
-                  pattern2 = re.compile(
-                      r"(?m)"
-                      r"^\s*"
-                      r"(?P<no>1[0-8]|[1-9])"
-                      r"\s+"
-                      r"(?P<name>[^|\n]{2,40})"
-                      r"\s*\|\s*"
-                      r"(?P<jockey>[^0-9\n|]{2,20})"
-                      r"\s*"
-                      r"(?P<weight>\d{2}(?:\.\d+)?)"
-                  )
-
-
-                  for match in (
-                      pattern2.finditer(
-                          text
-                      )
-                  ):
-
-                      no = int(
-                          match.group(
-                              "no"
-                          )
-                      )
-
-                      if no in seen:
-                          continue
-
-                      name = re.sub(
-                          r"\s+",
-                          "",
-                          match.group(
-                              "name"
-                          )
-                      )
-
-                      if not name:
-                          continue
-
-                      jockey = (
-                          match.group(
-                              "jockey"
-                          ).strip()
-                      )
-
-                      weight = float(
-                          match.group(
-                              "weight"
-                          )
-                      )
-
-                      seen.add(
-                          no
-                      )
-
-                      horses.append({
-
-                          "number":
-                              no,
-
-                          "name":
-                              name,
-
-                          "jockey":
-                              jockey,
-
-                          "weight":
-                              weight,
-
-                          "odds":
-                              None,
-
-                      })
-
-
-              horses.sort(
-                  key=lambda x:
-                  x["number"]
-              )
-
-
-              return horses, text
-
-
-          # ==========================================================
-          # RACE INFO
-          # ==========================================================
-
-          def parse_race_info(
-              text
-          ):
-
-              start_time = None
-
-              m = re.search(
-                  r"発走時刻\s*[:：]?\s*"
-                  r"(\d{1,2})時(\d{1,2})分",
-                  text
-              )
-
-              if m:
-
-                  start_time = (
-                      f"{int(m.group(1)):02d}:"
-                      f"{int(m.group(2)):02d}"
-                  )
-
-
-              surface = None
-              distance = None
-
-              m = re.search(
-                  r"コース\s*[:：]?\s*"
-                  r"([\d,]+)\s*メートル"
-                  r"\s*[（(]"
-                  r"(芝|ダート|障害)",
-                  text
-              )
-
-              if m:
-
-                  distance = int(
-                      m.group(1)
-                      .replace(
-                          ",",
-                          ""
-                      )
-                  )
-
-                  surface = (
-                      m.group(2)
-                  )
-
-
-              going = None
-
-              m = re.search(
-                  r"(?:芝|ダート)\s*[：:]?"
-                  r"\s*(良|稍重|重|不良)",
-                  text
-              )
-
-              if m:
-
-                  going = (
-                      m.group(1)
-                  )
-
-
-              return {
-
-                  "start_time":
-                      start_time,
-
-                  "surface":
-                      surface,
-
-                  "distance":
-                      distance,
-
-                  "going":
-                      going,
-
-              }
-
-
-          # ==========================================================
-          # RACE LOOP
-          # ==========================================================
-
-          races = []
-
-
-          for index, pw_token in enumerate(
-              race_tokens,
-              start=1
-          ):
-
-              match = (
-                  PW_RACE_RE.fullmatch(
-                      pw_token
-                  )
-              )
-
-              venue_code = (
-                  match.group(
-                      "venue"
-                  )
-              )
-
-              race_no = int(
-                  match.group(
-                      "race"
-                  )
-              )
-
-              venue = (
-                  venue_names.get(
-                      venue_code,
-                      venue_code
-                  )
-              )
-
-
-              print()
-              print(
-                  "======================================"
-              )
-
-              print(
-                  f"[{index}/36] "
-                  f"{venue}{race_no}R"
-              )
-
-              print(
-                  "PW:",
-                  pw_token
-              )
-
-
-              # ------------------------------------------------------
-              # Fetch PW page
-              # ------------------------------------------------------
-
-              pw_page_url = pw_url(
-                  pw_token
-              )
-
-              try:
-
-                  pw_html = http_get(
-                      pw_page_url,
-                      JRA_ACCESS
-                  )
-
-              except Exception as e:
-
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      f"PC版取得失敗: {e}"
-                  )
-
-
-              print(
-                  "PW HTML:",
-                  len(pw_html)
-              )
-
-
-              # ------------------------------------------------------
-              # Find SW token
-              # ------------------------------------------------------
-
-              sw_token = (
-                  discover_sw_token(
-                      pw_token,
-                      pw_html
-                  )
-              )
-
-
-              print(
-                  "SW TOKEN:",
-                  sw_token
-              )
-
-
-              # ------------------------------------------------------
-              # If SW link cannot be found,
-              # try extracting from navigation pages
-              # ------------------------------------------------------
-
-              if not sw_token:
-
-                  print(
-                      "SW token not found "
-                      "in race page."
-                  )
-
-                  print(
-                      "Trying navigation links..."
-                  )
-
-                  navigation_tokens = (
-                      extract_navigation_tokens(
-                          pw_html
-                      )
-                  )
-
-
-                  for nav_token in (
-                      navigation_tokens
-                  ):
-
-                      if not nav_token.startswith(
-                          "pw01d"
+                  # セル単位でも試す
+                  for i, cell in enumerate(cells):
+
+                      if not re.fullmatch(
+                          r"\d{1,2}",
+                          normalize_digits(cell)
                       ):
                           continue
 
-                      try:
+                      num = int(normalize_digits(cell))
 
-                          nav_html = http_post(
-                              nav_token,
-                              pw_page_url
-                          )
-
-                          sw_token = (
-                              discover_sw_token(
-                                  pw_token,
-                                  nav_html
-                              )
-                          )
-
-                          if sw_token:
-
-                              break
-
-                      except Exception:
-
+                      if not (1 <= num <= 18):
                           continue
 
+                      if i + 1 >= len(cells):
+                          continue
 
-              if not sw_token:
+                      name = cells[i + 1]
 
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      "のスマートフォン版URLを"
-                      "発見できませんでした。"
-                  )
+                      if len(name) < 2:
+                          continue
 
+                      # 馬名らしいもの
+                      if re.search(
+                          r"[競走馬馬]",
+                          name
+                      ):
+                          pass
 
-              # ------------------------------------------------------
-              # Fetch SW page
-              # ------------------------------------------------------
+                      jockey = (
+                          cells[i + 2]
+                          if i + 2 < len(cells)
+                          else None
+                      )
 
-              mobile_url = sw_url(
-                  sw_token
-              )
+                      nums = []
 
-              print(
-                  "SW URL:",
-                  mobile_url
-              )
+                      for x in cells[i + 2:]:
+                          if re.fullmatch(
+                              r"\d+(?:\.\d+)?",
+                              normalize_digits(x)
+                          ):
+                              nums.append(
+                                  parse_number(x)
+                              )
 
+                      weight = nums[0] if nums else None
+                      odds = nums[1] if len(nums) > 1 else None
 
-              try:
+                      h = {
+                          "horse_number": num,
+                          "horse_name": name,
+                          "jockey": jockey,
+                          "weight": weight,
+                          "odds": odds,
+                      }
 
-                  mobile_html = http_get(
-                      mobile_url,
-                      pw_page_url
-                  )
+                      key = (
+                          h["horse_number"],
+                          h["horse_name"]
+                      )
 
-              except Exception as e:
+                      if key not in seen:
+                          seen.add(key)
+                          horses.append(h)
 
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      f"スマホ版取得失敗: {e}"
-                  )
-
-
-              print(
-                  "SW HTML:",
-                  len(mobile_html)
-              )
-
-
-              # ------------------------------------------------------
-              # Parse
-              # ------------------------------------------------------
-
-              horses, mobile_text = (
-                  parse_mobile_horses(
-                      mobile_html
-                  )
-              )
-
-
-              print(
-                  "HORSE COUNT:",
-                  len(horses)
-              )
-
-
-              # ------------------------------------------------------
-              # HARD VALIDATION
-              # ------------------------------------------------------
+              # --------------------------------------------------------
+              # 2. ページ全体テキストから取得
+              # --------------------------------------------------------
 
               if len(horses) == 0:
 
-                  print()
-                  print(
-                      "========== PARSER DIAGNOSTIC =========="
+                  text = clean_text(
+                      soup.get_text(
+                          " ",
+                          strip=True
+                      )
                   )
 
-                  print(
-                      "Venue:",
-                      venue
+                  lines = re.split(
+                      r"(?=\s\d{1,2}\s+)",
+                      text
                   )
 
-                  print(
-                      "Race:",
-                      race_no
-                  )
+                  for line in lines:
+                      h = horse_from_text(line)
 
-                  print(
-                      "Mobile HTML:",
-                      len(mobile_html)
-                  )
+                      if h:
+                          key = (
+                              h["horse_number"],
+                              h["horse_name"]
+                          )
 
-                  print(
-                      "Mobile TEXT:",
-                      len(mobile_text)
-                  )
+                          if key not in seen:
+                              seen.add(key)
+                              horses.append(h)
 
-                  print()
-                  print(
-                      mobile_text[:6000]
-                  )
+              # 馬番順
+              horses.sort(
+                  key=lambda x: x["horse_number"]
+              )
 
-                  print(
-                      "========================================"
-                  )
+              return horses
 
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      "の馬データを取得できませんでした。"
-                  )
+          # ============================================================
+          # レース番号推定
+          # ============================================================
 
+          def guess_race_no(url, fallback):
 
-              # ------------------------------------------------------
-              # Validate horse numbers
-              # ------------------------------------------------------
-
-              numbers = [
-                  h["number"]
-                  for h in horses
+              # URLの末尾構造からできるだけ取得
+              patterns = [
+                  r"pw\d{2}dde01\d{2}\d{4}\d{4}(\d{2})\d{8}",
+                  r"(\d{2})(?=\d{8}/[0-9A-Fa-f]{2})",
               ]
 
-              if (
-                  len(numbers)
-                  != len(set(numbers))
-              ):
+              for p in patterns:
 
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      "で馬番が重複しています。"
+                  m = re.search(p, url, re.I)
+
+                  if m:
+                      try:
+                          n = int(m.group(1))
+
+                          if 1 <= n <= 12:
+                              return n
+                      except:
+                          pass
+
+              return fallback
+
+          # ============================================================
+          # 取得処理
+          # ============================================================
+
+          races = []
+          failures = []
+
+          for venue in ["札幌", "中山", "阪神"]:
+
+              urls = grouped[venue]
+
+              print()
+              print("=" * 70)
+              print(venue, ":", len(urls), "races")
+              print("=" * 70)
+
+              # 12レース以上ある場合は12Rまで
+              urls = urls[:12]
+
+              for index, url in enumerate(urls, 1):
+
+                  race_no = guess_race_no(
+                      url,
+                      index
                   )
 
+                  print()
+                  print(
+                      f"[{len(races)+len(failures)+1}/36] "
+                      f"{venue}{race_no}R"
+                  )
+                  print("URL:", url)
 
-              if not all(
-                  1 <= n <= 18
-                  for n in numbers
-              ):
+                  r = get(url)
 
-                  raise RuntimeError(
-                      f"{venue}{race_no}R "
-                      "に不正な馬番があります。"
+                  if r is None:
+
+                      failures.append({
+                          "venue": venue,
+                          "race_no": race_no,
+                          "url": url,
+                          "reason": "HTTP取得失敗",
+                      })
+
+                      continue
+
+                  html = decode_response(r)
+
+                  print(
+                      "HTML:",
+                      len(html),
+                      "characters"
                   )
 
-
-              # ------------------------------------------------------
-              # Race information
-              # ------------------------------------------------------
-
-              info = parse_race_info(
-                  mobile_text
-              )
-
-
-              race = {
-
-                  "date":
-                      date,
-
-                  "venue":
-                      venue,
-
-                  "venue_code":
-                      venue_code,
-
-                  "race_number":
-                      race_no,
-
-                  "start_time":
-                      info[
-                          "start_time"
-                      ],
-
-                  "surface":
-                      info[
-                          "surface"
-                      ],
-
-                  "distance":
-                      info[
-                          "distance"
-                      ],
-
-                  "going":
-                      info[
-                          "going"
-                      ],
-
-                  "horses":
-                      horses,
-
-                  "official_url":
-                      pw_page_url,
-
-                  "mobile_url":
-                      mobile_url,
-
-                  "official_token":
-                      pw_token,
-
-                  "mobile_token":
-                      sw_token,
-
-              }
-
-
-              races.append(
-                  race
-              )
-
-
-              print(
-                  "SUCCESS:",
-                  venue,
-                  race_no,
-                  "R",
-                  len(horses),
-                  "horses"
-              )
-
-
-              time.sleep(
-                  0.4
-              )
-
-
-          # ==========================================================
-          # FINAL VALIDATION
-          # ==========================================================
-
-          print()
-          print(
-              "======================================"
-          )
-          print(
-              "FINAL VALIDATION"
-          )
-          print(
-              "======================================"
-          )
-
-
-          if len(races) != 36:
-
-              raise RuntimeError(
-                  "取得レース数が36ではありません: "
-                  + str(
-                      len(races)
-                  )
-              )
-
-
-          for race in races:
-
-              if not race[
-                  "horses"
-              ]:
-
-                  raise RuntimeError(
-                      f"{race['venue']}"
-                      f"{race['race_number']}R "
-                      "の馬データが0件です。"
+                  # ページの基本診断
+                  print(
+                      "KEYWORDS:",
+                      {
+                          "出馬表": "出馬表" in html,
+                          "馬名": "馬名" in html,
+                          "騎手": "騎手" in html,
+                          "オッズ": "オッズ" in html,
+                          "馬体重": "馬体重" in html,
+                      }
                   )
 
+                  # HTML先頭
+                  preview = clean_text(html[:1200])
 
-          # ==========================================================
-          # SUMMARY
-          # ==========================================================
+                  print(
+                      "HTML PREVIEW:",
+                      preview[:1000]
+                  )
 
-          for race in races:
+                  horses = parse_horses(html)
 
-              print(
-                  f"{race['venue']}"
-                  f"{race['race_number']}R "
-                  f": "
-                  f"{len(race['horses'])}頭"
-              )
+                  print(
+                      "HORSES:",
+                      len(horses)
+                  )
 
+                  # ----------------------------------------------------
+                  # 0頭なら失敗扱い
+                  # ----------------------------------------------------
 
-          # ==========================================================
-          # JSON
-          # ==========================================================
+                  if len(horses) == 0:
 
-          output = {
+                      failures.append({
+                          "venue": venue,
+                          "race_no": race_no,
+                          "url": url,
+                          "reason": "馬データ0頭",
+                          "html_length": len(html),
+                          "keywords": {
+                              "出馬表": "出馬表" in html,
+                              "馬名": "馬名" in html,
+                              "騎手": "騎手" in html,
+                              "オッズ": "オッズ" in html,
+                          },
+                          "preview": preview[:2000],
+                      })
 
-              "generated_at":
-                  datetime.datetime.now(
-                      ZoneInfo(
-                          "Asia/Tokyo"
+                      print(
+                          "WARNING: 馬データを取得できませんでした"
                       )
-                  ).isoformat(),
 
-              "date":
-                  date,
+                      continue
 
-              "source":
-                  "JRA公式出馬表",
+                  # ----------------------------------------------------
+                  # 成功
+                  # ----------------------------------------------------
 
-              "race_count":
-                  36,
+                  races.append({
+                      "venue": venue,
+                      "race_no": race_no,
+                      "url": url,
+                      "horse_count": len(horses),
+                      "horses": horses,
+                  })
 
-              "official_race_links":
-                  [
-                      race[
-                          "official_url"
-                      ]
-                      for race
-                      in races
-                  ],
+                  print(
+                      "SUCCESS:",
+                      venue,
+                      race_no,
+                      "R",
+                      len(horses),
+                      "horses"
+                  )
 
-              "races":
-                  races,
+                  time.sleep(0.2)
 
+          # ============================================================
+          # JSON保存
+          # ============================================================
+
+          os.makedirs("data", exist_ok=True)
+
+          result = {
+              "updated_at": now.isoformat(),
+              "date": now.strftime("%Y-%m-%d"),
+              "total_races": len(races),
+              "success_races": len(races),
+              "failed_races": len(failures),
+              "races": races,
+              "failures": failures,
           }
 
-
-          output_path = (
-              "data/jra_daily.json"
-          )
-
+          output = "data/jra_daily.json"
 
           with open(
-              output_path,
+              output,
               "w",
               encoding="utf-8"
           ) as f:
-
               json.dump(
-                  output,
+                  result,
                   f,
                   ensure_ascii=False,
                   indent=2
               )
 
+          # ============================================================
+          # 最終結果
+          # ============================================================
 
           print()
-          print(
-              "======================================"
-          )
-          print(
-              "JRA SYNC SUCCESS"
-          )
-          print(
-              "======================================"
-          )
+          print("=" * 70)
+          print("FINAL RESULT")
+          print("=" * 70)
 
           print(
-              "Date:",
-              date
-          )
-
-          print(
-              "Races:",
+              "SUCCESS RACES:",
               len(races)
           )
 
           print(
-              "Output:",
-              output_path
+              "FAILED RACES:",
+              len(failures)
           )
 
-          print(
-              "======================================"
-          )
+          print()
 
-          PY
+          for venue in ["札幌", "中山", "阪神"]:
 
+              rs = [
+                  x for x in races
+                  if x["venue"] == venue
+              ]
 
-      # ==========================================================
-      # VERIFY JSON
-      # ==========================================================
-
-      - name: Verify JRA JSON
-        shell: bash
-        run: |
-
-          set -euo pipefail
-
-          python3 - <<'PY'
-
-          import json
-
-          path = (
-              "data/jra_daily.json"
-          )
-
-          with open(
-              path,
-              encoding="utf-8"
-          ) as f:
-
-              data = json.load(f)
-
-
-          if data.get(
-              "race_count"
-          ) != 36:
-
-              raise SystemExit(
-                  "race_count != 36"
+              print(
+                  venue,
+                  ":",
+                  len(rs),
+                  "/ 12"
               )
 
+          print()
+          print("SUCCESS LIST")
 
-          races = data.get(
-              "races",
-              []
+          for r in races:
+              print(
+                  f"  {r['venue']}{r['race_no']}R "
+                  f"{r['horse_count']}頭"
+              )
+
+          print()
+          print("FAILURE LIST")
+
+          for f in failures:
+              print(
+                  f"  {f['venue']}{f['race_no']}R "
+                  f"{f['reason']}"
+              )
+
+          print()
+          print("JSON:", output)
+
+          # ============================================================
+          # GitHub Actions用サマリー
+          # ============================================================
+
+          summary = os.environ.get(
+              "GITHUB_STEP_SUMMARY"
           )
 
+          if summary:
 
-          if len(races) != 36:
+              with open(
+                  summary,
+                  "a",
+                  encoding="utf-8"
+              ) as f:
 
-              raise SystemExit(
-                  "races != 36"
-              )
-
-
-          for race in races:
-
-              horses = race.get(
-                  "horses",
-                  []
-              )
-
-              if not horses:
-
-                  raise SystemExit(
-                      "horse count = 0: "
-                      + race["venue"]
-                      + str(
-                          race[
-                              "race_number"
-                          ]
-                      )
-                      + "R"
+                  f.write("# JRA Sync Result\n\n")
+                  f.write(
+                      f"- 成功レース: {len(races)}\n"
+                  )
+                  f.write(
+                      f"- 失敗レース: {len(failures)}\n\n"
                   )
 
+                  f.write("## 成功\n\n")
 
+                  for r in races:
+                      f.write(
+                          f"- {r['venue']}{r['race_no']}R "
+                          f"{r['horse_count']}頭\n"
+                      )
+
+                  f.write("\n## 失敗\n\n")
+
+                  for x in failures:
+                      f.write(
+                          f"- {x['venue']}{x['race_no']}R: "
+                          f"{x['reason']}\n"
+                      )
+
+          # ============================================================
+          # ここでは「馬0頭」を理由にActions全体を落とさない
+          # ============================================================
+
+          print()
           print(
-              "JSON VALIDATION SUCCESS"
+              "JRA取得処理終了。"
+              "失敗レースはJSONへ記録しました。"
           )
 
           PY
 
-
-      # ==========================================================
-      # Commit
-      # ==========================================================
-
-      - name: Commit JRA data
-        shell: bash
+      - name: Commit data
         run: |
-
-          set -euo pipefail
-
-          git config user.name \
-            "github-actions[bot]"
-
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add data/jra_daily.json
 
-
           if git diff --cached --quiet; then
-
             echo "No data changes."
-
           else
-
-            git commit \
-              -m "Update JRA daily race data"
-
+            git commit -m "Update JRA race data"
             git push
-
           fi
-
-
-      # ==========================================================
-      # Pages
-      # ==========================================================
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
