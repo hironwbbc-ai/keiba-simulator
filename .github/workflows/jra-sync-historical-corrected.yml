@@ -1,8 +1,6 @@
-name: JRA data sync and Pages deploy
+name: JRA Sync + Pages Deploy - Historical v13
 
 on:
-  push:
-    branches: [main]
   schedule:
     # JST 08:00 every day. The script automatically selects the next JRA race day.
     - cron: "0 23 * * *"
@@ -207,40 +205,51 @@ jobs:
               month_token = f"pw01skl10{ym}/{cd}"
               print("MONTH TOKEN:", month_token)
               month_page = post_s(month_token, ACCESS_S)
+              # IMPORTANT: pw01srl tokens identify a meeting/day, not the
+              # calendar date itself. The old code incorrectly filtered the
+              # token text for YYYYMMDD, which always produced zero matches.
+              # Fetch all month-level pw01srl pages, then identify the target
+              # date from the pw01sde race tokens exposed by those pages.
               rsl_all = find_srl_tokens(month_page)
-              rsl_target = [t for t in sorted(rsl_all) if token_contains_date(t, target_ymd)]
-
-              # Some JRA layouts encode the date near the end of the token;
-              # if exact filtering misses it, inspect all month-level links.
-              if not rsl_target:
-                  for t in sorted(rsl_all):
-                      if target_ymd in t:
-                          rsl_target.append(t)
-
               print("MONTH RSL TOKENS:", len(rsl_all))
-              print("TARGET RSL TOKENS:", len(rsl_target))
-              if not rsl_target:
+              if rsl_all:
+                  for sample in sorted(rsl_all)[:5]:
+                      print("  RSL SAMPLE:", sample)
+              else:
+                  print("MONTH PAGE CONTAINS pw01srl:", "pw01srl" in month_page)
+                  idx = month_page.lower().find("pw01srl")
+                  if idx >= 0:
+                      print("RSL HTML SAMPLE:", month_page[max(0, idx-250):idx+500])
                   raise RuntimeError(
-                      f"{target_ymd} の開催選択token(pw01srl)を取得できませんでした。"
+                      f"{ym} の月別ページから開催選択token(pw01srl)を抽出できませんでした。"
                   )
 
               sde_tokens = set()
-              for i, t in enumerate(rsl_target, 1):
+              rsl_target = []
+              for i, t in enumerate(sorted(rsl_all), 1):
                   try:
                       page = post_s(t, ACCESS_S)
                       found = find_sde_tokens(page)
-                      # Only race pages for the requested date.
-                      for x in found:
-                          if target_ymd in x:
-                              sde_tokens.add(x)
-                      print(f"RSL {i}/{len(rsl_target)}: races={len(found)} target={len(sde_tokens)}")
+                      target_found = {x for x in found if target_ymd in x}
+                      if target_found:
+                          rsl_target.append(t)
+                          sde_tokens.update(target_found)
+                      print(
+                          f"RSL {i}/{len(rsl_all)}: races={len(found)} "
+                          f"target_races={len(target_found)} total_target={len(sde_tokens)}"
+                      )
+                      if len(sde_tokens) >= 36:
+                          break
                   except Exception as e:
                       print("RSL warning:", t, repr(e))
                   time.sleep(0.25)
 
+              print("TARGET RSL TOKENS:", len(rsl_target))
               print("HISTORICAL RACE TOKENS:", len(sde_tokens))
-              if not sde_tokens:
-                  raise RuntimeError(f"{target_ymd} のレース結果tokenを取得できませんでした")
+              if not rsl_target or not sde_tokens:
+                  raise RuntimeError(
+                      f"{target_ymd} の開催選択/レース結果token(pw01srl/pw01sde)を取得できませんでした。"
+                  )
 
               venue_names = {
                   "01": "札幌", "02": "函館", "03": "福島", "04": "新潟",
@@ -273,6 +282,34 @@ jobs:
                   def handle_data(self, data):
                       if self.cell is not None:
                           self.parts.append(data)
+
+          class TextParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.out = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
+                      self.out.append("\n")
+                  elif tag in ("td", "th"):
+                      self.out.append(" | ")
+
+              def handle_endtag(self, tag):
+                  if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
+                      self.out.append("\n")
+
+              def handle_data(self, data):
+                  self.out.append(data)
+
+              def text(self):
+                  s = htmlmod.unescape("".join(self.out))
+                  lines = []
+                  for raw_line in s.splitlines():
+                      x = re.sub(r"\s+", " ", raw_line).strip(" |")
+                      if x:
+                          lines.append(x)
+                  return "\n".join(lines)
+
 
               def parse_history_page(raw_html, token):
                   cp=CellParser(); cp.feed(raw_html)
@@ -363,7 +400,7 @@ jobs:
                   "date":target_date_iso,"updated_at":now.isoformat(),"target_ymd":target_ymd,
                   "source":"JRA公式 accessS 過去レース結果","mode":"historical_result",
                   "races":historical_races,"race_count":len(historical_races),
-                  "parser_version":"1.0-historical",
+                  "parser_version":"1.1-historical",
               }
               Path("data/jra_history.json").write_text(json.dumps(hout,ensure_ascii=False,indent=2),encoding="utf-8")
               print("WROTE: data/jra_history.json", "RACES:", len(historical_races))
@@ -670,33 +707,6 @@ jobs:
           # ------------------------------------------------------------
           # HTML helpers
           # ------------------------------------------------------------
-          class TextParser(HTMLParser):
-              def __init__(self):
-                  super().__init__(convert_charrefs=True)
-                  self.out = []
-
-              def handle_starttag(self, tag, attrs):
-                  if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
-                      self.out.append("\n")
-                  elif tag in ("td", "th"):
-                      self.out.append(" | ")
-
-              def handle_endtag(self, tag):
-                  if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
-                      self.out.append("\n")
-
-              def handle_data(self, data):
-                  self.out.append(data)
-
-              def text(self):
-                  s = htmlmod.unescape("".join(self.out))
-                  lines = []
-                  for raw_line in s.splitlines():
-                      x = re.sub(r"\s+", " ", raw_line).strip(" |")
-                      if x:
-                          lines.append(x)
-                  return "\n".join(lines)
-
           def class_attr(cls):
               # IMPORTANT: this must also match class="num" (single class).
               return rf'class\s*=\s*["\'][^"\']*\b{re.escape(cls)}\b[^"\']*["\']'
