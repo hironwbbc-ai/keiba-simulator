@@ -1,9 +1,9 @@
 {
   "date": "2026-09-06",
   "target_ymd": "20260906",
-  "updated_at": "2026-09-07T15:02:25.648182+09:00",
+  "updated_at": "2026-09-07T15:27:53.001443+09:00",
   "source": "JRA公式 accessD",
-  "parser_version": "11.0",
+  "parser_version": "11.1",
   "race_count": 36,
   "venue_counts": {
     "01": 12,
@@ -205,7 +205,7 @@
     {
       "token": "pw01dde1001202602060220260906/FE",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060220260906%2FFE",
-      "race_number": 7,
+      "race_number": 2,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -325,7 +325,7 @@
     {
       "token": "pw01dde1001202602060320260906/B3",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060320260906%2FB3",
-      "race_number": 6,
+      "race_number": 3,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -489,7 +489,7 @@
     {
       "token": "pw01dde1001202602060420260906/68",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060420260906%2F68",
-      "race_number": 6,
+      "race_number": 4,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -675,7 +675,7 @@
     {
       "token": "pw01dde1001202602060520260906/1D",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060520260906%2F1D",
-      "race_number": 2,
+      "race_number": 5,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -861,7 +861,7 @@
     {
       "token": "pw01dde1001202602060620260906/D2",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060620260906%2FD2",
-      "race_number": 0,
+      "race_number": 6,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1003,7 +1003,7 @@
     {
       "token": "pw01dde1001202602060720260906/87",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060720260906%2F87",
-      "race_number": 8,
+      "race_number": 7,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1189,7 +1189,7 @@
     {
       "token": "pw01dde1001202602060820260906/3C",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060820260906%2F3C",
-      "race_number": 27,
+      "race_number": 8,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1353,7 +1353,7 @@
     {
       "token": "pw01dde1001202602060920260906/F1",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602060920260906%2FF1",
-      "race_number": 8,
+      "race_number": 9,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1517,7 +1517,7 @@
     {
       "token": "pw01dde1001202602061020260906/E6",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602061020260906%2FE6",
-      "race_number": 8,
+      "race_number": 10,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1681,7 +1681,7 @@
     {
       "token": "pw01dde1001202602061120260906/9B",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602061120260906%2F9B",
-      "race_number": 6,
+      "race_number": 11,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1845,7 +1845,7 @@
     {
       "token": "pw01dde1001202602061220260906/50",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1001202602061220260906%2F50",
-      "race_number": 9,
+      "race_number": 12,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -1987,7 +1987,7 @@
     {
       "token": "pw01dde1006202604020120260906/51",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020120260906%2F51",
-      "race_number": 3,
+      "race_number": 1,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -2074,7 +2074,7 @@
     {
       "token": "pw01dde1006202604020220260906/06",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020220260906%2F06",
-      "race_number": 1,
+      "race_number": 2,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -2413,7 +2413,7 @@
     {
       "token": "pw01dde1006202604020420260906/70",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020420260906%2F70",
-      "race_number": 6,
+      "race_number": 4,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -2599,7 +2599,7 @@
     {
       "token": "pw01dde1006202604020520260906/25",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020520260906%2F25",
-      "race_number": 10,
+      "race_number": 5,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -2774,7 +2774,7 @@
     {
       "token": "pw01dde1006202604020620260906/DA",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020620260906%2FDA",
-      "race_number": 7,
+      "race_number": 6,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -2916,7 +2916,7 @@
     {
       "token": "pw01dde1006202604020720260906/8F",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020720260906%2F8F",
-      "race_number": 5,
+      "race_number": 7,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3124,7 +3124,7 @@
     {
       "token": "pw01dde1006202604020820260906/44",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020820260906%2F44",
-      "race_number": 0,
+      "race_number": 8,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3310,7 +3310,7 @@
     {
       "token": "pw01dde1006202604020920260906/F9",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604020920260906%2FF9",
-      "race_number": 8,
+      "race_number": 9,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3496,7 +3496,7 @@
     {
       "token": "pw01dde1006202604021020260906/EE",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604021020260906%2FEE",
-      "race_number": 6,
+      "race_number": 10,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3605,7 +3605,7 @@
     {
       "token": "pw01dde1006202604021120260906/A3",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604021120260906%2FA3",
-      "race_number": 6,
+      "race_number": 11,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3736,7 +3736,7 @@
     {
       "token": "pw01dde1006202604021220260906/58",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1006202604021220260906%2F58",
-      "race_number": 2,
+      "race_number": 12,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -3922,7 +3922,7 @@
     {
       "token": "pw01dde1009202604020120260906/2F",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020120260906%2F2F",
-      "race_number": 9,
+      "race_number": 1,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4042,7 +4042,7 @@
     {
       "token": "pw01dde1009202604020220260906/E4",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020220260906%2FE4",
-      "race_number": 4,
+      "race_number": 2,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4228,7 +4228,7 @@
     {
       "token": "pw01dde1009202604020320260906/99",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020320260906%2F99",
-      "race_number": 8,
+      "race_number": 3,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4403,7 +4403,7 @@
     {
       "token": "pw01dde1009202604020420260906/4E",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020420260906%2F4E",
-      "race_number": 59,
+      "race_number": 4,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4589,7 +4589,7 @@
     {
       "token": "pw01dde1009202604020520260906/03",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020520260906%2F03",
-      "race_number": 30,
+      "race_number": 5,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4709,7 +4709,7 @@
     {
       "token": "pw01dde1009202604020620260906/B8",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020620260906%2FB8",
-      "race_number": 1,
+      "race_number": 6,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -4851,7 +4851,7 @@
     {
       "token": "pw01dde1009202604020720260906/6D",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020720260906%2F6D",
-      "race_number": 9,
+      "race_number": 7,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -5015,7 +5015,7 @@
     {
       "token": "pw01dde1009202604020820260906/22",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020820260906%2F22",
-      "race_number": 16,
+      "race_number": 8,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -5102,7 +5102,7 @@
     {
       "token": "pw01dde1009202604020920260906/D7",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604020920260906%2FD7",
-      "race_number": 7,
+      "race_number": 9,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -5288,7 +5288,7 @@
     {
       "token": "pw01dde1009202604021020260906/CC",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604021020260906%2FCC",
-      "race_number": 0,
+      "race_number": 10,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -5441,7 +5441,7 @@
     {
       "token": "pw01dde1009202604021120260906/81",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604021120260906%2F81",
-      "race_number": 8,
+      "race_number": 11,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
@@ -5627,7 +5627,7 @@
     {
       "token": "pw01dde1009202604021220260906/36",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde1009202604021220260906%2F36",
-      "race_number": 5,
+      "race_number": 12,
       "title": "出馬表 JRA",
       "surface": "",
       "distance": null,
