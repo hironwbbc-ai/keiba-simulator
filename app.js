@@ -244,7 +244,7 @@ function simulate(){
  hs.forEach(h=>h.win=h.score/sum);
  hs.sort((a,b)=>b.win-a.win);
  $("resultCard").classList.remove("hidden");
- $("result").innerHTML='<div class="note">現段階はVer.8.3の基礎モデルです。JRA単勝オッズを基準にした参考シミュレーションで、過去走・展開・馬場・騎手などをまだ本格的には評価していません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+hs.slice(0,10).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';
+ $("result").innerHTML='<div class="note">現段階はVer.9.1の基礎モデルです。JRA単勝オッズを基準にした参考シミュレーションで、過去走・展開・馬場・騎手などをまだ本格的には評価していません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+hs.slice(0,10).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';
  $("resultCard").scrollIntoView({behavior:"smooth"});
 }
 $("venue").onchange=renderRaces;

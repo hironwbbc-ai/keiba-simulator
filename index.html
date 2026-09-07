@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
-<title>競馬シミュレーター Ver.9.0</title>
+<title>競馬シミュレーター Ver.9.1</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ea;--accent:#0f766e;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -29,7 +29,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 <body>
 <main>
 <div class="top">
-<h1>🏇 競馬シミュレーター <span class="small">Ver.9.0</span></h1>
+<h1>🏇 競馬シミュレーター <span class="small">Ver.9.1</span></h1>
 <div class="sub">JRA公式同期JSON → 出馬表 → シミュレーション → 過去レース・バックテスト</div>
 </div>
 
@@ -62,278 +62,13 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 </section>
 
 <section class="card">
-<h2>Ver.9.0のポイント</h2>
+<h2>Ver.9.1のポイント</h2>
 <div class="note">
 URL入力はありません。GitHub ActionsがJRA公式の出馬表を同期し、iPhone側は data/jra_daily.json を読み込みます。36レースが同期済みなら、札幌・中山・阪神など開催場と全レースを自動表示します。
 </div>
 </section>
 </main>
-<script>
-const $=id=>document.getElementById(id);
-const state={races:[],horses:[],selected:null};
-const today=()=>new Date().toISOString().slice(0,10);
-$("date").value=today();
-
-const VENUES={
-  "中山":{code:"06",meet:"4回中山1日"},
-  "阪神":{code:"09",meet:"4回阪神1日"},
-  "札幌":{code:"01",meet:"2回札幌5日"}
-};
-
-/* Current 2026-09-05 official JRA entry-page URLs.
-   These are internal fallback anchors so the user never has to type a URL.
-   For other dates/races, the app uses the official calendar but may need
-   a future adapter because JRA's accessD link contains a changing checksum. */
-const KNOWN={
- "2026-09-05":{
-   "中山":{2:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604010220260905/F7",4:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604010420260905/61",6:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604010620260905/CB",7:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604010720260905/80",9:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604010920260905/EA",10:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604011020260905/DF",11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0106202604011120260905/94"},
-   "阪神":{2:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604010220260905/D5",3:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604010320260905/8A",4:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604010420260905/3F",9:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604010920260905/C8",11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604011120260905/72"},
-   "札幌":{3:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602050320260905/A4",5:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602050520260905/0E",7:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602050720260905/78",10:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602051020260905/D7",11:"https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0101202602051120260905/8C"}
- }
-};
-
-async function jina(url){
- const candidates=[
-   "https://r.jina.ai/"+url,
-   "https://r.jina.ai/http://"+url.replace(/^https?:\/\//,"")
- ];
- let last="";
- for(const u of candidates){
-   for(let n=0;n<2;n++){
-     try{
-       const r=await fetch(u,{headers:{Accept:"text/plain"},cache:"no-store"});
-       if(!r.ok){last="取得サーバーHTTP "+r.status;continue}
-       const t=await r.text();
-       if(t && t.length>500)return t;
-       last="取得内容が空でした";
-     }catch(e){last=e.message||String(e)}
-     await new Promise(res=>setTimeout(res,350));
-   }
- }
- throw new Error(last||"取得できませんでした");
-}
-function extractAccessLinks(text){
- const urls=[];
- const re=/(https?:\/\/www\.jra\.go\.jp\/JRADB\/accessD\.html\?CNAME=[^\s)\]"<>]+)/g;
- let m;while((m=re.exec(text))){
-   const u=m[1].replace(/&amp;/g,"&").replace(/[.,]+$/g,"");
-   if(!urls.includes(u))urls.push(u);
- }
- return urls;
-}
-function identifyRaceFromUrl(u){
- const m=u.match(/pw01dde(\d{2})(\d{4})(\d{2})(\d{2})(\d{8})\/[0-9A-F]{2}$/i);
- return m?{venueCode:m[1],meetCode:m[2],no:+m[3],date:`${m[5].slice(0,4)}-${m[5].slice(4,6)}-${m[5].slice(6,8)}`}:null;
-}
-
-function msg(t,c=""){ $("status").innerHTML=t;$("status").className="status "+c; }
-
-function parseCalendar(text,date){
- const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- const races=[]; let venue="";
- const names=["中山","阪神","札幌","東京","京都","中京","新潟","福島","小倉","函館"];
- for(let i=0;i<lines.length;i++){
-   const vm=lines[i].match(/^\d+回(.+?)\d+日$/);
-   if(vm && names.includes(vm[1])){venue=vm[1];continue}
-   const rm=lines[i].match(/^(\d{1,2})レース\s*\|?\s*(.*)$/);
-   if(rm && venue){
-     let info=rm[2].replace(/\s*\|\s*/g," ").trim();
-     if(!info && lines[i+1]) info=lines[i+1].replace(/\s*\|\s*/g," ").trim();
-     const next=lines[i+1]||"";
-     const tm=(next.match(/(\d{1,2})時(\d{2})分/)||lines[i].match(/(\d{1,2})時(\d{2})分/));
-     races.push({date,venue,no:+rm[1],name:info||"レース",time:tm?`${tm[1].padStart(2,"0")}:${tm[2]}`:""});
-   }
- }
- return races;
-}
-
-function parseMeta(text){
- const m={};
- const dm=text.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/);
- if(dm)m.date=`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`;
- const meet=text.match(/\d+回(.+?)\d+日/);if(meet)m.venue=meet[1];
- const rn=text.match(/(\d{1,2})レース/);if(rn)m.no=+rn[1];
- const tm=text.match(/発走時刻：(\d{1,2})時(\d{2})分/);if(tm)m.time=`${tm[1].padStart(2,"0")}:${tm[2]}`;
- const nm=text.match(/##\s*(?:第\d+回)?(.+?)(?:\n|$)/);if(nm)m.name=nm[1].trim();
- const d=text.match(/([\d,]+)メートル（(芝|ダート)・([^）]+)）/);
- if(d){m.distance=parseInt(d[1].replace(/,/g,""));m.surface=d[2];m.course=d[3]}
- const g=text.match(/(?:芝|ダート)(?:・[^ \n]+)?\s*(良|稍重|重|不良)/);if(g)m.going=g[1];
- return m;
-}
-function inferStyle(past){
- const p=[];
- for(const s of past){
-   const nums=(s.match(/\b\d{1,2}\b/g)||[]).map(Number).filter(n=>n>=1&&n<=18);
-   if(nums.length>=4)p.push(nums[0]);
- }
- if(!p.length)return"不明";
- const a=p.reduce((x,y)=>x+y,0)/p.length;
- return a<=3?"逃げ・先行":a<=7?"先行・好位":a<=11?"差し":"追込";
-}
-function cleanHorseName(s){
-  return s.replace(/Image:[^|]*/g,"")
-          .replace(/\s+/g," ")
-          .replace(/^[\s|]+|[\s|]+$/g,"")
-          .trim();
-}
-
-function parseHorses(text){
- const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),out=[];
- for(let i=0;i<lines.length;i++){
-   const line=lines[i];
-
-   // JRAの現在のテキスト化形式：
-   // Image: 枠1白 | 1 | クルゼイロドスル86.1(15番人気) ...
-   // 馬名とオッズの間に空白がない場合にも対応する。
-   let a=line.match(/(?:^|\|)\s*(\d{1,2})\s*\|\s*([^|]*?)(\d+(?:\.\d+)?)\s*\((\d+)番人気\)/);
-
-   // パイプが落ちたテキストにも対応。
-   if(!a){
-     a=line.match(/^\s*(\d{1,2})\s+(.+?)(\d+(?:\.\d+)?)\s*\((\d+)番人気\)/);
-   }
-
-   if(!a)continue;
-
-   const no=+a[1];
-   const name=cleanHorseName(a[2]);
-   const odds=parseFloat(a[3]);
-
-   if(no<1||no>18||!name||!isFinite(odds))continue;
-
-   let weight=null,jockey="",past=[];
-
-   for(let j=i+1;j<Math.min(i+15,lines.length);j++){
-     // 次の馬の行に到達したら終了。
-     if(j>i+1 && /(?:^|\|)\s*(\d{1,2})\s*\|\s*/.test(lines[j]) &&
-        /\(\d+番人気\)/.test(lines[j])) break;
-
-     const w=lines[j].match(/(\d+(?:\.\d+)?)\s*kg/);
-     if(w&&!weight)weight=parseFloat(w[1]);
-
-     if(w){
-       const after=lines[j].split(/kg/)[1]||"";
-       const jm=after.match(/^\s*([^|]+?)(?:\s*\||$)/);
-       if(jm&&!jockey)jockey=jm[1].trim();
-     }
-
-     if(/\d{4}年/.test(lines[j]))past.push(lines[j]);
-   }
-
-   out.push({no,name,odds,weight,jockey,style:inferStyle(past)});
- }
-
- const seen=new Set();
- return out.filter(h=>{
-   if(seen.has(h.no))return false;
-   seen.add(h.no);
-   return true;
- }).sort((a,b)=>a.no-b.no);
-}
-
-function renderRaces(){
- const box=$("races");box.innerHTML="";
- const venue=$("venue").value;
- const list=state.races.filter(r=>!venue||r.venue===venue);
- if(!list.length){box.innerHTML='<div class="note">該当するレースがありません。</div>';return}
- list.forEach(r=>{
-   const d=document.createElement("div");d.className="race";
-   d.innerHTML=`<b>${r.venue} ${r.no}R ${r.name}</b><br><span class="small">${r.time||""}</span>`;
-   const b=document.createElement("button");b.textContent="このレースを選択";b.onclick=()=>selectRace(r);d.appendChild(b);
-   box.appendChild(d);
- });
-}
-function selectRace(r){
- state.selected=r;$("entryCard").classList.remove("hidden");
- $("raceInfo").innerHTML=`<b>${r.venue} ${r.no}R ${r.name}</b><br><span class="small">${r.date} ${r.time||""}</span>`;
- $("horses").innerHTML='<div class="status"><span class="spinner"></span> 出馬表を取得中…</div>';
- $("resultCard").classList.add("hidden");
- loadEntry(r);
-}
-async function loadEntry(r){
- let u=KNOWN[r.date]?.[r.venue]?.[r.no];
- try{
-   // まず既知の公式URL。取得できたページ内に同開催のaccessDリンクがあれば、
-   // そこから他レースのURLも学習して次回以降に使う。
-   if(!u){
-     const seed=Object.values(KNOWN[r.date]?.[r.venue]||{})[0];
-     if(seed){
-       const seedText=await jina(seed);
-       const links=extractAccessLinks(seedText);
-       const hit=links.find(x=>{const z=identifyRaceFromUrl(x);return z&&z.date===r.date&&z.no===r.no});
-       if(hit)u=hit;
-     }
-   }
-   if(!u){
-     throw new Error("この日・競馬場の出馬表URLを自動発見できませんでした。JRAのURL仕様上、識別子はレースごとに異なります。");
-   }
-   const text=await jina(u);
-   // 取得ページから同開催のURLを抽出してキャッシュ
-   const links=extractAccessLinks(text);
-   for(const link of links){
-     const z=identifyRaceFromUrl(link);
-     if(z&&z.date===r.date){
-       const venue=Object.keys(VENUES).find(v=>VENUES[v].code===z.venueCode);
-       if(venue){
-         KNOWN[r.date]??={};KNOWN[r.date][venue]??={};KNOWN[r.date][venue][z.no]=link;
-       }
-     }
-   }
-   const meta=parseMeta(text),hs=parseHorses(text);
-   if(!hs.length)throw new Error("JRAページは取得できましたが、馬データを解析できませんでした");
-   state.horses=hs;
-   $("raceInfo").innerHTML=`<b>${meta.venue||r.venue} ${meta.no||r.no}R ${meta.name||r.name}</b><br><span class="small">${meta.date||r.date} ${meta.time||r.time||""}・${meta.surface||""} ${meta.distance?meta.distance+"m":""}・馬場 ${meta.going||"不明"}</span>`;
-   renderHorses();
- }catch(e){
-   $("horses").innerHTML=`<div class="status err">出馬表を取得できませんでした：${e.message}<br><span class="small">JRA公式ページ自体が存在する場合でも、外部取得経路の一時的な制限で失敗することがあります。もう一度選択すると再試行します。</span></div>`;
- }
-}
-
-function renderHorses(){
- $("horses").innerHTML=`<table><thead><tr><th>馬番</th><th>馬名</th><th>脚質</th><th>斤量</th><th>単勝</th></tr></thead><tbody>${
- state.horses.map(h=>`<tr><td>${h.no}</td><td><b>${h.name}</b><br><span class="small">${h.jockey||""}</span></td><td>${h.style}</td><td>${h.weight??"-"}</td><td>${h.odds}</td></tr>`).join("")
- }</tbody></table>`;
-}
-function simulate(){
- if(!state.horses.length)return;
- const hs=state.horses.map(h=>{const p=1/Math.max(h.odds,.1);const s=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;return {...h,score:p*s}});
- const sum=hs.reduce((a,h)=>a+h.score,0);hs.forEach(h=>h.win=h.score/sum);hs.sort((a,b)=>b.win-a.win);
- $("resultCard").classList.remove("hidden");
- $("result").innerHTML='<div class="note">Ver.9.0の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
- hs.slice(0,8).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")+
- '</tbody></table>';
- $("resultCard").scrollIntoView({behavior:"smooth"});
-}
-$("venue").onchange=renderRaces;
-$("backBtn").onclick=()=>{$("entryCard").classList.add("hidden");$("resultCard").classList.add("hidden");};
-$("simulateBtn").onclick=simulate;
-
-$("loadBtn").onclick=async()=>{
- $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRA公式の開催日程を取得中…');
- try{
-   const d=$("date").value||today(),[y,m,day]=d.split("-");
-   const url=`https://www.jra.go.jp/keiba/calendar2026/${y}/${parseInt(m)}/${m}${day}.html`;
-   const text=await jina(url);
-   let races=parseCalendar(text,d);
-   // Fallback for today's verified official schedule.
-   if(!races.length && d==="2026-09-05"){
-     races=[
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"中山",no:i+1,name:"JRA中山 "+(i+1)+"R"})),
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"阪神",no:i+1,name:"JRA阪神 "+(i+1)+"R"})),
-      ...Array.from({length:12},(_,i)=>({date:d,venue:"札幌",no:i+1,name:"JRA札幌 "+(i+1)+"R"}))
-     ];
-     races=races.map(r=>{const k=KNOWN[d]?.[r.venue]?.[r.no];return r});
-   }
-   if(!races.length)throw new Error("開催情報を解析できませんでした");
-   state.races=races;
-   const venues=[...new Set(races.map(r=>r.venue))];
-   $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
-   renderRaces();
-   msg(`${d}：${venues.join("・")}を取得しました。${races.length}レース`,"ok");
- }catch(e){
-   msg(`開催情報を取得できませんでした：${e.message}`,"err");
- }finally{$("loadBtn").disabled=false}
-};
-</script>
+<script src="./app.js?v=9.1"></script>
 
 <script>
 (async function(){
