@@ -1,6 +1,6 @@
 
 const $=id=>document.getElementById(id);
-const state={races:[],horses:[],selected:null};
+const state={races:[],horses:[],selected:null,history:null};
 function today(){
   return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"})
     .format(new Date()).replace(/\//g,"-");
@@ -132,8 +132,9 @@ function renderRaces(){
  if(!list.length){box.innerHTML='<div class="note">該当するレースがありません。</div>';return}
  list.forEach(r=>{
    const d=document.createElement("div");d.className="race";
-   d.innerHTML=`<b>${r.venue} ${r.no}R ${r.name}</b><br><span class="small">${r.time||""}</span>`;
-   const b=document.createElement("button");b.textContent="このレースを選択";b.onclick=()=>selectRace(r);d.appendChild(b);
+   const historical=!!r.historical;
+   d.innerHTML=`<b>${r.venue} ${r.no}R ${r.name||"レース"}</b><br><span class="small">${r.time||""}${historical?"・結果済み":""}</span>`;
+   const b=document.createElement("button");b.textContent=historical?"結果・バックテスト":"このレースを選択";b.onclick=()=>historical?renderHistoricalRace(r):selectRace(r);d.appendChild(b);
    box.appendChild(d);
  });
 }
@@ -152,6 +153,40 @@ async function getDaily(){
   if(!r.ok)throw new Error("同期データがまだありません");
   DAILY=await r.json();
   return DAILY;
+}
+
+let HISTORY=null;
+async function getHistory(){
+  if(HISTORY)return HISTORY;
+  const r=await fetch("./data/jra_history.json?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw new Error("過去レースの同期データがまだありません。GitHub Actionsで指定日を実行してください。");
+  HISTORY=await r.json();
+  return HISTORY;
+}
+
+function renderHistoricalRace(r){
+  state.selected=r;
+  $("entryCard").classList.remove("hidden");
+  $("resultCard").classList.add("hidden");
+  $("raceInfo").innerHTML=`<b>${r.venue} ${r.no}R ${r.name||"レース"}</b><br><span class="small">${r.date} ${r.time||""}・${r.surface||""} ${r.distance?r.distance+"m":""}・結果データ</span>`;
+  state.horses=r.horses||[];
+  renderHistoricalHorses();
+}
+function renderHistoricalHorses(){
+  const hs=state.horses.slice().sort((a,b)=>(a.finish||99)-(b.finish||99));
+  $("horses").innerHTML=`<div class="small" style="margin-bottom:6px">${hs.length}頭・JRA公式レース結果</div><div style="overflow-x:auto"><table><thead><tr><th>着順</th><th>馬番</th><th>馬名</th><th>人気</th><th>騎手</th><th>馬体重</th></tr></thead><tbody>${hs.map(h=>`<tr><td><b>${h.finish??"-"}</b></td><td>${h.no}</td><td><b>${h.name}</b></td><td>${h.popularity??"-"}</td><td>${h.jockey||"-"}</td><td>${h.bodyWeight??"-"}${h.bodyWeightDiff!=null?` (${h.bodyWeightDiff>0?"+":""}${h.bodyWeightDiff})`:""}</td></tr>`).join("")}</tbody></table></div><div class="note" style="margin-top:8px">過去レースは確定後データです。バックテストでは最終人気を市場ベースの指標として使用します。</div>`;
+}
+function runHistoricalBacktest(){
+  if(!state.selected||!state.horses.length)return;
+  const hs=state.horses.map(h=>({...h,p:h.popularity?1/Number(h.popularity):0})).filter(h=>h.p>0);
+  hs.sort((a,b)=>b.p-a.p);
+  const top=hs.slice(0,5);
+  const actual=hs.find(h=>Number(h.finish)===1);
+  const hit=top.some(h=>Number(h.finish)===1);
+  const exact=top[0]&&Number(top[0].finish)===1;
+  $("resultCard").classList.remove("hidden");
+  $("result").innerHTML=`<div class="note">過去レースバックテスト：最終人気を市場評価として、人気順ベースで予測しています。これは予想モデルの性能確認用で、最終オッズを事前予測データとして扱うものではありません。</div><div class="pill">本命1着：${exact?"的中":"不的中"}</div><div class="pill">上位5頭に勝ち馬：${hit?"的中":"不的中"}</div><div style="margin-top:8px">実際の1着：<b>${actual?actual.no+" "+actual.name:"不明"}</b></div><table style="margin-top:8px"><thead><tr><th>予測</th><th>馬</th><th>人気</th><th>実着順</th></tr></thead><tbody>${top.map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${h.popularity}</td><td>${h.finish??"-"}</td></tr>`).join("")}</tbody></table>`;
+  $("resultCard").scrollIntoView({behavior:"smooth"});
 }
 
 async function loadEntry(r){
@@ -214,12 +249,26 @@ function simulate(){
 }
 $("venue").onchange=renderRaces;
 $("backBtn").onclick=()=>{$("entryCard").classList.add("hidden");$("resultCard").classList.add("hidden");};
-$("simulateBtn").onclick=simulate;
+$("simulateBtn").onclick=()=>state.selected?.historical?runHistoricalBacktest():simulate();
 
 $("loadBtn").onclick=async()=>{
  $("loadBtn").disabled=true;msg('<span class="spinner"></span> JRA公式同期データを読み込み中…');
  try{
    const d=$("date").value||today();
+   const todayIso=today();
+
+   // 過去日はJRA公式レース結果データへ切り替える。
+   if(d < todayIso){
+     const h=await getHistory();
+     if(h.date!==d)throw new Error(`過去データは${h.date}が同期されています。GitHub Actionsで${d.replaceAll("-","")}を指定して実行してください。`);
+     state.races=(h.races||[]).map(r=>({...r,date:r.date||d,historical:true}));
+     const venues=[...new Set(state.races.map(r=>r.venue))];
+     $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
+     renderRaces();
+     msg(`${d}：JRA公式の過去レース結果。${venues.join("・")}・${state.races.length}レース` ,"ok");
+     return;
+   }
+
    const daily=await getDaily();
 
    if(Array.isArray(daily.races) && daily.races.length && d===daily.date){

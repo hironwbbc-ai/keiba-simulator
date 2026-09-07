@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
-<title>競馬シミュレーター Ver.8.3</title>
+<title>競馬シミュレーター Ver.9.0</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ea;--accent:#0f766e;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -29,8 +29,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 <body>
 <main>
 <div class="top">
-<h1>🏇 競馬シミュレーター <span class="small">Ver.8.3</span></h1>
-<div class="sub">JRA公式同期JSON → 36レース自動表示 → 出馬表 → シミュレーション</div>
+<h1>🏇 競馬シミュレーター <span class="small">Ver.9.0</span></h1>
+<div class="sub">JRA公式同期JSON → 出馬表 → シミュレーション → 過去レース・バックテスト</div>
 </div>
 
 <section class="card">
@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 <div><label>開催場</label><select id="venue"><option value="">取得後に選択</option></select></div>
 </div>
 <div class="actions" style="margin-top:9px">
-<button id="loadBtn" class="wide">今日の開催を取得</button>
+<button id="loadBtn" class="wide">指定日の開催を取得</button>
 </div>
 <div id="status" class="status" style="margin-top:9px">GitHub Actionsで同期したJRA公式データを優先して読み込みます。</div>
 <div id="races"></div>
@@ -57,12 +57,12 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;b
 </section>
 
 <section id="resultCard" class="card hidden">
-<h2>③ 簡易分析</h2>
+<h2>③ 分析・バックテスト</h2>
 <div id="result"></div>
 </section>
 
 <section class="card">
-<h2>Ver.8.3のポイント</h2>
+<h2>Ver.9.0のポイント</h2>
 <div class="note">
 URL入力はありません。GitHub ActionsがJRA公式の出馬表を同期し、iPhone側は data/jra_daily.json を読み込みます。36レースが同期済みなら、札幌・中山・阪神など開催場と全レースを自動表示します。
 </div>
@@ -298,7 +298,7 @@ function simulate(){
  const hs=state.horses.map(h=>{const p=1/Math.max(h.odds,.1);const s=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;return {...h,score:p*s}});
  const sum=hs.reduce((a,h)=>a+h.score,0);hs.forEach(h=>h.win=h.score/sum);hs.sort((a,b)=>b.win-a.win);
  $("resultCard").classList.remove("hidden");
- $("result").innerHTML='<div class="note">Ver.8.3の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
+ $("result").innerHTML='<div class="note">Ver.9.0の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
  hs.slice(0,8).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")+
  '</tbody></table>';
  $("resultCard").scrollIntoView({behavior:"smooth"});
