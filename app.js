@@ -1,7 +1,10 @@
 
 const $=id=>document.getElementById(id);
 const state={races:[],horses:[],selected:null};
-const today=()=>new Date().toISOString().slice(0,10);
+function today(){
+  return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"})
+    .format(new Date()).replace(/\//g,"-");
+}
 $("date").value=today();
 
 const VENUES={
@@ -178,19 +181,35 @@ async function loadEntry(r){
  }
 }
 
+function normalizeHorse(h){
+  return {
+    no:Number(h.no ?? h.number), name:h.name||"", odds:Number(h.odds ?? 0),
+    popularity:h.popularity ?? null,
+    bodyWeight:h.bodyWeight ?? h.body_weight ?? null,
+    bodyWeightDiff:h.bodyWeightDiff ?? h.body_weight_diff ?? null,
+    sexAge:h.sexAge ?? h.sex_age ?? "",
+    carriedWeight:h.carriedWeight ?? h.carried_weight ?? null,
+    jockey:h.jockey||"", style:h.style||"不明"
+  };
+}
 function renderHorses(){
- $("horses").innerHTML=`<table><thead><tr><th>馬番</th><th>馬名</th><th>脚質</th><th>斤量</th><th>単勝</th></tr></thead><tbody>${
- state.horses.map(h=>`<tr><td>${h.no}</td><td><b>${h.name}</b><br><span class="small">${h.jockey||""}</span></td><td>${h.style}</td><td>${h.weight??"-"}</td><td>${h.odds}</td></tr>`).join("")
- }</tbody></table>`;
+ const hs=state.horses.map(normalizeHorse).sort((a,b)=>a.no-b.no);
+ $("horses").innerHTML=`<div class="small" style="margin-bottom:6px">${hs.length}頭・JRA公式同期データ</div><div style="overflow-x:auto"><table><thead><tr><th>馬番</th><th>馬名</th><th>性齢</th><th>騎手</th><th>斤量</th><th>馬体重</th><th>単勝</th><th>人気</th></tr></thead><tbody>${
+ hs.map(h=>`<tr><td><b>${h.no}</b></td><td><b>${h.name}</b></td><td>${h.sexAge||"-"}</td><td>${h.jockey||"-"}</td><td>${h.carriedWeight??"-"}kg</td><td>${h.bodyWeight??"-"}${h.bodyWeightDiff!=null?` (${h.bodyWeightDiff>0?"+":""}${h.bodyWeightDiff})`:""}</td><td>${h.odds>0?h.odds:"-"}</td><td>${h.popularity??"-"}</td></tr>`).join("")}
+ </tbody></table></div>`;
 }
 function simulate(){
  if(!state.horses.length)return;
- const hs=state.horses.map(h=>{const p=1/Math.max(h.odds,.1);const s=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;return {...h,score:p*s}});
- const sum=hs.reduce((a,h)=>a+h.score,0);hs.forEach(h=>h.win=h.score/sum);hs.sort((a,b)=>b.win-a.win);
+ const hs=state.horses.map(normalizeHorse).filter(h=>h.odds>0).map(h=>{
+   const p=1/Math.max(h.odds,.1);
+   const styleBonus=h.style.includes("逃げ")?1.06:h.style.includes("先行")?1.04:h.style.includes("差し")?1.02:.98;
+   return {...h,score:p*styleBonus};
+ });
+ const sum=hs.reduce((a,h)=>a+h.score,0);
+ hs.forEach(h=>h.win=h.score/sum);
+ hs.sort((a,b)=>b.win-a.win);
  $("resultCard").classList.remove("hidden");
- $("result").innerHTML='<div class="note">Ver.7.2の簡易モデルです。市場オッズを基礎に脚質を補正した参考値で、公式確率ではありません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+
- hs.slice(0,8).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join("")+
- '</tbody></table>';
+ $("result").innerHTML='<div class="note">現段階はVer.8.3の基礎モデルです。JRA単勝オッズを基準にした参考シミュレーションで、過去走・展開・馬場・騎手などをまだ本格的には評価していません。</div><table><thead><tr><th>順位</th><th>馬</th><th>勝率目安</th><th>単勝</th><th>期待値目安</th></tr></thead><tbody>'+hs.slice(0,10).map((h,i)=>`<tr><td>${i+1}</td><td><b>${h.no} ${h.name}</b></td><td>${(h.win*100).toFixed(1)}%</td><td>${h.odds}</td><td>${(h.win*h.odds).toFixed(2)}</td></tr>`).join('')+'</tbody></table>';
  $("resultCard").scrollIntoView({behavior:"smooth"});
 }
 $("venue").onchange=renderRaces;
@@ -203,7 +222,7 @@ $("loadBtn").onclick=async()=>{
    const d=$("date").value||today();
    const daily=await getDaily();
 
-   if(d===daily.date && Array.isArray(daily.races) && daily.races.length){
+   if(Array.isArray(daily.races) && daily.races.length && d===daily.date){
      state.races=daily.races.map(r=>({...r,date:r.date||d}));
      const venues=[...new Set(state.races.map(r=>r.venue))];
      $("venue").innerHTML=venues.map(v=>`<option value="${v}">${v}</option>`).join("");
