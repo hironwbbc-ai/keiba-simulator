@@ -17,6 +17,8 @@ const $ = id => document.getElementById(id);
 const MODEL_VERSION = "12.3";
 const SIMULATIONS = 10000;
 
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
 const VENUES = {
   "札幌":"01","函館":"02","福島":"03","新潟":"04","東京":"05",
   "中山":"06","中京":"07","京都":"08","阪神":"09","小倉":"10"
@@ -590,3 +592,9 @@ window.KeibaSimulator={
 };
 
 loadRaces();
+
+
+// Ver.12.3: index.html側に古いバージョン表記が残っていても表示を12.3へ統一
+document.querySelectorAll("h1,h2,.small,.sub,.note").forEach(el=>{
+  if(el.textContent.includes("Ver.12.1")) el.textContent=el.textContent.replaceAll("Ver.12.1","Ver.12.3");
+});
