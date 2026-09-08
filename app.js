@@ -1,3377 +1,820 @@
 /* =========================================================
-   競馬シミュレーター Ver.11.0
+   競馬シミュレーター Ver.12.0
    ---------------------------------------------------------
    JRA公式同期JSON
-   ↓
-   出馬表
-   ↓
-   独立特徴量モデル
-   ↓
-   展開・脚質補正
-   ↓
-   Monte Carlo 10,000回
-   ↓
-   1着 / 2着 / 3着確率
-   ↓
-   単勝期待値
-   ↓
-   3連複 / 3連単候補
+   → 出馬表
+   → 発走前情報だけを使うルールベースモデル
+   → 展開・脚質
+   → Monte Carlo 10,000回
+   → 1着/2着/3着/3着内率
+   → 単勝EV
+   → 3連複/3連単候補
+   → 個別バックテスト
+   → 人気ベンチマーク vs モデル一括比較
 
-   注意：
-   現段階では「学習済みAI」ではなく、
-   ルールベースの検証用モデル。
-   データが存在しない特徴量は推測しない。
+   重要：
+   確定後の「着順」は予測スコアには絶対に使用しない。
+   歴史バックテストでは finish を評価専用にする。
    ========================================================= */
 
 "use strict";
 
-/* =========================================================
-   DOM
-   ========================================================= */
-
 const $ = id => document.getElementById(id);
-
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
-const state = {
-  races: [],
-  horses: [],
-  selected: null,
-  history: null,
-  daily: null,
-  analysis: null
-};
-
-
-/* =========================================================
-   CONFIG
-   ========================================================= */
-
-const MODEL_VERSION = "11.0";
-
+const MODEL_VERSION = "12.0";
 const SIMULATIONS = 10000;
 
 const VENUES = {
-  "札幌": "01",
-  "函館": "02",
-  "福島": "03",
-  "新潟": "04",
-  "東京": "05",
-  "中山": "06",
-  "中京": "07",
-  "京都": "08",
-  "阪神": "09",
-  "小倉": "10"
+  "札幌":"01","函館":"02","福島":"03","新潟":"04","東京":"05",
+  "中山":"06","中京":"07","京都":"08","阪神":"09","小倉":"10"
 };
 
+const VENUE_NAMES = {
+  "01":"札幌","02":"函館","03":"福島","04":"新潟","05":"東京",
+  "06":"中山","07":"中京","08":"京都","09":"阪神","10":"小倉"
+};
 
-/*
-   モデル構成
-
-   市場情報      30%
-   脚質          15%
-   展開          15%
-   斤量          10%
-   馬体重        10%
-   性齢           5%
-   人気           5%
-   データ充足度   10%
-
-   ※近走・コース適性・騎手などは
-     データが入った段階で自動的に追加可能。
-*/
+const state = {
+  daily:null,
+  history:null,
+  races:[],
+  horses:[],
+  selected:null,
+  result:null
+};
 
 const WEIGHTS = {
-  market: 0.30,
-  style: 0.15,
-  pace: 0.15,
-  carriedWeight: 0.10,
-  bodyWeight: 0.10,
-  sexAge: 0.05,
-  popularity: 0.05,
-  coverage: 0.10
+  market:0.32,
+  style:0.14,
+  pace:0.14,
+  frame:0.06,
+  carriedWeight:0.10,
+  bodyWeight:0.07,
+  bodyWeightDiff:0.05,
+  sexAge:0.04,
+  jockey:0.03,
+  coverage:0.05
 };
 
-
-/* =========================================================
-   TODAY
-   ========================================================= */
-
-function today(){
-
-  return new Intl.DateTimeFormat(
-    "ja-JP",
-    {
-      timeZone:"Asia/Tokyo",
-      year:"numeric",
-      month:"2-digit",
-      day:"2-digit"
-    }
-  )
-  .format(new Date())
-  .replace(/\//g,"-");
-
-}
-
-
-if($("date")){
-  $("date").value = today();
-}
-
-
-/* =========================================================
-   MESSAGE
-   ========================================================= */
-
-function msg(text, cls=""){
-
-  const el = $("status");
-
-  if(!el) return;
-
-  el.innerHTML = text;
-  el.className = "status " + cls;
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
 function esc(v){
-
   return String(v ?? "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#39;");
-
 }
 
-
-/* =========================================================
-   JINA
-   ========================================================= */
-
-async function jina(url){
-
-  const candidates = [
-    "https://r.jina.ai/" + url,
-    "https://r.jina.ai/http://" +
-      url.replace(/^https?:\/\//,"")
-  ];
-
-  let last = "";
-
-  for(const u of candidates){
-
-    for(let n=0;n<2;n++){
-
-      try{
-
-        const r = await fetch(
-          u,
-          {
-            headers:{
-              Accept:"text/plain"
-            },
-            cache:"no-store"
-          }
-        );
-
-        if(!r.ok){
-
-          last = "取得サーバーHTTP " + r.status;
-          continue;
-
-        }
-
-        const t = await r.text();
-
-        if(t && t.length > 500){
-
-          return t;
-
-        }
-
-        last = "取得内容が空でした";
-
-      }catch(e){
-
-        last = e.message || String(e);
-
-      }
-
-      await new Promise(
-        resolve => setTimeout(resolve,350)
-      );
-
-    }
-
-  }
-
-  throw new Error(
-    last || "取得できませんでした"
-  );
-
+function num(v){
+  if(v===null || v===undefined || v==="") return null;
+  const n = Number(String(v).replace(/[^\d.+-]/g,""));
+  return Number.isFinite(n) ? n : null;
 }
 
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 
-/* =========================================================
-   CALENDAR PARSER
-   ========================================================= */
-
-function parseCalendar(text,date){
-
-  const lines = text
-    .split(/\r?\n/)
-    .map(x => x.trim())
-    .filter(Boolean);
-
-  const races = [];
-
-  let venue = "";
-
-  const names = [
-    "中山",
-    "阪神",
-    "札幌",
-    "東京",
-    "京都",
-    "中京",
-    "新潟",
-    "福島",
-    "小倉",
-    "函館"
-  ];
-
-  for(let i=0;i<lines.length;i++){
-
-    const vm =
-      lines[i].match(
-        /^\d+回(.+?)\d+日$/
-      );
-
-    if(
-      vm &&
-      names.includes(vm[1])
-    ){
-
-      venue = vm[1];
-      continue;
-
-    }
-
-    const rm =
-      lines[i].match(
-        /^(\d{1,2})レース\s*\|?\s*(.*)$/
-      );
-
-    if(rm && venue){
-
-      let info =
-        rm[2]
-          .replace(/\s*\|\s*/g," ")
-          .trim();
-
-      if(
-        !info &&
-        lines[i+1]
-      ){
-
-        info =
-          lines[i+1]
-            .replace(/\s*\|\s*/g," ")
-            .trim();
-
-      }
-
-      const next =
-        lines[i+1] || "";
-
-      const tm =
-        (
-          next.match(
-            /(\d{1,2})時(\d{2})分/
-          )
-          ||
-          lines[i].match(
-            /(\d{1,2})時(\d{2})分/
-          )
-        );
-
-      races.push({
-        date,
-        venue,
-        no:Number(rm[1]),
-        name:info || "レース",
-        time:tm
-          ? `${tm[1].padStart(2,"0")}:${tm[2]}`
-          : ""
-      });
-
-    }
-
-  }
-
-  return races;
-
+function avg(xs){
+  const a = xs.filter(Number.isFinite);
+  return a.length ? a.reduce((s,x)=>s+x,0)/a.length : null;
 }
-
-
-/* =========================================================
-   META PARSER
-   ========================================================= */
-
-function parseMeta(text){
-
-  const m = {};
-
-  const dm =
-    text.match(
-      /(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/
-    );
-
-  if(dm){
-
-    m.date =
-      `${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`;
-
-  }
-
-  const meet =
-    text.match(
-      /\d+回(.+?)\d+日/
-    );
-
-  if(meet){
-
-    m.venue = meet[1];
-
-  }
-
-  const rn =
-    text.match(
-      /(\d{1,2})レース/
-    );
-
-  if(rn){
-
-    m.no = Number(rn[1]);
-
-  }
-
-  const tm =
-    text.match(
-      /発走時刻：(\d{1,2})時(\d{2})分/
-    );
-
-  if(tm){
-
-    m.time =
-      `${tm[1].padStart(2,"0")}:${tm[2]}`;
-
-  }
-
-  const nm =
-    text.match(
-      /##\s*(?:第\d+回)?(.+?)(?:\n|$)/
-    );
-
-  if(nm){
-
-    m.name = nm[1].trim();
-
-  }
-
-  const d =
-    text.match(
-      /([\d,]+)メートル（(芝|ダート)・([^）]+)）/
-    );
-
-  if(d){
-
-    m.distance =
-      parseInt(
-        d[1].replace(/,/g,"")
-      );
-
-    m.surface = d[2];
-    m.course = d[3];
-
-  }
-
-  const g =
-    text.match(
-      /(?:芝|ダート)(?:・[^ \n]+)?\s*(良|稍重|重|不良)/
-    );
-
-  if(g){
-
-    m.going = g[1];
-
-  }
-
-  return m;
-
-}
-
-
-/* =========================================================
-   STYLE
-   ========================================================= */
-
-function inferStyle(past){
-
-  const positions = [];
-
-  for(const s of past){
-
-    const nums =
-      (s.match(/\b\d{1,2}\b/g) || [])
-        .map(Number)
-        .filter(
-          n => n>=1 && n<=18
-        );
-
-    if(nums.length >= 4){
-
-      positions.push(nums[0]);
-
-    }
-
-  }
-
-  if(!positions.length){
-
-    return "不明";
-
-  }
-
-  const avg =
-    positions.reduce(
-      (a,b) => a+b,
-      0
-    ) / positions.length;
-
-  if(avg <= 3){
-
-    return "逃げ・先行";
-
-  }
-
-  if(avg <= 7){
-
-    return "先行・好位";
-
-  }
-
-  if(avg <= 11){
-
-    return "差し";
-
-  }
-
-  return "追込";
-
-}
-
-
-/* =========================================================
-   HORSE PARSER
-   ========================================================= */
-
-function parseHorses(text){
-
-  const lines =
-    text
-      .split(/\r?\n/)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-  const out = [];
-
-  for(let i=0;i<lines.length;i++){
-
-    let a =
-      lines[i].match(
-        /(?:\|\s*)?(\d{1,2})\s*\|\s*(?:[^\|]+\|\s*)?([^|]+?)\s+([\d.]+)\s*\((\d+)番人気\)/
-      );
-
-    if(!a){
-
-      a =
-        lines[i].match(
-          /^(\d{1,2})\s*\|?\s+([^|]+?)\s+([\d.]+)\s*\((\d+)番人気\)/
-        );
-
-    }
-
-    if(!a){
-
-      a =
-        lines[i].match(
-          /^(\d{1,2})\s+([^\s]+)\s+([\d.]+)\((\d+)番人気\)/
-        );
-
-    }
-
-    if(!a) continue;
-
-    const no =
-      Number(a[1]);
-
-    const name =
-      a[2].trim();
-
-    const odds =
-      parseFloat(a[3]);
-
-    const popularity =
-      Number(a[4]);
-
-    if(
-      no < 1 ||
-      no > 18 ||
-      !name ||
-      !isFinite(odds)
-    ){
-
-      continue;
-
-    }
-
-    let weight = null;
-    let jockey = "";
-    let past = [];
-
-    for(
-      let j=i+1;
-      j<Math.min(i+10,lines.length);
-      j++
-    ){
-
-      if(
-        /(?:Image: 枠|\|\s*\d+\s*\|)/
-          .test(lines[j])
-      ){
-
-        break;
-
-      }
-
-      const w =
-        lines[j].match(
-          /(\d+(?:\.\d+)?)\s*kg/
-        );
-
-      if(
-        w &&
-        weight === null
-      ){
-
-        weight =
-          parseFloat(w[1]);
-
-      }
-
-      const parts =
-        lines[j]
-          .split("|")
-          .map(s => s.trim())
-          .filter(Boolean);
-
-      if(
-        parts.length &&
-        /kg/.test(lines[j])
-      ){
-
-        const z =
-          parts.find(
-            s => /kg/.test(s)
-          );
-
-        if(z){
-
-          jockey =
-            z
-              .replace(/^.*?kg\s*/,"")
-              .trim();
-
-        }
-
-      }
-
-      if(
-        /\d{4}年/.test(lines[j])
-      ){
-
-        past.push(lines[j]);
-
-      }
-
-    }
-
-    out.push({
-      no,
-      name,
-      odds,
-      popularity,
-      weight,
-      jockey,
-      style:inferStyle(past)
-    });
-
-  }
-
-  const seen = new Set();
-
-  return out
-    .filter(h => {
-
-      if(seen.has(h.no)){
-        return false;
-      }
-
-      seen.add(h.no);
-
-      return true;
-
-    })
-    .sort(
-      (a,b) => a.no-b.no
-    );
-
-}
-
-
-/* =========================================================
-   DATA
-   ========================================================= */
-
-async function getDaily(){
-
-  if(state.daily){
-
-    return state.daily;
-
-  }
-
-  const r =
-    await fetch(
-      "./data/jra_daily.json?ts="+Date.now(),
-      {
-        cache:"no-store"
-      }
-    );
-
-  if(!r.ok){
-
-    throw new Error(
-      "同期データがまだありません"
-    );
-
-  }
-
-  state.daily =
-    await r.json();
-
-  return state.daily;
-
-}
-
-
-async function getHistory(){
-
-  if(state.history){
-
-    return state.history;
-
-  }
-
-  const r =
-    await fetch(
-      "./data/jra_history.json?ts="+Date.now(),
-      {
-        cache:"no-store"
-      }
-    );
-
-  if(!r.ok){
-
-    throw new Error(
-      "過去レースの同期データがありません。"
-    );
-
-  }
-
-  state.history =
-    await r.json();
-
-  return state.history;
-
-}
-
-
-/* =========================================================
-   RACE LIST
-   ========================================================= */
-
-function renderRaces(){
-
-  const box =
-    $("races");
-
-  if(!box) return;
-
-  box.innerHTML = "";
-
-  const venue =
-    $("venue").value;
-
-  const list =
-    state.races.filter(
-      r => !venue || r.venue === venue
-    );
-
-  if(!list.length){
-
-    box.innerHTML =
-      '<div class="note">該当するレースがありません。</div>';
-
-    return;
-
-  }
-
-  list.forEach(r => {
-
-    const d =
-      document.createElement("div");
-
-    d.className = "race";
-
-    const historical =
-      !!r.historical;
-
-    d.innerHTML =
-      `<b>${esc(r.venue)} ${r.no}R ${esc(r.name || "レース")}</b>
-       <br>
-       <span class="small">
-       ${esc(r.time || "")}
-       ${historical ? "・結果済み" : ""}
-       </span>`;
-
-    const b =
-      document.createElement("button");
-
-    b.textContent =
-      historical
-        ? "結果・バックテスト"
-        : "このレースを選択";
-
-    b.onclick =
-      () => historical
-        ? renderHistoricalRace(r)
-        : selectRace(r);
-
-    d.appendChild(b);
-
-    box.appendChild(d);
-
-  });
-
-}
-
-
-/* =========================================================
-   SELECT RACE
-   ========================================================= */
-
-function selectRace(r){
-
-  state.selected = r;
-
-  $("entryCard")
-    ?.classList.remove("hidden");
-
-  $("raceInfo").innerHTML =
-    `<b>${esc(r.venue)} ${r.no}R ${esc(r.name || "")}</b>
-     <br>
-     <span class="small">
-     ${esc(r.date)} ${esc(r.time || "")}
-     </span>`;
-
-  $("horses").innerHTML =
-    '<div class="status"><span class="spinner"></span> 出馬表を取得中…</div>';
-
-  $("resultCard")
-    ?.classList.add("hidden");
-
-  loadEntry(r);
-
-}
-
-
-/* =========================================================
-   ENTRY
-   ========================================================= */
-
-async function loadEntry(r){
-
-  try{
-
-    const d =
-      await getDaily();
-
-    const rr =
-      (d.races || []).find(
-        x =>
-          x.date === r.date &&
-          x.venue === r.venue &&
-          Number(x.no) === Number(r.no)
-      );
-
-    if(!rr){
-
-      throw new Error(
-        "このレースのJRA公式同期データがありません。"
-      );
-
-    }
-
-    if(
-      Array.isArray(rr.horses) &&
-      rr.horses.length
-    ){
-
-      state.horses =
-        rr.horses;
-
-      state.selected =
-        {
-          ...r,
-          ...rr
-        };
-
-      $("raceInfo").innerHTML =
-        `<b>${esc(rr.venue)} ${rr.no}R ${esc(rr.name || r.name || "")}</b>
-         <br>
-         <span class="small">
-         ${esc(rr.date)}
-         ${esc(rr.time || r.time || "")}
-         ・${esc(rr.surface || "")}
-         ${rr.distance ? esc(rr.distance)+"m" : ""}
-         ・馬場 ${esc(rr.going || "不明")}
-         </span>`;
-
-      renderHorses();
-
-      return;
-
-    }
-
-    if(!rr.url){
-
-      throw new Error(
-        "JRA公式出馬表URLがありません"
-      );
-
-    }
-
-    const text =
-      await jina(rr.url);
-
-    const meta =
-      parseMeta(text);
-
-    const hs =
-      parseHorses(text);
-
-    if(!hs.length){
-
-      throw new Error(
-        "JRAページは取得できましたが、馬データを解析できませんでした"
-      );
-
-    }
-
-    state.horses = hs;
-
-    state.selected =
-      {
-        ...r,
-        ...meta
-      };
-
-    $("raceInfo").innerHTML =
-      `<b>${esc(meta.venue || r.venue)} ${meta.no || r.no}R ${esc(meta.name || r.name || "")}</b>
-       <br>
-       <span class="small">
-       ${esc(meta.date || r.date)}
-       ${esc(meta.time || r.time || "")}
-       ・${esc(meta.surface || "")}
-       ${meta.distance ? esc(meta.distance)+"m" : ""}
-       ・馬場 ${esc(meta.going || "不明")}
-       </span>`;
-
-    renderHorses();
-
-  }catch(e){
-
-    $("horses").innerHTML =
-      `<div class="status err">
-       出馬表を取得できませんでした：
-       ${esc(e.message)}
-       <br>
-       <span class="small">
-       GitHub ActionsでJRA公式データを同期してから、
-       もう一度レースを選択してください。
-       </span>
-       </div>`;
-
-  }
-
-}
-
-
-/* =========================================================
-   NORMALIZE HORSE
-   ========================================================= */
-
-function normalizeHorse(h){
-
-  return {
-
-    no:Number(
-      h.no ??
-      h.number ??
-      h.horse_no ??
-      0
-    ),
-
-    name:
-      h.name ??
-      h.horse_name ??
-      h.horseName ??
-      "",
-
-    odds:Number(
-      h.odds ?? 0
-    ),
-
-    popularity:
-      h.popularity ??
-      h.odds_rank ??
-      h.rank ??
-      null,
-
-    bodyWeight:
-      toNumberOrNull(
-        h.bodyWeight ??
-        h.body_weight ??
-        h.weight
-      ),
-
-    bodyWeightDiff:
-      toNumberOrNull(
-        h.bodyWeightDiff ??
-        h.body_weight_diff
-      ),
-
-    sexAge:
-      h.sexAge ??
-      h.sex_age ??
-      "",
-
-    carriedWeight:
-      toNumberOrNull(
-        h.carriedWeight ??
-        h.carried_weight ??
-        h.weight_carried
-      ),
-
-    jockey:
-      h.jockey ||
-      "",
-
-    style:
-      h.style ||
-      "不明",
-
-    frame:
-      toNumberOrNull(
-        h.frame ??
-        h.frame_no ??
-        h.waku
-      ),
-
-    recent:
-      h.recent ||
-      h.lastRuns ||
-      h.pastRuns ||
-      [],
-
-    courseStats:
-      h.courseStats ||
-      h.course_stats ||
-      null,
-
-    jockeyStats:
-      h.jockeyStats ||
-      h.jockey_stats ||
-      null,
-
-    corner4:
-      toNumberOrNull(
-        h.corner4 ??
-        h.corner_4
-      ),
-
-    finish:
-      toNumberOrNull(
-        h.finish ??
-        h.result ??
-        h.place
-      )
-
-  };
-
-}
-
-
-function toNumberOrNull(v){
-
-  if(
-    v === null ||
-    v === undefined ||
-    v === ""
-  ){
-
-    return null;
-
-  }
-
-  const n =
-    Number(
-      String(v)
-        .replace(/[^\d.+-]/g,"")
-    );
-
-  return Number.isFinite(n)
-    ? n
-    : null;
-
-}
-
-
-/* =========================================================
-   HORSE TABLE
-   ========================================================= */
-
-function renderHorses(){
-
-  const hs =
-    state.horses
-      .map(normalizeHorse)
-      .sort(
-        (a,b) => a.no-b.no
-      );
-
-  $("horses").innerHTML =
-    `
-    <div class="small" style="margin-bottom:6px">
-      ${hs.length}頭・JRA公式同期データ
-    </div>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-    <thead>
-    <tr>
-      <th>馬番</th>
-      <th>馬名</th>
-      <th>性齢</th>
-      <th>騎手</th>
-      <th>斤量</th>
-      <th>馬体重</th>
-      <th>単勝</th>
-      <th>人気</th>
-      <th>脚質</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${
-      hs.map(h => `
-      <tr>
-
-        <td><b>${h.no}</b></td>
-
-        <td><b>${esc(h.name)}</b></td>
-
-        <td>${esc(h.sexAge || "-")}</td>
-
-        <td>${esc(h.jockey || "-")}</td>
-
-        <td>
-          ${h.carriedWeight != null
-            ? h.carriedWeight+"kg"
-            : "-"}
-        </td>
-
-        <td>
-          ${h.bodyWeight != null
-            ? h.bodyWeight
-            : "-"}
-          ${
-            h.bodyWeightDiff != null
-              ? ` (${h.bodyWeightDiff > 0 ? "+" : ""}${h.bodyWeightDiff})`
-              : ""
-          }
-        </td>
-
-        <td>
-          ${h.odds > 0 ? h.odds : "-"}
-        </td>
-
-        <td>
-          ${h.popularity ?? "-"}
-        </td>
-
-        <td>
-          ${esc(h.style)}
-        </td>
-
-      </tr>
-      `).join("")
-    }
-
-    </tbody>
-    </table>
-
-    </div>
-    `;
-
-}
-
-
-/* =========================================================
-   HISTORICAL RACE
-   ========================================================= */
-
-function renderHistoricalRace(r){
-
-  state.selected = r;
-
-  $("entryCard")
-    ?.classList.remove("hidden");
-
-  $("resultCard")
-    ?.classList.add("hidden");
-
-  $("raceInfo").innerHTML =
-    `<b>${esc(r.venue)} ${r.no}R ${esc(r.name || "レース")}</b>
-     <br>
-     <span class="small">
-     ${esc(r.date)}
-     ${esc(r.time || "")}
-     ・${esc(r.surface || "")}
-     ${r.distance ? r.distance+"m" : ""}
-     ・結果データ
-     </span>`;
-
-  state.horses =
-    r.horses || [];
-
-  renderHistoricalHorses();
-
-}
-
-
-function renderHistoricalHorses(){
-
-  const hs =
-    state.horses
-      .slice()
-      .sort(
-        (a,b) =>
-          (a.finish || 99) -
-          (b.finish || 99)
-      );
-
-  $("horses").innerHTML =
-    `
-    <div class="small" style="margin-bottom:6px">
-      ${hs.length}頭・JRA公式レース結果
-    </div>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-    <thead>
-    <tr>
-      <th>着順</th>
-      <th>馬番</th>
-      <th>馬名</th>
-      <th>人気</th>
-      <th>騎手</th>
-      <th>馬体重</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${
-      hs.map(h => `
-      <tr>
-        <td><b>${h.finish ?? "-"}</b></td>
-        <td>${h.no}</td>
-        <td><b>${esc(h.name)}</b></td>
-        <td>${h.popularity ?? "-"}</td>
-        <td>${esc(h.jockey || "-")}</td>
-        <td>
-          ${h.bodyWeight ?? "-"}
-          ${
-            h.bodyWeightDiff != null
-              ? ` (${h.bodyWeightDiff > 0 ? "+" : ""}${h.bodyWeightDiff})`
-              : ""
-          }
-        </td>
-      </tr>
-      `).join("")
-    }
-
-    </tbody>
-
-    </table>
-
-    </div>
-
-    <div class="note" style="margin-top:8px">
-      過去レースは確定後データです。
-      発走前予測モデルとは分離して評価します。
-    </div>
-    `;
-
-}
-
-
-/* =========================================================
-   MODEL HELPERS
-   ========================================================= */
-
-function clamp(v,min,max){
-
-  return Math.max(
-    min,
-    Math.min(max,v)
-  );
-
-}
-
-
-function average(values){
-
-  const a =
-    values.filter(
-      Number.isFinite
-    );
-
-  if(!a.length){
-
-    return null;
-
-  }
-
-  return (
-    a.reduce(
-      (x,y)=>x+y,
-      0
-    ) / a.length
-  );
-
-}
-
-
-/* =========================================================
-   MARKET SCORE
-   ========================================================= */
-
-function marketScore(h, horses){
-
-  if(h.odds > 0){
-
-    return 1 / h.odds;
-
-  }
-
-  if(
-    h.popularity != null &&
-    Number(h.popularity) > 0
-  ){
-
-    return 1 / Number(h.popularity);
-
-  }
-
-  return 1 / Math.max(
-    horses.length,
-    1
-  );
-
-}
-
-
-/* =========================================================
-   STYLE SCORE
-   ========================================================= */
-
-function styleScore(h){
-
-  const s =
-    String(h.style || "");
-
-  if(s.includes("逃げ")){
-
-    return 1.06;
-
-  }
-
-  if(s.includes("先行")){
-
-    return 1.04;
-
-  }
-
-  if(s.includes("好位")){
-
-    return 1.03;
-
-  }
-
-  if(s.includes("差し")){
-
-    return 1.01;
-
-  }
-
-  if(s.includes("追込")){
-
-    return 0.98;
-
-  }
-
-  return 1.00;
-
-}
-
-
-/* =========================================================
-   PACE ANALYSIS
-   ========================================================= */
-
-function analyzePace(horses){
-
-  let escape = 0;
-  let front = 0;
-  let closer = 0;
-
-  horses.forEach(h => {
-
-    const s =
-      String(h.style || "");
-
-    if(s.includes("逃げ")){
-
-      escape++;
-
-    }else if(
-      s.includes("先行") ||
-      s.includes("好位")
-    ){
-
-      front++;
-
-    }else if(
-      s.includes("差し") ||
-      s.includes("追込")
-    ){
-
-      closer++;
-
-    }
-
-  });
-
-  let scenario = "標準";
-
-  if(escape >= 4){
-
-    scenario = "ハイペース想定";
-
-  }else if(escape >= 3){
-
-    scenario = "ややハイペース";
-
-  }else if(escape <= 1){
-
-    scenario = "スローペース想定";
-
-  }
-
-  return {
-    escape,
-    front,
-    closer,
-    scenario
-  };
-
-}
-
-
-/* =========================================================
-   PACE SCORE
-   ========================================================= */
-
-function paceScore(h, pace){
-
-  const s =
-    String(h.style || "");
-
-  if(
-    pace.scenario ===
-    "ハイペース想定"
-  ){
-
-    if(s.includes("差し")) return 1.06;
-    if(s.includes("追込")) return 1.05;
-    if(s.includes("先行")) return 0.99;
-    if(s.includes("逃げ")) return 0.94;
-
-  }
-
-  if(
-    pace.scenario ===
-    "ややハイペース"
-  ){
-
-    if(s.includes("差し")) return 1.04;
-    if(s.includes("追込")) return 1.02;
-    if(s.includes("先行")) return 1.00;
-    if(s.includes("逃げ")) return 0.97;
-
-  }
-
-  if(
-    pace.scenario ===
-    "スローペース想定"
-  ){
-
-    if(s.includes("逃げ")) return 1.06;
-    if(s.includes("先行")) return 1.04;
-    if(s.includes("好位")) return 1.02;
-    if(s.includes("差し")) return 0.98;
-    if(s.includes("追込")) return 0.94;
-
-  }
-
-  return styleScore(h);
-
-}
-
-
-/* =========================================================
-   CARRIED WEIGHT
-   ========================================================= */
-
-function carriedWeightScore(h,horses){
-
-  const values =
-    horses
-      .map(x=>x.carriedWeight)
-      .filter(
-        Number.isFinite
-      );
-
-  if(
-    h.carriedWeight == null ||
-    !values.length
-  ){
-
-    return 1.00;
-
-  }
-
-  const avg =
-    average(values);
-
-  if(avg == null){
-
-    return 1.00;
-
-  }
-
-  const diff =
-    h.carriedWeight - avg;
-
-  /*
-     斤量が軽いほど少しプラス。
-     ただし過大評価しない。
-  */
-
-  return clamp(
-    1 - diff * 0.008,
-    0.94,
-    1.06
-  );
-
-}
-
-
-/* =========================================================
-   BODY WEIGHT
-   ========================================================= */
-
-function bodyWeightScore(h,horses){
-
-  const values =
-    horses
-      .map(x=>x.bodyWeight)
-      .filter(
-        Number.isFinite
-      );
-
-  if(
-    h.bodyWeight == null ||
-    values.length < 3
-  ){
-
-    return 1.00;
-
-  }
-
-  const avg =
-    average(values);
-
-  const diff =
-    h.bodyWeight - avg;
-
-  let score = 1.00;
-
-  /*
-     極端な増減は軽くマイナス。
-     ±10kg程度はほぼニュートラル。
-  */
-
-  if(
-    h.bodyWeightDiff != null
-  ){
-
-    const d =
-      Math.abs(
-        h.bodyWeightDiff
-      );
-
-    if(d >= 14){
-
-      score -= 0.04;
-
-    }else if(d >= 10){
-
-      score -= 0.02;
-
-    }
-
-  }
-
-  /*
-     極端な馬体重そのものは
-     原則として強く評価しない。
-  */
-
-  if(
-    Math.abs(diff) > 80
-  ){
-
-    score -= 0.01;
-
-  }
-
-  return clamp(
-    score,
-    0.94,
-    1.04
-  );
-
-}
-
-
-/* =========================================================
-   SEX / AGE
-   ========================================================= */
-
-function sexAgeScore(h){
-
-  const s =
-    String(h.sexAge || "");
-
-  /*
-     現段階では年齢だけで
-     大きな補正をかけない。
-
-     3〜5歳をニュートラル、
-     極端な年齢のみ弱く補正。
-  */
-
-  const m =
-    s.match(/(\d+)/);
-
-  if(!m){
-
-    return 1.00;
-
-  }
-
-  const age =
-    Number(m[1]);
-
-  if(age === 3){
-
-    return 1.01;
-
-  }
-
-  if(age === 4 || age === 5){
-
-    return 1.00;
-
-  }
-
-  if(age === 6){
-
-    return 0.99;
-
-  }
-
-  if(age >= 7){
-
-    return 0.97;
-
-  }
-
-  return 1.00;
-
-}
-
-
-/* =========================================================
-   POPULARITY SCORE
-   ========================================================= */
-
-function popularityScore(h,horses){
-
-  if(
-    h.popularity == null
-  ){
-
-    return 1.00;
-
-  }
-
-  const p =
-    Number(h.popularity);
-
-  if(!Number.isFinite(p)){
-
-    return 1.00;
-
-  }
-
-  /*
-     人気は市場オッズと重複するため
-     ごく弱く利用。
-  */
-
-  return clamp(
-    1.04 -
-    (p-1)*0.008,
-    0.90,
-    1.04
-  );
-
-}
-
-
-/* =========================================================
-   DATA COVERAGE
-   ========================================================= */
-
-function featureCoverage(h){
-
-  const checks = [
-
-    h.odds > 0,
-
-    h.style !== "不明",
-
-    h.carriedWeight != null,
-
-    h.bodyWeight != null,
-
-    !!h.sexAge,
-
-    h.popularity != null,
-
-    h.recent &&
-      (
-        Array.isArray(h.recent)
-          ? h.recent.length > 0
-          : true
-      ),
-
-    h.corner4 != null,
-
-    h.courseStats != null,
-
-    h.jockeyStats != null
-
-  ];
-
-  return (
-    checks.filter(Boolean).length /
-    checks.length
-  );
-
-}
-
-
-/* =========================================================
-   INDEPENDENT MODEL
-   ========================================================= */
-
-function buildModel(horses,race){
-
-  const pace =
-    analyzePace(horses);
-
-  const marketRaw =
-    horses.map(
-      h => marketScore(h,horses)
-    );
-
-  const marketSum =
-    marketRaw.reduce(
-      (a,b)=>a+b,
-      0
-    );
-
-  return horses.map(
-    (h,i) => {
-
-      const market =
-        marketRaw[i] /
-        Math.max(
-          marketSum,
-          0.000001
-        );
-
-      const style =
-        styleScore(h);
-
-      const paceFactor =
-        paceScore(
-          h,
-          pace
-        );
-
-      const weight =
-        carriedWeightScore(
-          h,
-          horses
-        );
-
-      const body =
-        bodyWeightScore(
-          h,
-          horses
-        );
-
-      const age =
-        sexAgeScore(h);
-
-      const pop =
-        popularityScore(
-          h,
-          horses
-        );
-
-      const coverage =
-        featureCoverage(h);
-
-      /*
-         市場確率は30%程度。
-         残りは特徴量ベース。
-
-         まず各補正を
-         「1.00 = 平均」
-         として掛け合わせる。
-      */
-
-      const independent =
-        style *
-        paceFactor *
-        weight *
-        body *
-        age *
-        pop;
-
-      /*
-         市場だけで決めず、
-         独立モデルを混ぜる。
-
-         market : independent
-         = 30 : 70
-      */
-
-      const raw =
-        Math.pow(
-          Math.max(market,0.000001),
-          WEIGHTS.market
-        )
-        *
-        Math.pow(
-          Math.max(independent,0.000001),
-          1-WEIGHTS.market
-        );
-
-      return {
-
-        ...h,
-
-        marketProbability:
-          market,
-
-        styleFactor:
-          style,
-
-        paceFactor,
-
-        weightFactor:
-          weight,
-
-        bodyFactor:
-          body,
-
-        ageFactor:
-          age,
-
-        popularityFactor:
-          pop,
-
-        coverage,
-
-        rawScore:
-          raw,
-
-        paceScenario:
-          pace.scenario
-
-      };
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   NORMALIZE PROBABILITY
-   ========================================================= */
-
-function normalizeProbability(horses){
-
-  const sum =
-    horses.reduce(
-      (a,h)=>a+h.rawScore,
-      0
-    );
-
-  if(!sum){
-
-    const p =
-      1 / Math.max(
-        horses.length,
-        1
-      );
-
-    return horses.map(
-      h => ({
-        ...h,
-        win:p
-      })
-    );
-
-  }
-
-  return horses.map(
-    h => ({
-      ...h,
-      win:
-        h.rawScore / sum
-    })
-  );
-
-}
-
-
-/* =========================================================
-   MONTE CARLO
-   ========================================================= */
-
-/*
-   Plackett-Luce方式の
-   重み付き順位抽選。
-
-   各馬のmodel scoreを
-   そのまま勝率形成に使用。
-*/
-
-function weightedPickIndex(items){
-
-  let total =
-    items.reduce(
-      (a,x)=>a+x.weight,
-      0
-    );
-
-  if(total <= 0){
-
-    return 0;
-
-  }
-
-  let r =
-    Math.random() * total;
-
-  for(let i=0;i<items.length;i++){
-
-    r -= items[i].weight;
-
-    if(r <= 0){
-
-      return i;
-
-    }
-
-  }
-
-  return items.length-1;
-
-}
-
-
-function simulateOne(horses){
-
-  const pool =
-    horses.map(
-      (h,index) => ({
-        index,
-        weight:
-          Math.max(
-            h.rawScore,
-            0.000001
-          )
-      })
-    );
-
-  const order = [];
-
-  while(
-    pool.length &&
-    order.length < 3
-  ){
-
-    const i =
-      weightedPickIndex(pool);
-
-    const picked =
-      pool.splice(i,1)[0];
-
-    order.push(
-      picked.index
-    );
-
-  }
-
-  return order;
-
-}
-
-
-/* =========================================================
-   MONTE CARLO
-   ========================================================= */
-
-function runMonteCarlo(horses){
-
-  const n =
-    horses.length;
-
-  const first =
-    new Array(n).fill(0);
-
-  const second =
-    new Array(n).fill(0);
-
-  const third =
-    new Array(n).fill(0);
-
-  const trio =
-    new Map();
-
-  const exacta =
-    new Map();
-
-  for(
-    let i=0;
-    i<SIMULATIONS;
-    i++
-  ){
-
-    const order =
-      simulateOne(horses);
-
-    if(order.length < 3){
-
-      continue;
-
-    }
-
-    first[order[0]]++;
-
-    second[order[1]]++;
-
-    third[order[2]]++;
-
-    /*
-       3連複
-    */
-
-    const trioKey =
-      [
-        order[0],
-        order[1],
-        order[2]
-      ]
-      .sort(
-        (a,b)=>a-b
-      )
-      .join("-");
-
-    trio.set(
-      trioKey,
-      (trio.get(trioKey) || 0) + 1
-    );
-
-    /*
-       3連単
-    */
-
-    const exactaKey =
-      order.join("-");
-
-    exacta.set(
-      exactaKey,
-      (exacta.get(exactaKey) || 0) + 1
-    );
-
-  }
-
-  return {
-
-    first,
-
-    second,
-
-    third,
-
-    trio,
-
-    exacta,
-
-    simulations:
-      SIMULATIONS
-
-  };
-
-}
-
-
-/* =========================================================
-   COMBINATION HELPERS
-   ========================================================= */
-
-function horseLabel(h){
-
-  return `${h.no} ${h.name}`;
-
-}
-
-
-function combinationLabel(key,horses){
-
-  return key
-    .split("-")
-    .map(
-      i => horseLabel(
-        horses[Number(i)]
-      )
-    )
-    .join(" → ");
-
-}
-
-
-function trioLabel(key,horses){
-
-  return key
-    .split("-")
-    .map(
-      i => horseLabel(
-        horses[Number(i)]
-      )
-    )
-    .join(" - ");
-
-}
-
-
-/* =========================================================
-   FORMAT PERCENT
-   ========================================================= */
 
 function pct(v){
-
-  return (
-    Number(v) * 100
-  ).toFixed(1) + "%";
-
+  return `${(Number(v||0)*100).toFixed(1)}%`;
 }
 
+function today(){
+  return new Intl.DateTimeFormat("ja-JP",{
+    timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"
+  }).format(new Date()).replace(/\//g,"-");
+}
 
-/* =========================================================
-   RESULT RENDER
-   ========================================================= */
+function msg(text,cls=""){
+  if(!$("status")) return;
+  $("status").innerHTML=text;
+  $("status").className="status "+cls;
+}
 
-function renderSimulation(model,mc,race){
+async function getDaily(){
+  if(state.daily) return state.daily;
+  const r=await fetch("./data/jra_daily.json?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok) throw new Error("jra_daily.jsonを取得できません。");
+  state.daily=await r.json();
+  return state.daily;
+}
 
-  const horses =
-    model
-      .map(
-        (h,i) => ({
-          ...h,
+async function getHistory(){
+  if(state.history) return state.history;
+  const r=await fetch("./data/jra_history.json?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok) throw new Error("jra_history.jsonを取得できません。");
+  state.history=await r.json();
+  return state.history;
+}
 
-          win:
-            h.win,
+function normalizeHorse(h){
+  return {
+    no:num(h.no ?? h.number ?? h.horse_no) ?? 0,
+    name:h.name ?? h.horse_name ?? h.horseName ?? "不明",
+    odds:num(h.odds),
+    popularity:num(h.popularity ?? h.odds_rank ?? h.rank),
+    frame:num(h.frame ?? h.frame_no ?? h.waku),
+    bodyWeight:num(h.bodyWeight ?? h.body_weight),
+    bodyWeightDiff:num(h.bodyWeightDiff ?? h.body_weight_diff),
+    sexAge:h.sexAge ?? h.sex_age ?? "",
+    carriedWeight:num(h.carriedWeight ?? h.carried_weight ?? h.weight_carried),
+    jockey:h.jockey ?? "",
+    style:h.style ?? "不明",
+    recent:h.recent ?? h.lastRuns ?? h.pastRuns ?? [],
+    courseStats:h.courseStats ?? h.course_stats ?? null,
+    jockeyStats:h.jockeyStats ?? h.jockey_stats ?? null,
+    corner4:num(h.corner4 ?? h.corner_4),
+    finish:num(h.finish ?? h.result ?? h.place),
+    win:null,second:null,third:null,top3:null,ev:null,rawScore:null,
+    components:{}
+  };
+}
 
-          second:
-            mc.second[i] /
-            mc.simulations,
+/* ---------- 脚質・展開 ---------- */
 
-          third:
-            mc.third[i] /
-            mc.simulations,
+function styleClass(h){
+  const s=String(h.style||"");
+  if(/逃げ/.test(s)) return "逃げ";
+  if(/先行|好位/.test(s)) return "先行";
+  if(/差し/.test(s)) return "差し";
+  if(/追込/.test(s)) return "追込";
+  return "不明";
+}
 
-          top3:
-            (
-              mc.first[i] +
-              mc.second[i] +
-              mc.third[i]
-            ) /
-            mc.simulations
-        })
-      )
-      .sort(
-        (a,b)=>b.win-a.win
-      );
-
-  /*
-     単勝EV
-  */
-
-  horses.forEach(h => {
-
-    if(h.odds > 0){
-
-      h.ev =
-        h.win *
-        h.odds;
-
-    }else{
-
-      h.ev = null;
-
+function inferStyleFromData(h){
+  if(h.style && h.style!=="不明") return h.style;
+  const recent = Array.isArray(h.recent) ? h.recent : [];
+  const positions=[];
+  for(const x of recent){
+    if(typeof x==="number") positions.push(x);
+    else{
+      const m=String(x).match(/(?:4角|通過|位置)[^\d]*(\d+)/);
+      if(m) positions.push(Number(m[1]));
     }
+  }
+  const a=avg(positions);
+  if(a===null) return "不明";
+  if(a<=3) return "逃げ";
+  if(a<=6) return "先行";
+  if(a<=10) return "差し";
+  return "追込";
+}
 
+function paceAnalysis(horses){
+  const classes=horses.map(inferStyleFromData);
+  const escape=classes.filter(x=>x==="逃げ").length;
+  const front=classes.filter(x=>x==="先行").length;
+  let pace="標準";
+  if(escape>=4) pace="ハイ";
+  else if(escape>=3) pace="ややハイ";
+  else if(escape<=1 && front<=2) pace="スロー";
+  return {pace,escape,front,classes};
+}
+
+function styleFactor(style,pace){
+  const s=styleClass({style});
+  if(s==="逃げ"){
+    if(pace==="ハイ") return 0.94;
+    if(pace==="ややハイ") return 0.98;
+    if(pace==="スロー") return 1.07;
+    return 1.03;
+  }
+  if(s==="先行"){
+    if(pace==="ハイ") return 1.00;
+    if(pace==="スロー") return 1.04;
+    return 1.02;
+  }
+  if(s==="差し"){
+    if(pace==="ハイ") return 1.06;
+    if(pace==="スロー") return 0.97;
+    return 1.01;
+  }
+  if(s==="追込"){
+    if(pace==="ハイ") return 1.08;
+    if(pace==="スロー") return 0.92;
+    return 1.00;
+  }
+  return 1.00;
+}
+
+/* ---------- 発走前に利用できる特徴量 ---------- */
+
+function marketFactor(h,horses){
+  if(h.odds>0){
+    const inv=1/h.odds;
+    const xs=horses.map(x=>x.odds>0?1/x.odds:0);
+    const mx=Math.max(...xs,0);
+    return mx ? clamp(0.72+0.28*(inv/mx),0.72,1.00) : 0.85;
+  }
+  if(h.popularity>0){
+    return clamp(1.03-0.035*(h.popularity-1),0.62,1.03);
+  }
+  return 0.85;
+}
+
+function popularityFactor(h){
+  if(!h.popularity) return 1;
+  return clamp(1.015-0.012*(h.popularity-1),0.88,1.015);
+}
+
+function frameFactor(h,n){
+  if(!h.frame || !n) return 1;
+  const center=(n+1)/2;
+  const d=Math.abs(h.frame-center);
+  return clamp(1.01-0.008*d,0.95,1.01);
+}
+
+function carriedFactor(h,horses){
+  const a=avg(horses.map(x=>x.carriedWeight));
+  if(h.carriedWeight==null || a==null) return 1;
+  return clamp(1-(h.carriedWeight-a)*0.007,0.95,1.05);
+}
+
+function bodyFactor(h,horses){
+  const a=avg(horses.map(x=>x.bodyWeight));
+  if(h.bodyWeight==null || a==null) return 1;
+  const d=Math.abs(h.bodyWeight-a);
+  return d>90 ? 0.985 : 1;
+}
+
+function bodyDiffFactor(h){
+  if(h.bodyWeightDiff==null) return 1;
+  const d=Math.abs(h.bodyWeightDiff);
+  if(d>=14) return 0.96;
+  if(d>=10) return 0.98;
+  return 1;
+}
+
+function ageFactor(h){
+  const m=String(h.sexAge||"").match(/(\d+)/);
+  if(!m) return 1;
+  const age=Number(m[1]);
+  if(age===3) return 1.01;
+  if(age===4 || age===5) return 1;
+  if(age===6) return 0.99;
+  if(age>=7) return 0.97;
+  return 1;
+}
+
+function jockeyFactor(h){
+  /* 騎手名だけでは実績を捏造しない。統計データが存在する時だけ使う。 */
+  const s=h.jockeyStats;
+  if(!s || typeof s!=="object") return 1;
+  const winRate=num(s.winRate ?? s.win_rate);
+  if(winRate==null) return 1;
+  return clamp(0.94 + Math.min(winRate,0.30)*0.5,0.94,1.09);
+}
+
+function coverage(h){
+  const fields=[
+    h.popularity,h.odds,h.frame,h.bodyWeight,h.bodyWeightDiff,
+    h.sexAge,h.carriedWeight,h.jockey
+  ];
+  return fields.filter(v=>v!==null && v!==undefined && v!=="").length/fields.length;
+}
+
+function buildModel(rawHorses, race={}){
+  const horses=rawHorses.map(normalizeHorse);
+  const pace=paceAnalysis(horses);
+
+  const scored=horses.map(h=>{
+    const market=marketFactor(h,horses);
+    const style=styleFactor(inferStyleFromData(h),pace.pace);
+    const pFactor=style;
+    const frame=frameFactor(h,horses.length);
+    const carried=carriedFactor(h,horses);
+    const body=bodyFactor(h,horses);
+    const diff=bodyDiffFactor(h);
+    const age=ageFactor(h);
+    const jockey=jockeyFactor(h);
+    const cov=coverage(h);
+
+    /*
+      市場を土台にしつつ、発走前に存在する特徴量を弱めに加える。
+      未来情報（finish等）はここでは一切使用しない。
+    */
+    const independent =
+      Math.pow(style,0.22) *
+      Math.pow(pFactor,0.20) *
+      Math.pow(frame,0.10) *
+      Math.pow(carried,0.16) *
+      Math.pow(body,0.08) *
+      Math.pow(diff,0.08) *
+      Math.pow(age,0.05) *
+      Math.pow(jockey,0.05);
+
+    const raw =
+      Math.pow(Math.max(market,0.01),WEIGHTS.market) *
+      Math.pow(Math.max(independent,0.01),1-WEIGHTS.market) *
+      (0.96 + WEIGHTS.coverage*cov) *
+      (1 + (popularityFactor(h)-1)*WEIGHTS.market);
+
+    return {
+      ...h,
+      style:inferStyleFromData(h),
+      pace:pace.pace,
+      rawScore:raw,
+      components:{market,style,pFactor,frame,carried,body,diff,age,jockey,coverage:cov}
+    };
   });
 
-
-  /*
-     3連複
-  */
-
-  const trioList =
-    [...mc.trio.entries()]
-      .map(
-        ([key,count]) => ({
-          key,
-          probability:
-            count /
-            mc.simulations,
-          count
-        })
-      )
-      .sort(
-        (a,b)=>
-          b.probability -
-          a.probability
-      )
-      .slice(0,10);
-
-
-  /*
-     3連単
-  */
-
-  const exactaList =
-    [...mc.exacta.entries()]
-      .map(
-        ([key,count]) => ({
-          key,
-          probability:
-            count /
-            mc.simulations,
-          count
-        })
-      )
-      .sort(
-        (a,b)=>
-          b.probability -
-          a.probability
-      )
-      .slice(0,10);
-
-
-  const pace =
-    analyzePace(
-      model
-    );
-
-
-  const averageCoverage =
-    average(
-      model.map(
-        h=>h.coverage
-      )
-    ) || 0;
-
-
-  /*
-     モデル信頼度
-
-     これは「的中率」ではなく
-     入力データがどれだけ揃っているか。
-  */
-
-  const confidence =
-    clamp(
-      0.45 +
-      averageCoverage * 0.55,
-      0,
-      1
-    );
-
-
-  $("resultCard")
-    .classList.remove("hidden");
-
-
-  let html = "";
-
-
-  /* =====================================================
-     MODEL SUMMARY
-     ===================================================== */
-
-  html += `
-    <div class="summary">
-
-      <b>🤖 Ver.${MODEL_VERSION} 本格シミュレーション</b>
-
-      <div style="margin-top:7px">
-
-        <span class="pill">
-          Monte Carlo ${SIMULATIONS.toLocaleString()}回
-        </span>
-
-        <span class="pill">
-          ${esc(pace.scenario)}
-        </span>
-
-        <span class="pill">
-          逃げ ${pace.escape}頭
-        </span>
-
-        <span class="pill">
-          データ充足率 ${pct(averageCoverage)}
-        </span>
-
-      </div>
-
-      <div class="note" style="margin-top:8px">
-
-        現在は学習済みAIではなく、
-        JRA同期データから独立特徴量を評価する
-        ルールベース検証モデルです。
-
-        <br>
-
-        市場オッズへの依存を抑え、
-        脚質・展開・斤量・馬体重・性齢などを
-        組み合わせています。
-
-      </div>
-
-    </div>
-  `;
-
-
-  /* =====================================================
-     PACE
-     ===================================================== */
-
-  html += `
-    <h3>🏇 展開予測</h3>
-
-    <div class="summary">
-
-      <b>${esc(pace.scenario)}</b>
-
-      <br>
-
-      逃げ：
-      ${pace.escape}頭
-
-      ・
-
-      先行・好位：
-      ${pace.front}頭
-
-      ・
-
-      差し・追込：
-      ${pace.closer}頭
-
-      <div class="note" style="margin-top:7px">
-
-        ※現段階では出馬表に存在する脚質情報を
-        使用した簡易隊列モデルです。
-        4角位置・過去走ラップが追加されれば
-        さらに精密化できます。
-
-      </div>
-
-    </div>
-  `;
-
-
-  /* =====================================================
-     MAIN TABLE
-     ===================================================== */
-
-  html += `
-    <h3>📊 1着・2着・3着確率</h3>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-      <thead>
-
-        <tr>
-          <th>順位</th>
-          <th>馬</th>
-          <th>1着</th>
-          <th>2着</th>
-          <th>3着</th>
-          <th>3着内</th>
-          <th>単勝</th>
-          <th>EV</th>
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        ${
-          horses
-            .slice(0,12)
-            .map(
-              (h,i) => `
-
-              <tr>
-
-                <td>
-                  <b>${i+1}</b>
-                </td>
-
-                <td>
-                  <b>${horseLabel(h)}</b>
-                </td>
-
-                <td>
-                  ${pct(h.win)}
-                </td>
-
-                <td>
-                  ${pct(h.second)}
-                </td>
-
-                <td>
-                  ${pct(h.third)}
-                </td>
-
-                <td>
-                  ${pct(h.top3)}
-                </td>
-
-                <td>
-                  ${h.odds > 0 ? h.odds : "-"}
-                </td>
-
-                <td>
-                  ${
-                    h.ev != null
-                      ? h.ev.toFixed(2)
-                      : "-"
-                  }
-                </td>
-
-              </tr>
-
-              `
-            )
-            .join("")
-        }
-
-      </tbody>
-
-    </table>
-
-    </div>
-  `;
-
-
-  /* =====================================================
-     VALUE
-     ===================================================== */
-
-  const valueHorses =
-    horses
-      .filter(
-        h =>
-          h.ev != null &&
-          h.ev >= 1.05
-      )
-      .sort(
-        (a,b)=>
-          b.ev-a.ev
-      );
-
-
-  html += `
-    <h3>💰 単勝期待値</h3>
-  `;
-
-
-  if(valueHorses.length){
-
-    html += `
-      <div class="summary">
-
-        ${
-          valueHorses
-            .slice(0,5)
-            .map(
-              h => `
-                <span class="pill">
-                  ${horseLabel(h)}
-                  EV ${h.ev.toFixed(2)}
-                </span>
-              `
-            )
-            .join("")
-        }
-
-        <div class="note" style="margin-top:8px">
-
-          EVが1.00を超える馬は、
-          モデル上ではオッズに対して割安と判断。
-
-          ただし現段階ではモデル自体が
-          検証段階なので、
-          「買うべき」という意味ではありません。
-
-        </div>
-
-      </div>
-    `;
-
-  }else{
-
-    html += `
-      <div class="note">
-
-        現時点でモデルEV 1.05以上の馬は
-        ありません。
-
-      </div>
-    `;
-
-  }
-
-
-  /* =====================================================
-     TRIO
-     ===================================================== */
-
-  html += `
-    <h3>🎯 3連複候補</h3>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>順位</th>
-          <th>組み合わせ</th>
-          <th>確率</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        ${
-          trioList
-            .slice(0,5)
-            .map(
-              (x,i) => `
-                <tr>
-
-                  <td>
-                    ${i+1}
-                  </td>
-
-                  <td>
-                    <b>
-                      ${trioLabel(
-                        x.key,
-                        model
-                      )}
-                    </b>
-                  </td>
-
-                  <td>
-                    ${pct(x.probability)}
-                  </td>
-
-                </tr>
-              `
-            )
-            .join("")
-        }
-
-      </tbody>
-
-    </table>
-
-    </div>
-  `;
-
-
-  /* =====================================================
-     TRIFECTA
-     ===================================================== */
-
-  html += `
-    <h3>🎯 3連単候補</h3>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>順位</th>
-          <th>1着 → 2着 → 3着</th>
-          <th>確率</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        ${
-          exactaList
-            .slice(0,5)
-            .map(
-              (x,i) => `
-                <tr>
-
-                  <td>
-                    ${i+1}
-                  </td>
-
-                  <td>
-                    <b>
-                      ${combinationLabel(
-                        x.key,
-                        model
-                      )}
-                    </b>
-                  </td>
-
-                  <td>
-                    ${pct(x.probability)}
-                  </td>
-
-                </tr>
-              `
-            )
-            .join("")
-        }
-
-      </tbody>
-
-    </table>
-
-    </div>
-  `;
-
-
-  /* =====================================================
-     MODEL DETAILS
-     ===================================================== */
-
-  const top =
-    horses[0];
-
-
-  if(top){
-
-    html += `
-      <h3>🔎 本命馬のモデル内訳</h3>
-
-      <div class="summary">
-
-        <b>
-          ${horseLabel(top)}
-        </b>
-
-        <table style="margin-top:7px">
-
-          <tr>
-            <td>市場評価</td>
-            <td>${pct(top.marketProbability)}</td>
-          </tr>
-
-          <tr>
-            <td>脚質補正</td>
-            <td>${top.styleFactor.toFixed(3)}</td>
-          </tr>
-
-          <tr>
-            <td>展開補正</td>
-            <td>${top.paceFactor.toFixed(3)}</td>
-          </tr>
-
-          <tr>
-            <td>斤量補正</td>
-            <td>${top.weightFactor.toFixed(3)}</td>
-          </tr>
-
-          <tr>
-            <td>馬体重補正</td>
-            <td>${top.bodyFactor.toFixed(3)}</td>
-          </tr>
-
-          <tr>
-            <td>性齢補正</td>
-            <td>${top.ageFactor.toFixed(3)}</td>
-          </tr>
-
-          <tr>
-            <td>人気補正</td>
-            <td>${top.popularityFactor.toFixed(3)}</td>
-          </tr>
-
-        </table>
-
-      </div>
-    `;
-
-  }
-
-
-  /* =====================================================
-     IMPORTANT NOTE
-     ===================================================== */
-
-  html += `
-    <div class="note" style="margin-top:10px">
-
-      <b>モデルについて</b>
-
-      <br><br>
-
-      ・市場オッズだけではなく独立特徴量を評価
-
-      <br>
-
-      ・脚質から逃げ争いとペースを推定
-
-      <br>
-
-      ・Monte Carlo ${SIMULATIONS.toLocaleString()}回で
-      着順分布を推定
-
-      <br>
-
-      ・3連複は順不同、
-      3連単は着順通りで集計
-
-      <br>
-
-      ・3連複/3連単の期待値は
-      現在オッズデータがないため未計算
-
-      <br><br>
-
-      <b>
-      信頼度 ${pct(confidence)}
-      </b>
-
-      <br>
-
-      ※これは予想的中率ではなく、
-      利用可能な入力データの充足度を表します。
-
-    </div>
-  `;
-
-
-  $("result").innerHTML =
-    html;
-
-
-  $("resultCard")
-    .scrollIntoView({
-      behavior:"smooth"
-    });
-
+  const sum=scored.reduce((s,h)=>s+h.rawScore,0)||1;
+  scored.forEach(h=>h.win=h.rawScore/sum);
 
   return {
-    horses,
-    trioList,
-    exactaList,
-    pace,
-    confidence
+    horses:scored.sort((a,b)=>b.win-a.win),
+    pace
   };
-
 }
 
+/* ---------- Monte Carlo ---------- */
 
-/* =========================================================
-   MAIN SIMULATION
-   ========================================================= */
+function weightedPick(pool){
+  const total=pool.reduce((s,x)=>s+x.weight,0);
+  if(total<=0) return 0;
+  let r=Math.random()*total;
+  for(let i=0;i<pool.length;i++){
+    r-=pool[i].weight;
+    if(r<=0) return i;
+  }
+  return pool.length-1;
+}
 
-function simulate(){
+function monteCarlo(modelHorses){
+  const n=modelHorses.length;
+  const first=new Array(n).fill(0);
+  const second=new Array(n).fill(0);
+  const third=new Array(n).fill(0);
+  const trio=new Map();
+  const trifecta=new Map();
 
-  if(
-    !state.horses.length
-  ){
+  for(let k=0;k<SIMULATIONS;k++){
+    const pool=modelHorses.map((h,i)=>({i,weight:Math.max(h.rawScore,1e-9)}));
+    const order=[];
+    while(pool.length && order.length<3){
+      const p=weightedPick(pool);
+      order.push(pool[p].i);
+      pool.splice(p,1);
+    }
+    if(order.length<3) continue;
 
-    return;
+    first[order[0]]++;
+    second[order[1]]++;
+    third[order[2]]++;
 
+    const trioKey=[...order].sort((a,b)=>a-b).join("-");
+    trio.set(trioKey,(trio.get(trioKey)||0)+1);
+
+    const triKey=order.join("-");
+    trifecta.set(triKey,(trifecta.get(triKey)||0)+1);
   }
 
-  const horses =
-    state.horses
-      .map(normalizeHorse)
-      .filter(
-        h =>
-          h.no > 0 &&
-          h.name
-      );
+  const out=modelHorses.map((h,i)=>({
+    ...h,
+    win:first[i]/SIMULATIONS,
+    second:second[i]/SIMULATIONS,
+    third:third[i]/SIMULATIONS,
+    top3:(first[i]+second[i]+third[i])/SIMULATIONS,
+    ev:h.odds>0 ? (first[i]/SIMULATIONS)*h.odds : null
+  }));
 
-  if(horses.length < 3){
+  return {
+    horses:out.sort((a,b)=>b.win-a.win),
+    trio:topCombos(trio,modelHorses,5),
+    trifecta:topCombos(trifecta,modelHorses,5)
+  };
+}
 
-    $("resultCard")
-      .classList.remove("hidden");
+function topCombos(map,horses,limit){
+  return [...map.entries()]
+    .map(([key,count])=>({
+      key,
+      probability:count/SIMULATIONS,
+      horses:key.split("-").map(x=>horses[Number(x)])
+    }))
+    .sort((a,b)=>b.probability-a.probability)
+    .slice(0,limit);
+}
 
-    $("result").innerHTML =
-      `
-      <div class="status err">
-        シミュレーションには
-        3頭以上の馬データが必要です。
+/* ---------- 画面 ---------- */
+
+function renderRaces(){
+  const box=$("races");
+  if(!box) return;
+  const venue=$("venue")?.value||"";
+  const list=state.races.filter(r=>!venue||r.venue===venue);
+  if(!list.length){
+    box.innerHTML='<div class="note">該当するレースがありません。</div>';
+    return;
+  }
+
+  box.innerHTML=list.map((r,i)=>`
+    <div class="race">
+      <div>
+        <b>${esc(r.venue)} ${r.no}R ${esc(r.name||"レース")}</b>
+        <div class="small">${esc(r.time||"")} ${r.historical?"・結果済み":""}</div>
       </div>
-      `;
+      <button data-race-index="${i}">${r.historical?"結果・分析":"このレースを選択"}</button>
+    </div>
+  `).join("");
 
-    return;
-
-  }
-
-  const model =
-    buildModel(
-      horses,
-      state.selected || {}
-    );
-
-  const normalized =
-    normalizeProbability(
-      model
-    );
-
-  const mc =
-    runMonteCarlo(
-      normalized
-    );
-
-  state.analysis =
-    renderSimulation(
-      normalized,
-      mc,
-      state.selected
-    );
-
+  [...box.querySelectorAll("[data-race-index]")].forEach(btn=>{
+    btn.onclick=()=>{
+      const visible=list[Number(btn.dataset.raceIndex)];
+      selectRace(visible);
+    };
+  });
 }
 
-
-/* =========================================================
-   HISTORICAL BACKTEST
-   ========================================================= */
-
-function runHistoricalBacktest(){
-
-  if(
-    !state.selected ||
-    !state.horses.length
-  ){
-
-    return;
-
-  }
-
-  const raw =
-    state.horses
-      .map(normalizeHorse)
-      .filter(
-        h =>
-          h.finish != null
-      );
-
-  if(raw.length < 3){
-
-    return;
-
-  }
-
-  const model =
-    normalizeProbability(
-      buildModel(
-        raw,
-        state.selected
-      )
-    );
-
-  const predicted =
-    model
-      .slice()
-      .sort(
-        (a,b)=>b.win-a.win
-      );
-
-  const winner =
-    raw.find(
-      h =>
-        Number(h.finish) === 1
-    );
-
-  if(!winner){
-
-    return;
-
-  }
-
-  const p1 =
-    predicted[0];
-
-  const top3 =
-    predicted
-      .slice(0,3)
-      .some(
-        h=>h.no===winner.no
-      );
-
-  const top5 =
-    predicted
-      .slice(0,5)
-      .some(
-        h=>h.no===winner.no
-      );
-
-  $("resultCard")
-    .classList.remove("hidden");
-
-  $("result").innerHTML =
-    `
-    <div class="summary">
-
-      <b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b>
-
-      <br><br>
-
-      実際の1着：
-      <b>
-        ${winner.no}
-        ${esc(winner.name)}
-      </b>
-
-      <br>
-
-      モデル本命：
-      <b>
-        ${p1.no}
-        ${esc(p1.name)}
-      </b>
-
-      <br><br>
-
-      <span class="pill">
-        本命1着：
-        ${
-          p1.no === winner.no
-            ? "的中"
-            : "不的中"
-        }
-      </span>
-
-      <span class="pill">
-        上位3頭：
-        ${top3 ? "的中" : "不的中"}
-      </span>
-
-      <span class="pill">
-        上位5頭：
-        ${top5 ? "的中" : "不的中"}
-      </span>
-
-    </div>
-
-    <h3>予測順位</h3>
-
-    <div style="overflow-x:auto">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>順位</th>
-          <th>馬</th>
-          <th>モデル1着率</th>
-          <th>実着順</th>
-          <th>人気</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        ${
-          predicted
-            .slice(0,10)
-            .map(
-              (h,i)=>`
-              <tr>
-
-                <td>${i+1}</td>
-
-                <td>
-                  <b>
-                    ${h.no}
-                    ${esc(h.name)}
-                  </b>
-                </td>
-
-                <td>
-                  ${pct(h.win)}
-                </td>
-
-                <td>
-                  ${h.finish ?? "-"}
-                </td>
-
-                <td>
-                  ${h.popularity ?? "-"}
-                </td>
-
-              </tr>
-              `
-            )
-            .join("")
-        }
-
-      </tbody>
-
-    </table>
-
-    </div>
-
-    <div class="note" style="margin-top:10px">
-
-      このバックテストは
-      「現在利用可能なデータだけ」で
-      Ver.${MODEL_VERSION}モデルを再現したものです。
-
-      <br>
-
-      将来的には、
-      過去走・コース適性・騎手・馬場・
-      4角位置などを追加した
-      本格的な時系列バックテストへ移行します。
-
-    </div>
-    `;
-
-  $("resultCard")
-    .scrollIntoView({
-      behavior:"smooth"
-    });
-
+function selectRace(r){
+  state.selected=r;
+  $("entryCard")?.classList.remove("hidden");
+  $("resultCard")?.classList.add("hidden");
+  $("raceInfo").innerHTML=`
+    <b>${esc(r.venue)} ${r.no}R ${esc(r.name||"")}</b>
+    <div class="small">${esc(r.date||"")} ${esc(r.time||"")}</div>
+  `;
+  $("horses").innerHTML='<div class="status">出馬表を読み込み中…</div>';
+  loadEntry(r);
 }
 
-
-/* =========================================================
-   LOAD SELECTED DATE
-   ========================================================= */
-
-async function loadSelectedDate(){
-
-  const btn =
-    $("loadBtn");
-
-  if(btn){
-
-    btn.disabled = true;
-
-  }
-
-  msg(
-    '<span class="spinner"></span> JRA公式同期データを読み込み中…'
-  );
-
+async function loadEntry(r){
   try{
+    const source=r.sourceRace||r;
+    const horses=(source.horses||[]).map(normalizeHorse);
+    if(!horses.length) throw new Error("馬データがありません。");
+    state.horses=horses;
+    state.selected={...r,...source};
+    renderHorses();
 
-    const d =
-      $("date").value ||
-      today();
+    if(r.historical){
+      renderHistoricalBacktest(source);
+    }
+  }catch(e){
+    $("horses").innerHTML=`<div class="status err">${esc(e.message)}</div>`;
+  }
+}
 
-    const todayIso =
-      today();
+function renderHorses(){
+  const hs=state.horses.map(normalizeHorse).sort((a,b)=>a.no-b.no);
+  $("horses").innerHTML=`
+    <div class="small">${hs.length}頭・発走前に利用可能な情報のみ表示</div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>枠</th><th>馬番</th><th>馬名</th><th>性齢</th>
+        <th>騎手</th><th>斤量</th><th>馬体重</th><th>単勝</th><th>人気</th>
+      </tr></thead>
+      <tbody>
+      ${hs.map(h=>`
+        <tr>
+          <td>${h.frame??"-"}</td>
+          <td><b>${h.no}</b></td>
+          <td><b>${esc(h.name)}</b></td>
+          <td>${esc(h.sexAge||"-")}</td>
+          <td>${esc(h.jockey||"-")}</td>
+          <td>${h.carriedWeight!=null?h.carriedWeight+"kg":"-"}</td>
+          <td>${h.bodyWeight!=null?h.bodyWeight+` (${h.bodyWeightDiff>0?"+":""}${h.bodyWeightDiff??0})`:"-"}</td>
+          <td>${h.odds>0?h.odds:"-"}</td>
+          <td>${h.popularity??"-"}</td>
+        </tr>
+      `).join("")}
+      </tbody>
+    </table></div>
+  `;
+}
 
+function runSimulation(){
+  if(!state.horses.length) return;
+  const model=buildModel(state.horses,state.selected||{});
+  const mc=monteCarlo(model.horses);
+  state.result={...mc,pace:model.pace,modelHorses:model.horses};
 
-    /* -----------------------------------------
-       過去日
-       ----------------------------------------- */
+  $("resultCard")?.classList.remove("hidden");
+  $("result").innerHTML=renderSimulation(state.result);
+  $("resultCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
 
-    if(d < todayIso){
+function renderSimulation(result){
+  const hs=result.horses;
+  const values=hs.filter(h=>h.ev!=null&&h.ev>=1.05).sort((a,b)=>b.ev-a.ev).slice(0,8);
+  const topModel=hs.slice(0,5);
 
-      const h =
-        await getHistory();
+  return `
+    <div class="summary">
+      <b>Ver.${MODEL_VERSION} 本格シミュレーション</b><br>
+      Monte Carlo ${SIMULATIONS.toLocaleString()}回<br>
+      展開：<b>${result.pace.pace}</b>
+      ／逃げ${result.pace.escape}頭・先行${result.pace.front}頭
+    </div>
 
-      if(
-        h.date &&
-        h.date !== d
-      ){
+    <div class="note">
+      <b>発走前情報のみで計算</b><br>
+      着順・確定結果は予測スコアに使用していません。
+      データが存在しない近走・コース適性・騎手実績などは推測せず、
+      利用可能な項目だけを使用しています。
+    </div>
 
-        throw new Error(
-          `過去データは${h.date}が同期されています。GitHub Actionsで${d.replaceAll("-","")}を指定して実行してください。`
-        );
+    <h3>📊 1着・2着・3着確率</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>順位</th><th>馬</th><th>1着</th><th>2着</th><th>3着</th>
+        <th>3着内</th><th>単勝</th><th>EV</th>
+      </tr></thead>
+      <tbody>
+      ${hs.map((h,i)=>`
+        <tr>
+          <td><b>${i+1}</b></td>
+          <td><b>${h.no} ${esc(h.name)}</b></td>
+          <td>${pct(h.win)}</td>
+          <td>${pct(h.second)}</td>
+          <td>${pct(h.third)}</td>
+          <td>${pct(h.top3)}</td>
+          <td>${h.odds>0?h.odds:"-"}</td>
+          <td>${h.ev!=null?h.ev.toFixed(2):"-"}</td>
+        </tr>
+      `).join("")}
+      </tbody>
+    </table></div>
 
-      }
+    <h3>💰 単勝EV 1.05以上</h3>
+    ${values.length?`<div class="recommend">
+      ${values.map(h=>`<div><b>${h.no} ${esc(h.name)}</b>：EV ${h.ev.toFixed(2)} ／1着率 ${pct(h.win)}</div>`).join("")}
+    </div>`:"<div class=\"note\">EV 1.05以上はありません。</div>"}
 
-      state.races =
-        (h.races || [])
-          .map(
-            r => ({
-              ...r,
-              date:r.date || d,
-              historical:true
-            })
-          );
+    <h3>🎯 3連複候補</h3>
+    <div class="combo-list">
+      ${result.trio.map((x,i)=>`
+        <div><b>${i+1}.</b>
+        ${x.horses.map(h=>`${h.no} ${esc(h.name)}`).join(" - ")}
+        ／ ${pct(x.probability)}</div>
+      `).join("")}
+    </div>
 
-      const venues =
-        [
-          ...new Set(
-            state.races.map(
-              r=>r.venue
-            )
-          )
-        ];
+    <h3>🏇 3連単候補</h3>
+    <div class="combo-list">
+      ${result.trifecta.map((x,i)=>`
+        <div><b>${i+1}.</b>
+        ${x.horses.map(h=>`${h.no} ${esc(h.name)}`).join(" → ")}
+        ／ ${pct(x.probability)}</div>
+      `).join("")}
+    </div>
 
-      $("venue").innerHTML =
-        venues
-          .map(
-            v =>
-              `<option value="${esc(v)}">${esc(v)}</option>`
-          )
-          .join("");
+    <h3>🔎 モデル上位5頭の要因</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>馬</th><th>市場</th><th>脚質</th><th>枠</th><th>斤量</th><th>馬体重</th><th>充足率</th></tr></thead>
+      <tbody>
+      ${topModel.map(h=>`
+        <tr>
+          <td>${h.no} ${esc(h.name)}</td>
+          <td>${h.components.market.toFixed(3)}</td>
+          <td>${h.components.style.toFixed(3)}</td>
+          <td>${h.components.frame.toFixed(3)}</td>
+          <td>${h.components.carried.toFixed(3)}</td>
+          <td>${h.components.body.toFixed(3)}</td>
+          <td>${pct(h.components.coverage)}</td>
+        </tr>
+      `).join("")}
+      </tbody>
+    </table></div>
+  `;
+}
 
-      renderRaces();
+/* ---------- 個別バックテスト ---------- */
 
-      msg(
-        `${d}：JRA公式の過去レース結果。${venues.join("・")}・${state.races.length}レース`,
-        "ok"
-      );
+function renderHistoricalBacktest(race){
+  const horses=(race.horses||[]).map(normalizeHorse);
+  if(!horses.length) return;
+  const model=buildModel(horses,race);
+  const ranked=model.horses;
+  const winner=horses.find(h=>h.finish===1);
+  if(!winner) return;
 
-      return;
+  const pos=ranked.findIndex(h=>h.no===winner.no)+1;
+  const top3=ranked.slice(0,3).some(h=>h.no===winner.no);
+  const top5=ranked.slice(0,5).some(h=>h.no===winner.no);
 
+  $("resultCard")?.classList.remove("hidden");
+  $("result").innerHTML=`
+    <div class="summary">
+      <b>Ver.${MODEL_VERSION} 個別バックテスト</b><br>
+      実際の1着：${winner.no} ${esc(winner.name)}<br>
+      モデル本命：${ranked[0].no} ${esc(ranked[0].name)}
+    </div>
+    <div class="stats-grid">
+      <div>本命1着<br><b>${ranked[0].no===winner.no?"的中":"不的中"}</b></div>
+      <div>上位3頭<br><b>${top3?"的中":"不的中"}</b></div>
+      <div>上位5頭<br><b>${top5?"的中":"不的中"}</b></div>
+      <div>勝ち馬予測順位<br><b>${pos}位</b></div>
+    </div>
+    <h3>予測順位</h3>
+    <div class="table-scroll">
+    <table><thead><tr><th>順位</th><th>馬</th><th>モデル1着率</th><th>実着順</th><th>人気</th></tr></thead>
+    <tbody>
+    ${ranked.map((h,i)=>`
+      <tr>
+        <td>${i+1}</td><td>${h.no} ${esc(h.name)}</td>
+        <td>${pct(h.win)}</td><td>${h.finish??"-"}</td><td>${h.popularity??"-"}</td>
+      </tr>
+    `).join("")}
+    </tbody></table></div>
+    <div class="note">
+      評価時には finish を予測入力として使用していません。
+      finish は的中判定専用です。
+    </div>
+  `;
+}
+
+/* ---------- 一括バックテスト ---------- */
+
+function getFinish(h){ return num(h.finish ?? h.result ?? h.place); }
+function getPopularity(h){ return num(h.popularity ?? h.odds_rank ?? h.rank); }
+
+function backtestAll(races){
+  const rows=[];
+  let modelWin=0, modelTop3=0, modelTop5=0;
+  let popWin=0,popTop3=0,popTop5=0;
+  let modelRankSum=0,popRankSum=0;
+  let longshotCaught=0,longshotTotal=0;
+  let modelBetterThanMarket=0;
+
+  for(const race of races){
+    const horses=(race.horses||[]).map(normalizeHorse);
+    const valid=horses.filter(h=>getFinish(h)!=null);
+    if(!valid.length) continue;
+
+    const winner=valid.find(h=>getFinish(h)===1);
+    if(!winner) continue;
+
+    const model=buildModel(valid,race).horses;
+    const popRank=[...valid].sort((a,b)=>(getPopularity(a)||999)-(getPopularity(b)||999));
+
+    const mr=model.findIndex(h=>h.no===winner.no)+1;
+    const pr=popRank.findIndex(h=>h.no===winner.no)+1;
+
+    if(mr===1) modelWin++;
+    if(mr<=3) modelTop3++;
+    if(mr<=5) modelTop5++;
+    if(pr===1) popWin++;
+    if(pr<=3) popTop3++;
+    if(pr<=5) popTop5++;
+    modelRankSum+=mr;
+    popRankSum+=pr;
+
+    const wp=getPopularity(winner);
+    if(wp>=10){
+      longshotTotal++;
+      if(mr<=5) longshotCaught++;
     }
 
+    if(mr<pr) modelBetterThanMarket++;
 
-    /* -----------------------------------------
-       当日同期JSON
-       ----------------------------------------- */
+    rows.push({
+      venue:race.venue||VENUE_NAMES[race.venue_code]||"不明",
+      no:race.no??race.race_number,
+      winner,
+      mr,pr,
+      modelTop:model[0],
+      popTop:popRank[0]
+    });
+  }
 
-    const daily =
-      await getDaily();
+  const n=rows.length||1;
+  return {
+    rows,n,
+    modelWin,modelTop3,modelTop5,popWin,popTop3,popTop5,
+    modelRankAvg:modelRankSum/n,
+    popRankAvg:popRankSum/n,
+    modelBetterThanMarket,
+    longshotCaught,longshotTotal
+  };
+}
 
-    if(
-      Array.isArray(daily.races) &&
-      daily.races.length &&
-      d === daily.date
-    ){
+function renderBulkReport(bt){
+  const improvement=(a,b)=>((a-b)*100).toFixed(1)+"pt";
+  return `
+    <div class="summary">
+      <b>Ver.${MODEL_VERSION} 一括バックテスト</b><br>
+      評価レース数：${bt.n}
+    </div>
 
-      state.races =
-        daily.races.map(
-          r => ({
-            ...r,
-            date:r.date || d
-          })
-        );
+    <h3>📊 市場人気 vs Ver.${MODEL_VERSION}</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>評価項目</th><th>最終人気</th><th>Ver.${MODEL_VERSION}</th><th>差</th></tr></thead>
+      <tbody>
+        <tr><td>本命が1着</td><td>${pct(bt.popWin/bt.n)}</td><td>${pct(bt.modelWin/bt.n)}</td><td>${improvement(bt.modelWin/bt.n,bt.popWin/bt.n)}</td></tr>
+        <tr><td>上位3頭に勝ち馬</td><td>${pct(bt.popTop3/bt.n)}</td><td>${pct(bt.modelTop3/bt.n)}</td><td>${improvement(bt.modelTop3/bt.n,bt.popTop3/bt.n)}</td></tr>
+        <tr><td>上位5頭に勝ち馬</td><td>${pct(bt.popTop5/bt.n)}</td><td>${pct(bt.modelTop5/bt.n)}</td><td>${improvement(bt.modelTop5/bt.n,bt.popTop5/bt.n)}</td></tr>
+        <tr><td>勝ち馬の平均予測順位</td><td>${bt.popRankAvg.toFixed(2)}位</td><td>${bt.modelRankAvg.toFixed(2)}位</td><td>${(bt.popRankAvg-bt.modelRankAvg).toFixed(2)}位改善</td></tr>
+        <tr><td>人気より上位に評価</td><td>—</td><td>${bt.modelBetterThanMarket}/${bt.n}</td><td>—</td></tr>
+        <tr><td>10番人気以上の勝ち馬を上位5頭で捕捉</td><td>—</td><td>${bt.longshotTotal?bt.longshotCaught+"/"+bt.longshotTotal:"対象なし"}</td><td>—</td></tr>
+      </tbody>
+    </table></div>
 
-      const venues =
-        [
-          ...new Set(
-            state.races.map(
-              r=>r.venue
-            )
-          )
-        ];
+    <h3>🎯 レース別結果</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>開催</th><th>R</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>人気順位</th><th>モデル本命</th></tr></thead>
+      <tbody>
+      ${bt.rows.map(x=>`
+        <tr>
+          <td>${esc(x.venue)}</td>
+          <td>${x.no}</td>
+          <td>${x.winner.no} ${esc(x.winner.name)}</td>
+          <td>${x.winner.popularity??"-"}</td>
+          <td>${x.mr}位</td>
+          <td>${x.pr}位</td>
+          <td>${x.modelTop.no} ${esc(x.modelTop.name)}</td>
+        </tr>
+      `).join("")}
+      </tbody>
+    </table></div>
 
-      $("venue").innerHTML =
-        venues
-          .map(
-            v =>
-              `<option value="${esc(v)}">${esc(v)}</option>`
-          )
-          .join("");
+    <div class="note">
+      このバックテストでは着順をモデル入力にしていません。
+      現在の履歴データで利用できる発走前項目のみを使い、
+      finish は評価専用です。なお、近走・コース適性・4角位置などの
+      未同期項目は推測していません。
+    </div>
+  `;
+}
 
-      renderRaces();
+async function runBulkBacktest(){
+  const box=$("bulkBacktestResult");
+  box.innerHTML='<div class="status">36レースを評価中…</div>';
+  try{
+    const d=await getHistory();
+    const races=(d.races||[]).filter(r=>(r.horses||[]).length);
+    const bt=backtestAll(races);
+    box.innerHTML=renderBulkReport(bt);
+  }catch(e){
+    box.innerHTML=`<div class="status err">${esc(e.message)}</div>`;
+  }
+}
 
-      msg(
-        `${d}：JRA公式同期済み。${venues.join("・")}・${state.races.length}レース`,
-        "ok"
-      );
+/* ---------- 初期化 ---------- */
 
-      return;
+async function load開催(){
+  try{
+    const d=await getDaily();
+    const target=$("date").value;
+    const races=(d.races||[]).map(r=>({
+      ...r,
+      no:r.no ?? r.race_number,
+      venue:r.venue ?? VENUE_NAMES[r.venue_code] ?? "",
+      date:r.date ?? target,
+      time:r.time ?? "",
+      name:(r.name && r.name!=="本文へ移動する") ? r.name : `JRA ${r.race_number??r.no}R`,
+      historical:true,
+      sourceRace:r
+    }));
 
-    }
-
-
-    /* -----------------------------------------
-       JRA calendar fallback
-       ----------------------------------------- */
-
-    const [y,m,day] =
-      d.split("-");
-
-    const url =
-      `https://www.jra.go.jp/keiba/calendar${y}/${y}/${parseInt(m)}/${m}${day}.html`;
-
-    const text =
-      await jina(url);
-
-    const races =
-      parseCalendar(
-        text,
-        d
-      );
-
-    if(!races.length){
-
-      throw new Error(
-        "開催情報を解析できませんでした"
-      );
-
-    }
-
-    state.races =
-      races;
-
-    const venues =
-      [
-        ...new Set(
-          races.map(
-            r=>r.venue
-          )
-        )
-      ];
-
-    $("venue").innerHTML =
-      venues
-        .map(
-          v =>
-            `<option value="${esc(v)}">${esc(v)}</option>`
-        )
-        .join("");
-
+    state.races=races.filter(r=>!target||r.date===target);
     renderRaces();
 
-    msg(
-      `${d}：開催日程を取得しました。出馬表は当日同期後に利用できます。`,
-      "ok"
-    );
+    const venues=[...new Set(state.races.map(r=>r.venue))];
+    $("syncInfo").innerHTML=
+      `同期日：${esc(d.updated_at||"不明")}<br>`+
+      `公式レースリンク：${(d.official_race_links||[]).length}件<br>`+
+      `取得レース：${state.races.length}件`;
+    msg(`${target}：JRA公式同期データ ${state.races.length}レース`, "ok");
 
-  }catch(e){
-
-    console.error(e);
-
-    msg(
-      `開催情報を取得できませんでした：${esc(e.message)}`,
-      "err"
-    );
-
-  }finally{
-
-    if(btn){
-
-      btn.disabled = false;
-
+    if(venues.length){
+      $("venue").innerHTML='<option value="">すべて</option>'+
+        venues.map(v=>`<option>${esc(v)}</option>`).join("");
     }
-
+  }catch(e){
+    msg(esc(e.message),"err");
   }
-
 }
 
-
-/* =========================================================
-   EVENT
-   ========================================================= */
-
-if($("venue")){
-
-  $("venue").onchange =
-    renderRaces;
-
+function bind(){
+  $("loadBtn")?.addEventListener("click",load開催);
+  $("venue")?.addEventListener("change",renderRaces);
+  $("simulateBtn")?.addEventListener("click",runSimulation);
+  $("backBtn")?.addEventListener("click",()=>{
+    $("entryCard")?.classList.add("hidden");
+    $("resultCard")?.classList.add("hidden");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+  $("runBulkBacktest")?.addEventListener("click",runBulkBacktest);
 }
 
-
-if($("backBtn")){
-
-  $("backBtn").onclick =
-    () => {
-
-      $("entryCard")
-        ?.classList.add("hidden");
-
-      $("resultCard")
-        ?.classList.add("hidden");
-
-    };
-
-}
-
-
-if($("simulateBtn")){
-
-  $("simulateBtn").onclick =
-    () => {
-
-      if(
-        state.selected?.historical
-      ){
-
-        runHistoricalBacktest();
-
-      }else{
-
-        simulate();
-
-      }
-
-    };
-
-}
-
-
-if($("loadBtn")){
-
-  $("loadBtn").onclick =
-    loadSelectedDate;
-
-}
-
-
-/* =========================================================
-   DEBUG
-   ========================================================= */
-
-window.KeibaSimulator = {
-
+window.KeibaSimulator={
   version:MODEL_VERSION,
-
   state,
-
-  simulate,
-
-  runHistoricalBacktest,
-
-  analyzePace,
-
   buildModel,
-
-  runMonteCarlo
-
+  runMonteCarlo,
+  backtestAll,
+  runBulkBacktest,
+  paceAnalysis
 };
 
-
-/* =========================================================
-   INITIAL MESSAGE
-   ========================================================= */
-
-msg(
-  `Ver.${MODEL_VERSION}：JRA公式同期データを利用します。`
-);
-
-
-/* =========================================================
-   END
-   ========================================================= */
+if($("date")) $("date").value=today();
+bind();
+load開催();

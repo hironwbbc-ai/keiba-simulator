@@ -3,1391 +3,157 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.webmanifest">
-
-<title>競馬シミュレーター Ver.10.0</title>
-
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>競馬シミュレーター Ver.12.0</title>
 <style>
-:root{
-  --bg:#f4f6f8;
-  --card:#fff;
-  --ink:#172033;
-  --muted:#667085;
-  --line:#dfe4ea;
-  --accent:#0f766e;
-  --danger:#b42318;
-}
-
-*{
-  box-sizing:border-box
-}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif
-}
-
-main{
-  max-width:780px;
-  margin:auto;
-  padding:12px 12px 44px
-}
-
-.top{
-  position:sticky;
-  top:0;
-  z-index:5;
-  background:rgba(244,246,248,.96);
-  backdrop-filter:blur(10px);
-  padding:8px 0 12px
-}
-
-h1{
-  font-size:22px;
-  margin:3px 0
-}
-
-.sub{
-  font-size:12px;
-  color:var(--muted)
-}
-
-.card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  margin:10px 0;
-  box-shadow:0 2px 10px rgba(16,24,40,.04)
-}
-
-h2{
-  font-size:16px;
-  margin:0 0 10px
-}
-
-h3{
-  font-size:14px;
-  margin:12px 0 7px
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px
-}
-
-.full{
-  grid-column:1/-1
-}
-
-label{
-  display:block;
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:4px
-}
-
-select,
-input,
-button{
-  font:inherit;
-  width:100%;
-  border-radius:11px;
-  border:1px solid var(--line);
-  padding:10px;
-  background:#fff;
-  color:var(--ink)
-}
-
-button{
-  font-weight:700;
-  border:0;
-  background:var(--accent);
-  color:#fff
-}
-
-button:disabled{
-  opacity:.5
-}
-
-.secondary{
-  background:#e9eef2;
-  color:var(--ink)
-}
-
-.status{
-  font-size:13px;
-  line-height:1.55
-}
-
-.ok{
-  color:#067647
-}
-
-.err{
-  color:var(--danger)
-}
-
-.race{
-  border:1px solid var(--line);
-  border-radius:13px;
-  padding:11px;
-  margin:8px 0
-}
-
-.race b{
-  font-size:14px
-}
-
-.race button{
-  margin-top:8px
-}
-
-.small,
-.note{
-  font-size:11px;
-  color:var(--muted);
-  line-height:1.5
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px
-}
-
-th,
-td{
-  padding:7px 5px;
-  border-bottom:1px solid var(--line);
-  text-align:left
-}
-
-.actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px
-}
-
-.wide{
-  grid-column:1/-1
-}
-
-.hidden{
-  display:none!important
-}
-
-.pill{
-  display:inline-block;
-  border-radius:999px;
-  background:#eef2f6;
-  padding:3px 7px;
-  font-size:11px;
-  margin:2px
-}
-
-.spinner{
-  display:inline-block;
-  width:14px;
-  height:14px;
-  border:2px solid #d0d5dd;
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-  vertical-align:-2px
-}
-
-@keyframes spin{
-  to{
-    transform:rotate(360deg)
-  }
-}
-
-.summary{
-  padding:12px;
-  background:#f4f6f8;
-  border-radius:12px;
-  margin-bottom:10px
-}
-
-.version{
-  padding:10px;
-  background:#f8fafc;
-  border-radius:10px;
-  margin-top:10px
-}
-
-.scroll{
-  overflow-x:auto
-}
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#111827;background:#f3f4f6}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;line-height:1.55}
+main{max-width:1100px;margin:auto}
+h1{font-size:1.45rem;margin:0 0 6px}
+h2{font-size:1.12rem;margin:0 0 12px}
+h3{font-size:1rem;margin:18px 0 8px}
+.card{background:#fff;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #00000010}
+.note,.summary,.status,.recommend,.combo-list{padding:10px 12px;border-radius:10px;background:#f9fafb;margin:8px 0}
+.summary{background:#eef2ff}
+.status.ok{background:#ecfdf5;color:#065f46}.status.err{background:#fef2f2;color:#991b1b}
+.small{font-size:.82rem;color:#6b7280}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:.85rem;font-weight:700}
+select,input,button{font:inherit}
+select,input{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;background:#fff;margin-top:5px}
+button{border:0;border-radius:9px;padding:10px 14px;background:#111827;color:#fff;cursor:pointer}
+button.secondary{background:#6b7280}
+button.wide{width:100%;margin-top:10px}
+.race{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin:8px 0;background:#fff}
+.table-scroll{overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid #e5e7eb;padding:7px;text-align:center;white-space:nowrap}
+th{background:#f3f4f6}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stats-grid>div{background:#f9fafb;border-radius:10px;padding:10px;text-align:center}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1}
+.version{color:#374151}
+@media(max-width:700px){body{padding:10px}.controls{grid-template-columns:1fr}.race{align-items:flex-start;flex-direction:column}.race button{width:100%}.stats-grid{grid-template-columns:repeat(2,1fr)}table{font-size:.78rem}}
 </style>
 </head>
-
 <body>
-
 <main>
-
-<div class="top">
-
-  <h1>
-    🏇 競馬シミュレーター
-    <span class="small">Ver.10.0</span>
-  </h1>
-
-  <div class="sub">
-    JRA公式同期JSON → 出馬表 → シミュレーション → 過去レース・一括バックテスト
+<header class="card">
+  <h1>🏇 競馬シミュレーター Ver.12.0</h1>
+  <div class="small">
+    JRA公式同期JSON → 発走前モデル → Monte Carlo → バックテスト
   </div>
-
-</div>
-
-
-<!-- =====================================================
-     ① 開催取得
-     ===================================================== -->
+</header>
 
 <section class="card">
-
   <h2>① 開催を取得</h2>
-
-  <div class="grid">
-
-    <div>
-      <label>日付</label>
-      <input id="date" type="date">
-    </div>
-
-    <div>
-      <label>開催場</label>
-
-      <select id="venue">
-        <option value="">
-          取得後に選択
-        </option>
-      </select>
-    </div>
-
+  <div class="controls">
+    <label>日付<input id="date" type="date"></label>
+    <label>開催場<select id="venue"><option value="">すべて</option></select></label>
   </div>
-
-  <div class="actions" style="margin-top:9px">
-
-    <button
-      id="loadBtn"
-      class="wide"
-    >
-      指定日の開催を取得
-    </button>
-
-  </div>
-
-  <div
-    id="status"
-    class="status"
-    style="margin-top:9px"
-  >
-    GitHub Actionsで同期したJRA公式データを優先して読み込みます。
-  </div>
-
+  <button id="loadBtn" class="wide">指定日の開催を取得</button>
+  <div id="status" class="status">同期データを読み込み中…</div>
+  <div id="syncInfo" class="small"></div>
   <div id="races"></div>
-
 </section>
 
-
-<!-- =====================================================
-     ② 出馬表
-     ===================================================== -->
-
-<section
-  id="entryCard"
-  class="card hidden"
->
-
+<section id="entryCard" class="card hidden">
   <h2>② 出馬表</h2>
-
   <div id="raceInfo"></div>
-
   <div id="horses"></div>
-
-  <div
-    class="actions"
-    style="margin-top:10px"
-  >
-
-    <button id="simulateBtn">
-      シミュレーション
-    </button>
-
-    <button
-      id="backBtn"
-      class="secondary"
-    >
-      レース一覧へ戻る
-    </button>
-
+  <div class="actions" style="margin-top:12px">
+    <button id="simulateBtn">シミュレーション</button>
+    <button id="backBtn" class="secondary">レース一覧へ戻る</button>
   </div>
-
 </section>
 
-
-<!-- =====================================================
-     ③ 分析
-     ===================================================== -->
-
-<section
-  id="resultCard"
-  class="card hidden"
->
-
+<section id="resultCard" class="card hidden">
   <h2>③ 分析・バックテスト</h2>
-
   <div id="result"></div>
-
 </section>
 
-
-<!-- =====================================================
-     ④ 一括バックテスト
-     ===================================================== -->
-
-<section
-  id="bulkBacktestCard"
-  class="card"
->
-
-  <h2>④ 過去レース一括バックテスト</h2>
-
+<section id="bulkBacktestCard" class="card">
+  <h2>④ Ver.12.0 一括バックテスト</h2>
   <div class="note">
-
-    JRA公式の過去レース結果を利用して、
-
-    <b>
-      「最終単勝人気だけでどこまで当たるか」
-    </b>
-
-    をベンチマークとして確認します。
-
+    <b>最終人気ベンチマーク</b>と<b>Ver.12.0モデル</b>を同じ過去レースで比較します。
     <br><br>
-
-    この結果を基準にして、今後作る
-    <b>
-      展開・脚質・枠順・斤量・近走・コース適性・馬場・騎手
-    </b>
-    を使った本格的な予測モデルと比較します。
-
+    本命1着率／上位3頭／上位5頭／勝ち馬の平均予測順位／
+    人気以上に評価できたレース／ロングショット捕捉を確認します。
+    <br><br>
+    <b>重要：</b>確定後の着順は予測スコアに使用せず、評価専用にします。
   </div>
-
-  <button
-    id="runBulkBacktest"
-    style="margin-top:10px"
-  >
-    過去レースを一括評価
-  </button>
-
-  <div
-    id="bulkBacktestResult"
-    style="margin-top:12px"
-  ></div>
-
+  <button id="runBulkBacktest">Ver.12.0を過去レースで検証</button>
+  <div id="bulkBacktestResult"></div>
 </section>
-
-
-<!-- =====================================================
-     ⑤ JRA公式データ
-     ===================================================== -->
 
 <section class="card">
-
   <h2>⑤ JRA公式データ</h2>
-
-  <div
-    id="officialProgramStatus"
-    class="version"
-  >
-    JRA公式データの状態を確認中…
-  </div>
-
+  <div id="officialProgramStatus" class="version">状態を確認中…</div>
 </section>
-
-
-<!-- =====================================================
-     ⑥ Ver.10.0
-     ===================================================== -->
 
 <section class="card">
-
-  <h2>Ver.10.0</h2>
-
+  <h2>⑥ Ver.12.0 現在できること</h2>
   <div class="note">
-
-    <b>現在できること</b>
-
-    <br>
-    ・JRA公式同期データの取得
-
-    <br>
-    ・開催場、全レースの表示
-
-    <br>
-    ・出馬表表示
-
-    <br>
-    ・単勝オッズを利用した基礎シミュレーション
-
-    <br>
-    ・過去レースの個別バックテスト
-
-    <br>
-    ・過去レースの一括バックテスト
-
-    <br>
-    ・開催場別のベンチマーク集計
-
+    <b>データ</b><br>
+    ・JRA公式同期JSON<br>
+    ・開催場／全レース表示<br>
+    ・出馬表表示<br>
+    ・枠順・斤量・馬体重・馬体重増減・性齢・騎手・人気・単勝
     <br><br>
-
-    <b>今後の強化</b>
-
-    <br>
-    ・展開予測
-
-    <br>
-    ・逃げ争い
-
-    <br>
-    ・隊列
-
-    <br>
-    ・4角位置
-
-    <br>
-    ・脚質適性
-
-    <br>
-    ・枠順
-
-    <br>
-    ・斤量
-
-    <br>
-    ・近走
-
-    <br>
-    ・コース適性
-
-    <br>
-    ・馬場状態
-
-    <br>
-    ・騎手
-
-    <br>
-    ・Monte Carloシミュレーション
-
-    <br>
-    ・1着/2着/3着確率
-
-    <br>
-    ・期待値
-
-    <br>
-    ・3連複/3連単の買い目評価
-
+    <b>予測</b><br>
+    ・脚質推定／展開予測<br>
+    ・逃げ争い／ペース判定<br>
+    ・市場評価＋発走前特徴量モデル<br>
+    ・Monte Carlo 10,000回<br>
+    ・1着／2着／3着／3着内率<br>
+    ・単勝期待値<br>
+    ・3連複／3連単候補
+    <br><br>
+    <b>検証</b><br>
+    ・個別バックテスト<br>
+    ・人気ベンチマークとの一括比較<br>
+    ・勝ち馬の予測順位<br>
+    ・ロングショット捕捉
+    <br><br>
+    <b>今後の強化</b><br>
+    ・過去走の時系列取得<br>
+    ・コース適性／馬場適性<br>
+    ・騎手の実績データ<br>
+    ・4角位置／通過順<br>
+    ・レース別・開催別の時系列学習
   </div>
-
 </section>
-
 </main>
 
-
-<!-- =====================================================
-     既存の競馬シミュレーター本体
-     ===================================================== -->
-
-<script src="./app.js?v=10.1"></script>
-
-
-<!-- =====================================================
-     JRA公式プログラム同期状態
-     ===================================================== -->
-
 <script>
-
-(async function(){
-
+(async()=>{
   try{
-
-    const r =
-      await fetch(
-        "./data/official_programs.json?ts="+Date.now(),
-        {
-          cache:"no-store"
-        }
-      );
-
+    const r=await fetch("./data/jra_daily.json?ts="+Date.now(),{cache:"no-store"});
     if(!r.ok)return;
-
-    const d =
-      await r.json();
-
-    const el =
-      document.getElementById(
-        "officialProgramStatus"
-      );
-
-    if(!el)return;
-
-    const pdfs =
-      (d.pdfs || []).length;
-
-    el.innerHTML =
-      "<b>JRA公式データ同期</b><br>" +
-
-      (
-        d.updated_at
-        ?
-        "最終同期：" +
-        new Date(
-          d.updated_at
-        ).toLocaleString("ja-JP")
-        :
-        "最終同期：不明"
-      ) +
-
-      "<br>" +
-
-      "公式出馬表PDF：" +
-      pdfs +
-      "件";
-
-
-    const btn =
-      document.createElement(
-        "button"
-      );
-
-    btn.textContent =
-      "JRA公式出馬表PDFを開く";
-
-    btn.style.cssText =
-      "margin-top:7px;" +
-      "padding:8px 12px;" +
-      "border-radius:8px;" +
-      "border:1px solid #aaa;" +
-      "background:#fff;" +
-      "color:#172033;";
-
-
-    btn.onclick =
-      function(){
-
-        window.open(
-          "https://www.jra.go.jp/keiba/rpdf/",
-          "_blank"
-        );
-
-      };
-
-
-    el.appendChild(
-      document.createElement(
-        "br"
-      )
-    );
-
-    el.appendChild(btn);
-
-  }catch(e){
-
-    console.error(
-      "official_programs.json:",
-      e
-    );
-
-  }
-
+    const d=await r.json();
+    const el=document.getElementById("officialProgramStatus");
+    el.innerHTML=
+      "<b>JRA公式同期</b><br>"+
+      "同期日時："+(d.updated_at||"不明")+"<br>"+
+      "公式レースリンク："+((d.official_race_links||[]).length)+"件<br>"+
+      "データ日："+(d.date||"不明")+"<br>"+
+      "parser_version："+(d.parser_version||"不明");
+  }catch(e){console.error(e)}
 })();
-
 </script>
 
-
-<!-- =====================================================
-     JRA daily同期状態
-     ===================================================== -->
-
+<script src="./app.js?v=12.0"></script>
 <script>
-
-(async function(){
-
-  try{
-
-    const r =
-      await fetch(
-        "./data/jra_daily.json?ts="+Date.now(),
-        {
-          cache:"no-store"
-        }
-      );
-
-    if(!r.ok)return;
-
-    const d =
-      await r.json();
-
-    const el =
-      document.getElementById(
-        "officialProgramStatus"
-      );
-
-    if(!el)return;
-
-    el.innerHTML +=
-      "<br><br>" +
-
-      "<b>JRA公式同期</b>" +
-
-      "<br>" +
-
-      "同期日時：" +
-      (
-        d.updated_at ||
-        "不明"
-      ) +
-
-      "<br>" +
-
-      "公式レースリンク：" +
-      (
-        d.official_race_links ||
-        []
-      ).length +
-      "件";
-
-  }catch(e){
-
-    console.error(
-      "jra_daily.json:",
-      e
-    );
-
-  }
-
-})();
-
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+}
 </script>
-
-
-<!-- =====================================================
-     Ver.10.0 一括バックテスト
-     ===================================================== -->
-
-<script>
-
-(function(){
-
-"use strict";
-
-
-const HISTORY_URL =
-  "./data/jra_history.json?ts="+Date.now();
-
-
-function pct(n,d){
-
-  if(!d)return "0.0%";
-
-  return (
-    n/d*100
-  ).toFixed(1)+"%";
-
-}
-
-
-function esc(v){
-
-  return String(v ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-
-}
-
-
-function getHorses(race){
-
-  return (
-    race.horses ||
-    race.entries ||
-    race.runners ||
-    []
-  );
-
-}
-
-
-function getPopularity(h){
-
-  const n =
-    Number(
-      h.popularity ??
-      h.odds_rank ??
-      h.rank ??
-      999
-    );
-
-  return Number.isFinite(n)
-    ? n
-    : 999;
-
-}
-
-
-function getFinish(h){
-
-  return Number(
-    h.finish ??
-    h.result ??
-    h.place ??
-    999
-  );
-
-}
-
-
-function getNo(h){
-
-  return Number(
-    h.no ??
-    h.number ??
-    h.horse_no ??
-    0
-  );
-
-}
-
-
-function getName(h){
-
-  return (
-    h.name ??
-    h.horse_name ??
-    h.horseName ??
-    "不明"
-  );
-
-}
-
-
-function getVenue(r){
-
-  return (
-    r.venue ??
-    r.place ??
-    r.track ??
-    "不明"
-  );
-
-}
-
-
-function getRaceNo(r){
-
-  return Number(
-    r.no ??
-    r.race_no ??
-    r.raceNumber ??
-    0
-  );
-
-}
-
-
-function normalize(data){
-
-  if(Array.isArray(data))
-    return data;
-
-  if(Array.isArray(data.races))
-    return data.races;
-
-  if(Array.isArray(data.results))
-    return data.results;
-
-  return [];
-
-}
-
-
-function evaluate(race){
-
-  const horses =
-    getHorses(race);
-
-  if(!horses.length)
-    return null;
-
-
-  const winner =
-    horses.find(
-      h => getFinish(h) === 1
-    );
-
-  if(!winner)
-    return null;
-
-
-  const ranked =
-    horses
-      .map(h => ({
-
-        horse:h,
-
-        popularity:
-          getPopularity(h),
-
-        no:
-          getNo(h)
-
-      }))
-      .filter(
-        x =>
-          x.popularity < 999
-      )
-      .sort(
-        (a,b) => {
-
-          if(
-            a.popularity !==
-            b.popularity
-          ){
-
-            return (
-              a.popularity -
-              b.popularity
-            );
-
-          }
-
-          return a.no-b.no;
-
-        }
-      );
-
-
-  if(!ranked.length)
-    return null;
-
-
-  return {
-
-    race:race,
-
-    winner:winner,
-
-    winnerPopularity:
-      getPopularity(winner),
-
-    top1:
-      ranked[0].horse === winner,
-
-    top3:
-      ranked
-        .slice(0,3)
-        .some(
-          x =>
-            x.horse === winner
-        ),
-
-    top5:
-      ranked
-        .slice(0,5)
-        .some(
-          x =>
-            x.horse === winner
-        ),
-
-    top10:
-      ranked
-        .slice(0,10)
-        .some(
-          x =>
-            x.horse === winner
-        )
-
-  };
-
-}
-
-
-function render(results){
-
-  const box =
-    document.getElementById(
-      "bulkBacktestResult"
-    );
-
-  if(!box)return;
-
-
-  const total =
-    results.length;
-
-
-  const top1 =
-    results.filter(
-      x=>x.top1
-    ).length;
-
-
-  const top3 =
-    results.filter(
-      x=>x.top3
-    ).length;
-
-
-  const top5 =
-    results.filter(
-      x=>x.top5
-    ).length;
-
-
-  const top10 =
-    results.filter(
-      x=>x.top10
-    ).length;
-
-
-  const avg =
-    results.reduce(
-      (sum,x)=>
-        sum+x.winnerPopularity,
-      0
-    )/total;
-
-
-  const longshots =
-    results
-      .filter(
-        x =>
-          x.winnerPopularity>=10
-      )
-      .sort(
-        (a,b)=>
-          b.winnerPopularity -
-          a.winnerPopularity
-      );
-
-
-  const venues={};
-
-
-  results.forEach(x=>{
-
-    const v =
-      getVenue(x.race);
-
-
-    if(!venues[v]){
-
-      venues[v]={
-        total:0,
-        top1:0,
-        top3:0,
-        top5:0
-      };
-
-    }
-
-
-    venues[v].total++;
-
-
-    if(x.top1)
-      venues[v].top1++;
-
-
-    if(x.top3)
-      venues[v].top3++;
-
-
-    if(x.top5)
-      venues[v].top5++;
-
-  });
-
-
-  let html="";
-
-
-  html += `
-
-  <div class="summary">
-
-    <b>📊 一括バックテスト結果</b>
-
-    <div class="scroll">
-
-      <table>
-
-        <tr>
-          <th>評価項目</th>
-          <th>結果</th>
-        </tr>
-
-        <tr>
-          <td>評価レース数</td>
-          <td>${total}</td>
-        </tr>
-
-        <tr>
-          <td>1番人気が勝利</td>
-          <td>
-            ${top1}/${total}
-            （${pct(top1,total)}）
-          </td>
-        </tr>
-
-        <tr>
-          <td>3番人気以内が勝利</td>
-          <td>
-            ${top3}/${total}
-            （${pct(top3,total)}）
-          </td>
-        </tr>
-
-        <tr>
-          <td>5番人気以内が勝利</td>
-          <td>
-            ${top5}/${total}
-            （${pct(top5,total)}）
-          </td>
-        </tr>
-
-        <tr>
-          <td>10番人気以内が勝利</td>
-          <td>
-            ${top10}/${total}
-            （${pct(top10,total)}）
-          </td>
-        </tr>
-
-        <tr>
-          <td>勝ち馬の平均人気</td>
-          <td>
-            ${avg.toFixed(2)}番人気
-          </td>
-        </tr>
-
-        <tr>
-          <td>10番人気以下の勝利</td>
-          <td>
-            ${longshots.length}/${total}
-            （${pct(longshots.length,total)}）
-          </td>
-        </tr>
-
-      </table>
-
-    </div>
-
-  </div>
-
-  `;
-
-
-  html += "<h3>開催場別</h3>";
-
-
-  html += `
-
-  <div class="scroll">
-
-  <table>
-
-    <tr>
-      <th>開催場</th>
-      <th>レース</th>
-      <th>1番人気</th>
-      <th>3番人気内</th>
-      <th>5番人気内</th>
-    </tr>
-
-  `;
-
-
-  Object.keys(venues)
-    .sort()
-    .forEach(v=>{
-
-      const s =
-        venues[v];
-
-
-      html += `
-
-      <tr>
-
-        <td>
-          ${esc(v)}
-        </td>
-
-        <td>
-          ${s.total}
-        </td>
-
-        <td>
-          ${pct(
-            s.top1,
-            s.total
-          )}
-        </td>
-
-        <td>
-          ${pct(
-            s.top3,
-            s.total
-          )}
-        </td>
-
-        <td>
-          ${pct(
-            s.top5,
-            s.total
-          )}
-        </td>
-
-      </tr>
-
-      `;
-
-    });
-
-
-  html += "</table></div>";
-
-
-  if(longshots.length){
-
-    html += `
-
-    <h3>
-      🎯 10番人気以下で勝った馬
-    </h3>
-
-    <div class="scroll">
-
-    <table>
-
-      <tr>
-        <th>開催</th>
-        <th>R</th>
-        <th>馬番</th>
-        <th>馬名</th>
-        <th>人気</th>
-      </tr>
-
-    `;
-
-
-    longshots
-      .slice(0,10)
-      .forEach(x=>{
-
-        html += `
-
-        <tr>
-
-          <td>
-            ${esc(
-              getVenue(x.race)
-            )}
-          </td>
-
-          <td>
-            ${getRaceNo(x.race)}R
-          </td>
-
-          <td>
-            ${getNo(x.winner)}
-          </td>
-
-          <td>
-            ${esc(
-              getName(x.winner)
-            )}
-          </td>
-
-          <td>
-            ${x.winnerPopularity}
-          </td>
-
-        </tr>
-
-        `;
-
-      });
-
-
-    html += "</table></div>";
-
-  }
-
-
-  html += `
-
-  <div class="note" style="margin-top:10px">
-
-    ※この結果は確定後の
-    <b>最終単勝人気</b>
-    を使った市場ベンチマークです。
-
-    <br>
-
-    発走前の予測モデルの精度を表すものではありません。
-
-    <br><br>
-
-    次の段階では、この数値を基準として、
-
-    <b>
-    枠順・脚質・展開・斤量・近走・
-    コース適性・馬場・騎手
-    </b>
-
-    を使った予測モデルを検証します。
-
-  </div>
-
-  `;
-
-
-  box.innerHTML=html;
-
-}
-
-
-async function run(){
-
-  const btn =
-    document.getElementById(
-      "runBulkBacktest"
-    );
-
-  const box =
-    document.getElementById(
-      "bulkBacktestResult"
-    );
-
-
-  btn.disabled=true;
-
-  btn.innerHTML =
-    '<span class="spinner"></span> 集計中…';
-
-
-  box.innerHTML =
-    '<div class="note">' +
-    'jra_history.jsonを読み込んでいます…' +
-    '</div>';
-
-
-  try{
-
-    const r =
-      await fetch(
-        HISTORY_URL,
-        {
-          cache:"no-store"
-        }
-      );
-
-
-    if(!r.ok){
-
-      throw new Error(
-        "jra_history.jsonを読み込めませんでした。"
-      );
-
-    }
-
-
-    const data =
-      await r.json();
-
-
-    const races =
-      normalize(data);
-
-
-    const results =
-      races
-        .map(evaluate)
-        .filter(Boolean);
-
-
-    if(!results.length){
-
-      throw new Error(
-        "評価できるレースがありません。"
-      );
-
-    }
-
-
-    render(results);
-
-
-  }catch(e){
-
-    console.error(e);
-
-    box.innerHTML = `
-
-      <div class="err">
-
-        バックテストに失敗しました。
-
-        <br><br>
-
-        ${esc(e.message)}
-
-      </div>
-
-    `;
-
-  }finally{
-
-    btn.disabled=false;
-
-    btn.textContent =
-      "過去レースを一括評価";
-
-  }
-
-}
-
-
-const button =
-  document.getElementById(
-    "runBulkBacktest"
-  );
-
-
-if(button){
-
-  button.addEventListener(
-    "click",
-    run
-  );
-
-}
-
-})();
-
-</script>
-
 </body>
 </html>
