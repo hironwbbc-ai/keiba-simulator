@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "12.1";
+const MODEL_VERSION = "12.2";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -60,20 +60,9 @@ function msg(text, cls=""){
 }
 
 async function getJSON(path){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),12000);
-  try{
-    const url=new URL(path,document.baseURI);
-    url.searchParams.set("ts",Date.now());
-    const r=await fetch(url.href,{cache:"no-store",signal:controller.signal});
-    if(!r.ok) throw new Error(path+" を取得できませんでした（HTTP "+r.status+"）");
-    return await r.json();
-  }catch(e){
-    if(e?.name==="AbortError") throw new Error(path+" の取得が12秒でタイムアウトしました。");
-    throw e;
-  }finally{
-    clearTimeout(timer);
-  }
+  const r=await fetch(path+"?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok) throw new Error(path+" を取得できませんでした");
+  return r.json();
 }
 
 async function getDaily(){
@@ -110,120 +99,98 @@ function normalizeHorse(h, extra={}){
   };
 }
 
-/* -------------------- race identity -------------------- */
+const VENUE_CODE_TO_NAME = Object.fromEntries(Object.entries(VENUES).map(([name,code])=>[code,name]));
 
-const VENUE_BY_CODE=Object.fromEntries(Object.entries(VENUES).map(([name,code])=>[String(code),name]));
-
-function normalizeVenue(r){
-  const candidates=[
-    r?.venue,
-    r?.venue_name,
-    r?.venueName,
-    r?.venue_text,
-    r?.venueText,
-    r?.meet,
-    r?.place,
-    r?.track
-  ];
-  for(const x of candidates){
-    if(x==null) continue;
-    const s=String(x).trim();
-    if(!s) continue;
-    if(VENUES[s]) return s;
-    if(VENUE_BY_CODE[s]) return VENUE_BY_CODE[s];
-    const hit=Object.keys(VENUES).find(v=>s.includes(v));
-    if(hit) return hit;
-  }
-
-  const codes=[r?.venue_code,r?.venueCode,r?.place_code,r?.track_code];
-  for(const x of codes){
-    if(x==null) continue;
-    const s=String(x).padStart(2,"0");
-    if(VENUE_BY_CODE[s]) return VENUE_BY_CODE[s];
-  }
-
-  // JRA token/URL fallback: venue code is the 2 digits after the pw01d* prefix.
-  const token=String(r?.token||r?.race_token||r?.url||"");
-  const m=token.match(/pw01d[a-z]+([0-9]{2})[0-9A-Za-z]+/i);
-  if(m && VENUE_BY_CODE[m[1]]) return VENUE_BY_CODE[m[1]];
-
-  return "";
+function normalizeCode(code){
+  if(code===null || code===undefined || code==="") return "";
+  const s=String(code).trim();
+  if(/^\d+$/.test(s)) return s.padStart(2,"0");
+  return VENUES[s] || "";
 }
 
-function normalizeRace(r,dailyDate){
-  const venue=normalizeVenue(r);
-  const no=Number(r?.no ?? r?.race_number ?? r?.raceNo ?? r?.number ?? 0);
+function parseRaceToken(token){
+  if(!token) return null;
+  const t=decodeURIComponent(String(token).trim());
+  // JRA race token: pw01dde + prefix(2) + venue(2) + year(4) + meeting(2) + day(2) + race(2) + date(8) / checksum
+  const m=t.match(/^pw01dde(?<prefix>[0-9A-Za-z]{2})(?<venue>\d{2})(?<year>\d{4})(?<meet>\d{2})(?<day>\d{2})(?<race>\d{2})(?<date>\d{8})\//i);
+  if(!m) return null;
   return {
-    ...r,
-    venue,
-    venue_code:String(r?.venue_code ?? r?.venueCode ?? (venue?VENUES[venue]:"")).padStart(2,"0"),
-    no,
-    date:r?.date || dailyDate || "",
-    horses:Array.isArray(r?.horses)?r.horses:[],
+    venueCode:m.groups.venue,
+    venue:VENUE_CODE_TO_NAME[m.groups.venue] || m.groups.venue,
+    no:Number(m.groups.race),
+    date:`${m.groups.date.slice(0,4)}-${m.groups.date.slice(4,6)}-${m.groups.date.slice(6,8)}`,
+    token:t
   };
 }
 
+function normalizeRace(r,dailyDate=""){
+  const tokenInfo=parseRaceToken(r?.token || r?.url || "");
+  const rawCode=normalizeCode(r?.venue_code ?? r?.venueCode ?? r?.place_code ?? r?.track_code);
+  // Token is authoritative when available. This prevents a malformed/stale venue label
+  // from turning all races into one venue.
+  const venueCode=tokenInfo?.venueCode || rawCode;
+  const venue=VENUE_CODE_TO_NAME[venueCode] ||
+    (r?.venue && VENUES[r.venue] ? r.venue : (r?.venue || ""));
+  const no=Number(r?.no ?? r?.race_number ?? tokenInfo?.no ?? 0);
+  const date=r?.date || tokenInfo?.date || dailyDate || "";
+  return {...r,venue_code:venueCode,venue,no,date,tokenInfo};
+}
+
+function raceKey(r){
+  const x=normalizeRace(r);
+  return `${x.date}|${x.venue_code || VENUES[x.venue] || x.venue}|${Number(x.no)||0}`;
+}
+
 function horseIdentitySet(r){
-  return new Set((r?.horses||[]).map(h=>{
-    const no=Number(h?.no ?? h?.number ?? h?.horse_no ?? 0);
-    const name=String(h?.name ?? h?.horse_name ?? h?.horseName ?? "").trim();
-    return no>0 ? "no:"+no : (name ? "name:"+name : "");
-  }).filter(Boolean));
-}
-
-function raceMatchScore(d,h){
-  let score=0;
-  const dv=normalizeVenue(d), hv=normalizeVenue(h);
-  const dn=Number(d?.no ?? d?.race_number ?? d?.raceNo ?? d?.number ?? 0);
-  const hn=Number(h?.no ?? h?.race_number ?? h?.raceNo ?? h?.number ?? 0);
-  if(dv && hv && dv===hv) score+=100;
-  if(dn && hn && dn===hn) score+=40;
-
-  const ds=horseIdentitySet(d), hs=horseIdentitySet(h);
-  if(ds.size && hs.size){
-    let overlap=0;
-    for(const x of ds) if(hs.has(x)) overlap++;
-    score += overlap*4;
-    if(overlap>=Math.min(5,Math.min(ds.size,hs.size))) score+=50;
+  const out=new Set();
+  for(const h of (r?.horses||[])){
+    const no=Number(h.no ?? h.number);
+    if(no>0) out.add(`n:${no}`);
+    const name=String(h.name ?? h.horse_name ?? "").replace(/\s+/g,"").trim();
+    if(name) out.add(`s:${name}`);
   }
-  return score;
+  return out;
 }
 
-function findHistoryRace(dailyRace, historyRaces){
-  const exactVenue=normalizeVenue(dailyRace);
-  const no=Number(dailyRace?.no ?? dailyRace?.race_number ?? dailyRace?.raceNo ?? dailyRace?.number ?? 0);
+function findHistoryRace(dailyRace,historyRaces){
+  const d=normalizeRace(dailyRace);
+  const list=(historyRaces||[]).map(r=>normalizeRace(r,d.date));
 
-  // 1. Normal venue + race number key.
-  let hit=historyRaces.find(h=>{
-    const hv=normalizeVenue(h);
-    const hn=Number(h?.no ?? h?.race_number ?? h?.raceNo ?? h?.number ?? 0);
-    return exactVenue && hv===exactVenue && no===hn;
-  });
+  // Strongest identity: same date + venue code + race number.
+  let hit=list.find(r=>raceKey(r)===raceKey(d));
   if(hit) return hit;
 
-  // 2. Strong fallback: horse-number/name overlap, needed when old daily JSON
-  // omitted venue metadata. This is still identity matching, not prediction leakage.
-  const scored=historyRaces
-    .map(h=>({h,score:raceMatchScore(dailyRace,h)}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>b.score-a.score);
+  // Second identity: same token payload venue/race/date.
+  if(d.tokenInfo){
+    hit=list.find(r=>r.tokenInfo &&
+      r.tokenInfo.venueCode===d.tokenInfo.venueCode &&
+      r.tokenInfo.no===d.tokenInfo.no &&
+      r.tokenInfo.date===d.tokenInfo.date);
+    if(hit) return hit;
+  }
 
-  return scored[0]?.h || null;
+  // Last resort: horse-number/name overlap, never using finish.
+  const ids=horseIdentitySet(d);
+  let best=null,bestScore=0;
+  for(const r of list){
+    const overlap=[...ids].filter(x=>horseIdentitySet(r).has(x)).length;
+    if(overlap>bestScore){best=r;bestScore=overlap;}
+  }
+  return bestScore>=Math.min(3,Math.max(1,(d.horses||[]).length)) ? best : null;
 }
 
 /* -------------------- calendar -------------------- */
 
 function buildRaceList(daily, history){
   const out=[];
-  const historyRaces=(history?.races||[]).map(r=>normalizeRace(r,history?.date));
-  const dailyRaces=(daily?.races||[]).map(r=>normalizeRace(r,daily?.date));
+  const dailyRaces=(daily?.races||[]).map(r=>normalizeRace(r,daily?.date||""));
+  const historyRaces=(history?.races||[]).map(r=>normalizeRace(r,history?.date||daily?.date||""));
 
   for(const r of dailyRaces){
     const h=findHistoryRace(r,historyRaces);
     out.push({
       ...r,
-      name:(r.name && r.name!=="本文へ移動する" && r.name!=="出馬表 JRA")
-        ? r.name : (h?.name || `第${r.no}レース`),
+      name:(r.name && r.name!=="本文へ移動する") ? r.name : (h?.name || `第${r.no}レース`),
       time:r.time || h?.time || "",
       surface:r.surface || h?.surface || "",
       distance:r.distance || h?.distance || null,
@@ -233,26 +200,19 @@ function buildRaceList(daily, history){
     });
   }
 
-  // history-only races are retained, but normally all 36 races exist in daily.
   for(const r of historyRaces){
-    if(!out.some(x=>{
-      const xn=Number(x.no), rn=Number(r.no);
-      const xv=normalizeVenue(x), rv=normalizeVenue(r);
-      return xn===rn && xv && rv && xv===rv;
-    })){
-      out.push({...r,historical:true});
-    }
+    if(!out.some(x=>raceKey(x)===raceKey(r))) out.push({...r,historical:true});
   }
 
   return out.sort((a,b)=>{
-    const va=VENUES[normalizeVenue(a)]||"99";
-    const vb=VENUES[normalizeVenue(b)]||"99";
+    const va=normalizeCode(a.venue_code)||VENUES[a.venue]||"99";
+    const vb=normalizeCode(b.venue_code)||VENUES[b.venue]||"99";
     return va.localeCompare(vb) || Number(a.no)-Number(b.no);
   });
 }
 
 function codeToVenue(code){
-  return VENUE_BY_CODE[String(code).padStart(2,"0")] || "";
+  return VENUE_CODE_TO_NAME[normalizeCode(code)] || "";
 }
 
 /* -------------------- render races -------------------- */
@@ -262,7 +222,7 @@ function renderRaces(){
   if(!box) return;
 
   const venue=$("venue")?.value || "";
-  const list=state.races.filter(r=>!venue || normalizeVenue(r)===venue);
+  const list=state.races.filter(r=>!venue || r.venue===venue);
 
   if(!list.length){
     box.innerHTML='<div class="note">該当するレースがありません。</div>';
@@ -276,7 +236,7 @@ function renderRaces(){
         <span>${esc(r.name||"レース")}</span>
         <div class="small">${esc(r.time||"")} ${r.historical?"・結果済み":""}</div>
       </div>
-      <button data-race="${esc(normalizeVenue(r))}|${r.no}">
+      <button data-race="${esc(r.venue)}|${r.no}">
         ${r.historical?"結果・バックテスト":"出馬表"}
       </button>
     </div>
@@ -285,7 +245,7 @@ function renderRaces(){
   box.querySelectorAll("button[data-race]").forEach(b=>{
     b.onclick=()=>{
       const [venue,no]=b.dataset.race.split("|");
-      const r=state.races.find(x=>normalizeVenue(x)===venue && Number(x.no)===Number(no));
+      const r=state.races.find(x=>x.venue===venue && Number(x.no)===Number(no));
       if(r) selectRace(r);
     };
   });
@@ -307,13 +267,10 @@ async function selectRace(r){
   const daily=await getDaily();
   const history=await getHistory();
 
-  const dr=(daily.races||[]).find(x=>
-    (x.venue||codeToVenue(x.venue_code))===r.venue &&
-    Number(x.no ?? x.race_number)===Number(r.no)
-  );
-  const hr=(history.races||[]).find(x=>
-    x.venue===r.venue && Number(x.no)===Number(r.no)
-  );
+  const dailyRaces=(daily.races||[]).map(x=>normalizeRace(x,daily.date||""));
+  const historyRaces=(history.races||[]).map(x=>normalizeRace(x,history.date||daily.date||""));
+  const dr=dailyRaces.find(x=>raceKey(x)===raceKey(r));
+  const hr=dr ? findHistoryRace(dr,historyRaces) : findHistoryRace(r,historyRaces);
 
   const hmap=new Map((hr?.horses||[]).map(h=>[Number(h.no),h]));
   const source=(dr?.horses?.length ? dr.horses : hr?.horses||[]);
@@ -445,15 +402,18 @@ function buildModel(rawHorses){
     const popularityFactor=pop>0 ? Math.pow(pop,.12) : 1;
 
     // 独立補正は弱く、オッズへの過剰依存を避ける
+    // Ver.12.2: 市場情報は重要だが、最終人気の順位をそのままコピーしない。
+    // 発走前に確定している斤量・馬体重・性齢・枠順・脚質が取れる場合は
+    // 市場評価から独立した補正を適度に効かせる。
     const independent=
-      Math.pow(style,.22)*
-      Math.pow(weightFactor,.16)*
-      Math.pow(bodyFactor,.10)*
-      Math.pow(ageFactor,.08)*
-      Math.pow(frameFactor,.08)*
+      Math.pow(style,.35)*
+      Math.pow(weightFactor,.25)*
+      Math.pow(bodyFactor,.15)*
+      Math.pow(ageFactor,.12)*
+      Math.pow(frameFactor,.18)*
       Math.pow(popularityFactor,.08);
 
-    const raw=Math.pow(Math.max(market,1e-9),.72)*independent;
+    const raw=Math.pow(Math.max(market,1e-9),.62)*independent;
     return {
       ...h,
       score:raw,
@@ -640,12 +600,15 @@ function horseName(no,rows){
 function makeBacktestRace(dailyRace,histRace){
   const hmap=new Map((histRace?.horses||[]).map(h=>[Number(h.no ?? h.number),h]));
   return (dailyRace?.horses||[]).map(h=>{
-    const old=hmap.get(Number(h.number ?? h.no ?? h.horse_no))||{};
+    const no=Number(h.number ?? h.no);
+    const old=hmap.get(no)||{};
     return normalizeHorse(h,{
-      frame:num(h.frame ?? old.frame), // 枠順は発走前に確定するため利用可能
+      no,
+      frame:num(h.frame ?? h.frame_no ?? h.waku ?? old.frame),
+      // finish is evaluation-only and is never consumed by buildModel().
       historicalFinish:num(old.finish)
     });
-  });
+  }).filter(h=>h.no>0);
 }
 
 function backtestOne(dailyRace,histRace){
@@ -657,16 +620,18 @@ function backtestOne(dailyRace,histRace){
   if(!winner) return null;
 
   const pos=ranking.findIndex(h=>h.no===winner.no)+1;
+  const popRank=[...horses].filter(h=>Number.isFinite(h.popularity)).sort((a,b)=>a.popularity-b.popularity);
+  const favoriteRank=popRank.findIndex(h=>h.no===winner.no)+1;
   return {
-    winner,
-    ranking,
-    winnerRank:pos,
+    winner,ranking,winnerRank:pos,
+    favoriteRank,
     top1:ranking[0]?.no===winner.no,
     top3:ranking.slice(0,3).some(h=>h.no===winner.no),
     top5:ranking.slice(0,5).some(h=>h.no===winner.no),
-    favorite1:(horses.slice().sort((a,b)=>(a.popularity||999)-(b.popularity||999))[0]?.no===winner.no),
-    favorite3:(horses.slice().sort((a,b)=>(a.popularity||999)-(b.popularity||999)).slice(0,3).some(h=>h.no===winner.no)),
-    favorite5:(horses.slice().sort((a,b)=>(a.popularity||999)-(b.popularity||999)).slice(0,5).some(h=>h.no===winner.no))
+    favorite1:favoriteRank===1,
+    favorite3:favoriteRank>0 && favoriteRank<=3,
+    favorite5:favoriteRank>0 && favoriteRank<=5,
+    modelImproved:favoriteRank>0 && pos<favoriteRank
   };
 }
 
@@ -677,32 +642,31 @@ async function runBulkBacktest(){
 
   try{
     const daily=await getDaily(), history=await getHistory();
-    const historyRaces=(history.races||[]).map(r=>normalizeRace(r,history.date));
-    const dailyRaces=(daily.races||[]).map(r=>normalizeRace(r,daily.date));
+    const dailyRaces=(daily.races||[]).map(r=>normalizeRace(r,daily.date||""));
+    const historyRaces=(history.races||[]).map(r=>normalizeRace(r,history.date||daily.date||""));
 
     const results=[];
-    let unmatched=0;
+    const unmatched=[];
     for(const dr of dailyRaces){
       const hr=findHistoryRace(dr,historyRaces);
-      if(!hr){ unmatched++; continue; }
-      const venue=normalizeVenue(dr)||normalizeVenue(hr)||"不明";
-      const no=Number(dr.no ?? dr.race_number ?? dr.raceNo);
-      const r=backtestOne({...dr,venue,no},hr);
-      if(r) results.push({...r,venue,no,date:dr.date||daily.date});
+      if(!hr){unmatched.push(dr);continue;}
+      const r=backtestOne(dr,hr);
+      if(r) results.push({...r,venue:dr.venue,venue_code:dr.venue_code,no:dr.no,date:dr.date||daily.date});
+    }
+
+    if(!results.length){
+      throw new Error(`バックテスト対象レースを対応付けできませんでした。daily=${dailyRaces.length}、history=${historyRaces.length}`);
     }
 
     const n=results.length;
-    if(!n){
-      throw new Error(`バックテスト対象レースを0件しか照合できませんでした。daily=${dailyRaces.length}、history=${historyRaces.length}。開催場/馬番/馬データの対応付けを確認してください。`);
-    }
     const mTop1=results.filter(r=>r.top1).length;
     const mTop3=results.filter(r=>r.top3).length;
     const mTop5=results.filter(r=>r.top5).length;
     const fTop1=results.filter(r=>r.favorite1).length;
     const fTop3=results.filter(r=>r.favorite3).length;
     const fTop5=results.filter(r=>r.favorite5).length;
-
     const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n;
+    const favAvgRank=results.reduce((s,r)=>s+r.favoriteRank,0)/n;
 
     const venueRows={};
     for(const r of results){
@@ -713,27 +677,29 @@ async function runBulkBacktest(){
       venueRows[r.venue].top5+=r.top5?1:0;
     }
 
-    const longshots=results.filter(r=>Number(r.winner.popularity)>=6)
-      .sort((a,b)=>Number(b.winner.popularity)-Number(a.winner.popularity));
+    const improved=results.filter(r=>r.modelImproved)
+      .sort((a,b)=>(a.winnerRank-a.favoriteRank)-(b.winnerRank-b.favoriteRank));
 
     out.innerHTML=`
       <div class="result-head">
         <b>📊 Ver.${MODEL_VERSION} 一括バックテスト</b>
         <span>${results.length}レース</span>
       </div>
-
       <div class="note warning">
-        このバックテストは、2026-09-06のJRA公式同期データを使った検証です。
-        単勝オッズは同期JSONに保存された値であり、現状は最終オッズを利用しています。
-        よって「完全な発走前時系列バックテスト」ではありません。
-        ただし着順・4角位置などの結果情報をモデル入力には使用していません。
+        このバックテストは、${esc(daily.date||"指定日")}のJRA公式同期データを使った検証です。<br>
+        単勝オッズは同期JSONに保存された最終オッズを利用しています。よって完全な発走前時系列バックテストではありません。<br>
+        着順・4角位置などの結果情報はモデル入力には使用していません。着順は評価専用です。
       </div>
-
+      <div class="stats">
+        <div><b>対応付け</b><strong>${results.length}/${dailyRaces.length}</strong></div>
+        <div><b>開催場</b><strong>${Object.keys(venueRows).join("・")}</strong></div>
+        <div><b>人気→モデル順位差</b><strong>${(favAvgRank-avgRank).toFixed(2)}</strong></div>
+      </div>
       <div class="compare-grid">
         <div class="metric-card"><b>本命1着</b><strong>${pct(mTop1/n)}</strong><small>モデル ${mTop1}/${n}</small></div>
         <div class="metric-card"><b>上位3頭</b><strong>${pct(mTop3/n)}</strong><small>モデル ${mTop3}/${n}</small></div>
         <div class="metric-card"><b>上位5頭</b><strong>${pct(mTop5/n)}</strong><small>モデル ${mTop5}/${n}</small></div>
-        <div class="metric-card"><b>勝ち馬平均順位</b><strong>${avgRank.toFixed(2)}位</strong><small>モデル順位</small></div>
+        <div class="metric-card"><b>勝ち馬平均順位</b><strong>${avgRank.toFixed(2)}位</strong><small>人気平均 ${favAvgRank.toFixed(2)}位</small></div>
       </div>
 
       <h3>最終人気 vs Ver.${MODEL_VERSION}</h3>
@@ -756,24 +722,23 @@ async function runBulkBacktest(){
 
       <h3>🎯 モデルが人気以上に評価した勝ち馬</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>開催</th><th>R</th><th>馬</th><th>人気</th><th>モデル順位</th></tr></thead>
-        <tbody>${longshots.slice(0,20).map(r=>`
+        <thead><tr><th>開催</th><th>R</th><th>馬</th><th>人気順位</th><th>モデル順位</th><th>改善</th></tr></thead>
+        <tbody>${improved.slice(0,20).map(r=>`
           <tr><td>${esc(r.venue)}</td><td>${r.no}R</td><td>${r.winner.no} ${esc(r.winner.name)}</td>
-          <td>${r.winner.popularity??"—"}</td><td>${r.winnerRank}位</td></tr>
-        `).join("") || '<tr><td colspan="5">該当なし</td></tr>'}</tbody>
+          <td>${r.favoriteRank}位</td><td>${r.winnerRank}位</td><td>+${r.favoriteRank-r.winnerRank}</td></tr>
+        `).join("") || '<tr><td colspan="6">該当なし</td></tr>'}</tbody>
       </table></div>
 
       <h3>レース別結果</h3>
       <div class="table-wrap"><table>
         <thead><tr><th>開催</th><th>R</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead>
         <tbody>${results.map(r=>`
-          <tr>
-            <td>${esc(r.venue)}</td><td>${r.no}R</td>
-            <td>${r.winner.no} ${esc(r.winner.name)}</td>
-            <td>${r.winner.popularity??"—"}</td><td>${r.winnerRank}</td>
-            <td>${r.top1?"○":"—"}</td><td>${r.top3?"○":"—"}</td><td>${r.top5?"○":"—"}</td>
-          </tr>`).join("")}</tbody>
+          <tr><td>${esc(r.venue)}</td><td>${r.no}R</td>
+          <td>${r.winner.no} ${esc(r.winner.name)}</td><td>${r.winner.popularity??"—"}</td><td>${r.winnerRank}</td>
+          <td>${r.top1?"○":"—"}</td><td>${r.top3?"○":"—"}</td><td>${r.top5?"○":"—"}</td></tr>`).join("")}</tbody>
       </table></div>
+
+      ${unmatched.length?`<div class="note">未対応付け：${unmatched.length}レース（開催場コード・R番号・馬番/馬名の順で照合）</div>`:""}
     `;
 
   }catch(e){
@@ -807,8 +772,7 @@ async function loadRaces(){
        公式レースリンク：${daily.official_race_links?.length||0}件<br>
        データパーサー：${esc(daily.parser_version||"不明")}`;
 
-    const venueText=venues.length?venues.join("・"):"開催場情報を補正済み";
-    msg(`${date}：JRA公式同期データ。${venueText}・${state.races.length}レース`,"ok");
+    msg(`${date}：JRA公式同期データ。${venues.join("・")}・${state.races.length}レース`,"ok");
   }catch(e){
     msg(esc(e.message),"err");
   }
