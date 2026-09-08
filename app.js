@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.12.1
+   競馬シミュレーター Ver.12.0
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 36レース比較
    ---------------------------------------------------------
@@ -59,43 +59,21 @@ function msg(text, cls=""){
   }
 }
 
-const DATA_TIMEOUT_MS = 12000;
-const RAW_BASE = "https://raw.githubusercontent.com/hironwbbc-ai/keiba-simulator/main/";
-
-async function fetchWithTimeout(url, options={}, timeout=DATA_TIMEOUT_MS){
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+async function getJSON(path){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),12000);
   try{
-    const r = await fetch(url, {...options, signal:controller.signal});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r;
+    const url=new URL(path,document.baseURI);
+    url.searchParams.set("ts",Date.now());
+    const r=await fetch(url.href,{cache:"no-store",signal:controller.signal});
+    if(!r.ok) throw new Error(path+" を取得できませんでした（HTTP "+r.status+"）");
+    return await r.json();
   }catch(e){
-    if(e.name === "AbortError") throw new Error(`データ取得がタイムアウトしました（${timeout/1000}秒）。`);
+    if(e?.name==="AbortError") throw new Error(path+" の取得が12秒でタイムアウトしました。");
     throw e;
   }finally{
     clearTimeout(timer);
   }
-}
-
-async function getJSON(path){
-  const cleanPath = path.replace(/^\.\//,"");
-  const urls = [
-    new URL(cleanPath, document.baseURI).href + "?ts=" + Date.now(),
-    RAW_BASE + cleanPath + "?ts=" + Date.now()
-  ];
-  let lastError = null;
-
-  for(let i=0;i<urls.length;i++){
-    try{
-      const r = await fetchWithTimeout(urls[i], {cache:"no-store"});
-      const data = await r.json();
-      return data;
-    }catch(e){
-      lastError = e;
-    }
-  }
-
-  throw new Error(`${path} を取得できませんでした。${lastError ? "\n" + lastError.message : ""}`);
 }
 
 async function getDaily(){
@@ -132,25 +110,120 @@ function normalizeHorse(h, extra={}){
   };
 }
 
+/* -------------------- race identity -------------------- */
+
+const VENUE_BY_CODE=Object.fromEntries(Object.entries(VENUES).map(([name,code])=>[String(code),name]));
+
+function normalizeVenue(r){
+  const candidates=[
+    r?.venue,
+    r?.venue_name,
+    r?.venueName,
+    r?.venue_text,
+    r?.venueText,
+    r?.meet,
+    r?.place,
+    r?.track
+  ];
+  for(const x of candidates){
+    if(x==null) continue;
+    const s=String(x).trim();
+    if(!s) continue;
+    if(VENUES[s]) return s;
+    if(VENUE_BY_CODE[s]) return VENUE_BY_CODE[s];
+    const hit=Object.keys(VENUES).find(v=>s.includes(v));
+    if(hit) return hit;
+  }
+
+  const codes=[r?.venue_code,r?.venueCode,r?.place_code,r?.track_code];
+  for(const x of codes){
+    if(x==null) continue;
+    const s=String(x).padStart(2,"0");
+    if(VENUE_BY_CODE[s]) return VENUE_BY_CODE[s];
+  }
+
+  // JRA token/URL fallback: venue code is the 2 digits after the pw01d* prefix.
+  const token=String(r?.token||r?.race_token||r?.url||"");
+  const m=token.match(/pw01d[a-z]+([0-9]{2})[0-9A-Za-z]+/i);
+  if(m && VENUE_BY_CODE[m[1]]) return VENUE_BY_CODE[m[1]];
+
+  return "";
+}
+
+function normalizeRace(r,dailyDate){
+  const venue=normalizeVenue(r);
+  const no=Number(r?.no ?? r?.race_number ?? r?.raceNo ?? r?.number ?? 0);
+  return {
+    ...r,
+    venue,
+    venue_code:String(r?.venue_code ?? r?.venueCode ?? (venue?VENUES[venue]:"")).padStart(2,"0"),
+    no,
+    date:r?.date || dailyDate || "",
+    horses:Array.isArray(r?.horses)?r.horses:[],
+  };
+}
+
+function horseIdentitySet(r){
+  return new Set((r?.horses||[]).map(h=>{
+    const no=Number(h?.no ?? h?.number ?? h?.horse_no ?? 0);
+    const name=String(h?.name ?? h?.horse_name ?? h?.horseName ?? "").trim();
+    return no>0 ? "no:"+no : (name ? "name:"+name : "");
+  }).filter(Boolean));
+}
+
+function raceMatchScore(d,h){
+  let score=0;
+  const dv=normalizeVenue(d), hv=normalizeVenue(h);
+  const dn=Number(d?.no ?? d?.race_number ?? d?.raceNo ?? d?.number ?? 0);
+  const hn=Number(h?.no ?? h?.race_number ?? h?.raceNo ?? h?.number ?? 0);
+  if(dv && hv && dv===hv) score+=100;
+  if(dn && hn && dn===hn) score+=40;
+
+  const ds=horseIdentitySet(d), hs=horseIdentitySet(h);
+  if(ds.size && hs.size){
+    let overlap=0;
+    for(const x of ds) if(hs.has(x)) overlap++;
+    score += overlap*4;
+    if(overlap>=Math.min(5,Math.min(ds.size,hs.size))) score+=50;
+  }
+  return score;
+}
+
+function findHistoryRace(dailyRace, historyRaces){
+  const exactVenue=normalizeVenue(dailyRace);
+  const no=Number(dailyRace?.no ?? dailyRace?.race_number ?? dailyRace?.raceNo ?? dailyRace?.number ?? 0);
+
+  // 1. Normal venue + race number key.
+  let hit=historyRaces.find(h=>{
+    const hv=normalizeVenue(h);
+    const hn=Number(h?.no ?? h?.race_number ?? h?.raceNo ?? h?.number ?? 0);
+    return exactVenue && hv===exactVenue && no===hn;
+  });
+  if(hit) return hit;
+
+  // 2. Strong fallback: horse-number/name overlap, needed when old daily JSON
+  // omitted venue metadata. This is still identity matching, not prediction leakage.
+  const scored=historyRaces
+    .map(h=>({h,score:raceMatchScore(dailyRace,h)}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score);
+
+  return scored[0]?.h || null;
+}
+
 /* -------------------- calendar -------------------- */
 
 function buildRaceList(daily, history){
   const out=[];
-  const histMap=new Map();
+  const historyRaces=(history?.races||[]).map(r=>normalizeRace(r,history?.date));
+  const dailyRaces=(daily?.races||[]).map(r=>normalizeRace(r,daily?.date));
 
-  for(const r of (history?.races||[])){
-    histMap.set(`${r.venue}-${r.no}`,r);
-  }
-
-  for(const r of (daily?.races||[])){
-    const venue=r.venue || codeToVenue(r.venue_code);
-    const no=Number(r.no ?? r.race_number);
-    const h=histMap.get(`${venue}-${no}`);
+  for(const r of dailyRaces){
+    const h=findHistoryRace(r,historyRaces);
     out.push({
       ...r,
-      venue,no,
-      date:r.date || daily.date,
-      name:(r.name && r.name!=="本文へ移動する") ? r.name : (h?.name || `第${no}レース`),
+      name:(r.name && r.name!=="本文へ移動する" && r.name!=="出馬表 JRA")
+        ? r.name : (h?.name || `第${r.no}レース`),
       time:r.time || h?.time || "",
       surface:r.surface || h?.surface || "",
       distance:r.distance || h?.distance || null,
@@ -160,22 +233,26 @@ function buildRaceList(daily, history){
     });
   }
 
-  // historyにしか存在しないレースも表示
-  for(const r of (history?.races||[])){
-    const key=`${r.venue}-${r.no}`;
-    if(!out.some(x=>`${x.venue}-${x.no}`===key)){
+  // history-only races are retained, but normally all 36 races exist in daily.
+  for(const r of historyRaces){
+    if(!out.some(x=>{
+      const xn=Number(x.no), rn=Number(r.no);
+      const xv=normalizeVenue(x), rv=normalizeVenue(r);
+      return xn===rn && xv && rv && xv===rv;
+    })){
       out.push({...r,historical:true});
     }
   }
 
   return out.sort((a,b)=>{
-    const va=VENUES[a.venue]||"99", vb=VENUES[b.venue]||"99";
+    const va=VENUES[normalizeVenue(a)]||"99";
+    const vb=VENUES[normalizeVenue(b)]||"99";
     return va.localeCompare(vb) || Number(a.no)-Number(b.no);
   });
 }
 
 function codeToVenue(code){
-  return Object.keys(VENUES).find(k=>VENUES[k]===String(code)) || "";
+  return VENUE_BY_CODE[String(code).padStart(2,"0")] || "";
 }
 
 /* -------------------- render races -------------------- */
@@ -185,7 +262,7 @@ function renderRaces(){
   if(!box) return;
 
   const venue=$("venue")?.value || "";
-  const list=state.races.filter(r=>!venue || r.venue===venue);
+  const list=state.races.filter(r=>!venue || normalizeVenue(r)===venue);
 
   if(!list.length){
     box.innerHTML='<div class="note">該当するレースがありません。</div>';
@@ -199,7 +276,7 @@ function renderRaces(){
         <span>${esc(r.name||"レース")}</span>
         <div class="small">${esc(r.time||"")} ${r.historical?"・結果済み":""}</div>
       </div>
-      <button data-race="${esc(r.venue)}|${r.no}">
+      <button data-race="${esc(normalizeVenue(r))}|${r.no}">
         ${r.historical?"結果・バックテスト":"出馬表"}
       </button>
     </div>
@@ -208,7 +285,7 @@ function renderRaces(){
   box.querySelectorAll("button[data-race]").forEach(b=>{
     b.onclick=()=>{
       const [venue,no]=b.dataset.race.split("|");
-      const r=state.races.find(x=>x.venue===venue && Number(x.no)===Number(no));
+      const r=state.races.find(x=>normalizeVenue(x)===venue && Number(x.no)===Number(no));
       if(r) selectRace(r);
     };
   });
@@ -228,13 +305,7 @@ async function selectRace(r){
   $("horses").innerHTML='<div class="status"><span class="spinner"></span> データを読み込み中…</div>';
 
   const daily=await getDaily();
-  let history=null;
-  try{
-    history=await getHistory();
-  }catch(e){
-    // 履歴が取得できなくても、発走前の出馬表は表示できるようにする。
-    history=null;
-  }
+  const history=await getHistory();
 
   const dr=(daily.races||[]).find(x=>
     (x.venue||codeToVenue(x.venue_code))===r.venue &&
@@ -567,11 +638,11 @@ function horseName(no,rows){
 /* -------------------- historical backtest -------------------- */
 
 function makeBacktestRace(dailyRace,histRace){
-  const hmap=new Map((histRace?.horses||[]).map(h=>[Number(h.no),h]));
+  const hmap=new Map((histRace?.horses||[]).map(h=>[Number(h.no ?? h.number),h]));
   return (dailyRace?.horses||[]).map(h=>{
-    const old=hmap.get(Number(h.number ?? h.no))||{};
+    const old=hmap.get(Number(h.number ?? h.no ?? h.horse_no))||{};
     return normalizeHorse(h,{
-      frame:num(old.frame), // 枠順は発走前に確定するため利用可能
+      frame:num(h.frame ?? old.frame), // 枠順は発走前に確定するため利用可能
       historicalFinish:num(old.finish)
     });
   });
@@ -606,19 +677,24 @@ async function runBulkBacktest(){
 
   try{
     const daily=await getDaily(), history=await getHistory();
-    const hmap=new Map((history.races||[]).map(r=>[`${r.venue}-${r.no}`,r]));
+    const historyRaces=(history.races||[]).map(r=>normalizeRace(r,history.date));
+    const dailyRaces=(daily.races||[]).map(r=>normalizeRace(r,daily.date));
 
     const results=[];
-    for(const dr of (daily.races||[])){
-      const venue=dr.venue || codeToVenue(dr.venue_code);
-      const no=Number(dr.no ?? dr.race_number);
-      const hr=hmap.get(`${venue}-${no}`);
-      if(!hr) continue;
+    let unmatched=0;
+    for(const dr of dailyRaces){
+      const hr=findHistoryRace(dr,historyRaces);
+      if(!hr){ unmatched++; continue; }
+      const venue=normalizeVenue(dr)||normalizeVenue(hr)||"不明";
+      const no=Number(dr.no ?? dr.race_number ?? dr.raceNo);
       const r=backtestOne({...dr,venue,no},hr);
       if(r) results.push({...r,venue,no,date:dr.date||daily.date});
     }
 
-    const n=results.length||1;
+    const n=results.length;
+    if(!n){
+      throw new Error(`バックテスト対象レースを0件しか照合できませんでした。daily=${dailyRaces.length}、history=${historyRaces.length}。開催場/馬番/馬データの対応付けを確認してください。`);
+    }
     const mTop1=results.filter(r=>r.top1).length;
     const mTop3=results.filter(r=>r.top3).length;
     const mTop5=results.filter(r=>r.top5).length;
@@ -712,10 +788,8 @@ async function loadRaces(){
   msg("JRA公式同期JSONを読み込み中…");
 
   try{
-    // 初期表示は daily だけで成立させる。履歴JSONの取得遅延で
-    // 「同期データを読み込み中…」のまま止まらないようにする。
     const daily=await getDaily();
-    const history=null;
+    const history=await getHistory();
     if(daily.date && daily.date!==date){
       msg(`同期データは ${esc(daily.date)} です。指定日は ${esc(date)} です。`,"warn");
     }
@@ -733,7 +807,8 @@ async function loadRaces(){
        公式レースリンク：${daily.official_race_links?.length||0}件<br>
        データパーサー：${esc(daily.parser_version||"不明")}`;
 
-    msg(`${date}：JRA公式同期データ。${venues.join("・")}・${state.races.length}レース`,"ok");
+    const venueText=venues.length?venues.join("・"):"開催場情報を補正済み";
+    msg(`${date}：JRA公式同期データ。${venueText}・${state.races.length}レース`,"ok");
   }catch(e){
     msg(esc(e.message),"err");
   }
