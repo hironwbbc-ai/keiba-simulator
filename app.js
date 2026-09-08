@@ -46,6 +46,8 @@ function num(v){
   return Number.isFinite(n) ? n : null;
 }
 
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
 function today(){
   return new Intl.DateTimeFormat("ja-JP",{
     timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"
@@ -101,23 +103,45 @@ function normalizeHorse(h, extra={}){
 
 /* -------------------- calendar -------------------- */
 
+function normalizeVenue(r){
+  const rawCode=String(r?.venue_code ?? r?.venueCode ?? "").padStart(2,"0");
+  if(VENUES[rawCode]) return {code:rawCode,name:codeToVenue(rawCode)};
+  const rawName=String(r?.venue ?? "").trim();
+  if(VENUES[rawName]) return {code:VENUES[rawName],name:rawName};
+  const found=Object.entries(VENUES).find(([name,code])=>name===rawName || code===rawName);
+  return found ? {code:found[1],name:found[0]} : {code:rawCode||"",name:rawName};
+}
+
+function raceKey(r){
+  const v=normalizeVenue(r);
+  const rawDate=String(r?.date||"");
+  const m=rawDate.match(/(20\d{2})[^0-9]?(\d{2})[^0-9]?(\d{2})/);
+  const date=m ? `${m[1]}${m[2]}${m[3]}` : rawDate.replace(/\D/g,"");
+  const no=Number(String(r?.no ?? r?.race_number ?? "").replace(/\D/g,""));
+  return `${date}|${v.code||v.name}|${no}`;
+}
+
+function cleanRaceName(name,fallback=""){
+  const x=String(name||"").replace(/本文へ移動する/g,"").trim();
+  return x || fallback;
+}
+
 function buildRaceList(daily, history){
   const out=[];
   const histMap=new Map();
-
   for(const r of (history?.races||[])){
-    histMap.set(`${r.venue}-${r.no}`,r);
+    histMap.set(raceKey(r),r);
   }
 
   for(const r of (daily?.races||[])){
-    const venue=r.venue || codeToVenue(r.venue_code);
+    const v=normalizeVenue(r);
     const no=Number(r.no ?? r.race_number);
-    const h=histMap.get(`${venue}-${no}`);
+    const normalized={...r,venue:v.name,venue_code:v.code,no};
+    const h=histMap.get(raceKey(normalized));
     out.push({
-      ...r,
-      venue,no,
+      ...normalized,
       date:r.date || daily.date,
-      name:(r.name && !/本文へ移動する/.test(String(r.name))) ? r.name : (h?.name || `第${no}レース`),
+      name:cleanRaceName(r.name,h?.name||`第${no}レース`),
       time:r.time || h?.time || "",
       surface:r.surface || h?.surface || "",
       distance:r.distance || h?.distance || null,
@@ -127,11 +151,12 @@ function buildRaceList(daily, history){
     });
   }
 
-  // historyにしか存在しないレースも表示
   for(const r of (history?.races||[])){
-    const key=`${r.venue}-${r.no}`;
-    if(!out.some(x=>`${x.venue}-${x.no}`===key)){
-      out.push({...r,historical:true});
+    const v=normalizeVenue(r);
+    const no=Number(r.no ?? r.race_number);
+    const normalized={...r,venue:v.name,venue_code:v.code,no};
+    if(!out.some(x=>raceKey(x)===raceKey(normalized))){
+      out.push({...normalized,historical:true});
     }
   }
 
@@ -197,13 +222,8 @@ async function selectRace(r){
   const daily=await getDaily();
   const history=await getHistory();
 
-  const dr=(daily.races||[]).find(x=>
-    (x.venue||codeToVenue(x.venue_code))===r.venue &&
-    Number(x.no ?? x.race_number)===Number(r.no)
-  );
-  const hr=(history.races||[]).find(x=>
-    x.venue===r.venue && Number(x.no)===Number(r.no)
-  );
+  const dr=(daily.races||[]).find(x=>raceKey(x)===raceKey(r));
+  const hr=(history.races||[]).find(x=>raceKey(x)===raceKey(r));
 
   const hmap=new Map((hr?.horses||[]).map(h=>[Number(h.no),h]));
   const source=(dr?.horses?.length ? dr.horses : hr?.horses||[]);
@@ -586,22 +606,19 @@ async function runBulkBacktest(){
   out.innerHTML='<div class="status"><span class="spinner"></span> 36レースを評価中…</div>';
   try{
     const daily=await getDaily(), history=await getHistory();
-    const hmap=new Map();
-    for(const r of (history.races||[])){
-      const key=`${r.venue}-${Number(r.no)}`;
-      hmap.set(key,r);
-    }
+    const hmap=new Map((history.races||[]).map(r=>[raceKey(r),r]));
     const results=[];
-    for(const dr of (daily.races||[])){
-      const venue=dr.venue || codeToVenue(dr.venue_code);
-      const no=Number(dr.no ?? dr.race_number);
-      const hr=hmap.get(`${venue}-${no}`);
+    for(const dr0 of (daily.races||[])){
+      const v=normalizeVenue(dr0);
+      const no=Number(dr0.no ?? dr0.race_number);
+      const dr={...dr0,venue:v.name,venue_code:v.code,no};
+      const hr=hmap.get(raceKey(dr));
       if(!hr) continue;
-      const r=backtestOne({...dr,venue,no},hr);
+      const r=backtestOne(dr,hr);
       if(r){
         const favRank=Number(r.winner.popularity)||null;
         const improvement=favRank && r.winnerRank ? favRank-r.winnerRank : 0;
-        results.push({...r,venue,no,date:dr.date||daily.date,improvement});
+        results.push({...r,venue:v.name,no,date:dr.date||daily.date,improvement});
       }
     }
 
@@ -631,7 +648,7 @@ async function runBulkBacktest(){
         <span>${results.length}レース</span>
       </div>
       <div class="note warning">
-        このバックテストは2026-09-06のJRA公式同期データを使った検証です。<br>
+        このバックテストは同期JSONの対象日データを使った検証です。<br>
         単勝オッズは同期JSONの最終オッズを利用するため、完全な発走前時系列バックテストではありません。<br>
         着順・4角位置などの結果情報はモデル入力には使用していません。<br>
         <b>Ver.${MODEL_VERSION}では最終人気を予測の中心から外し、発走前特徴量との複合評価に変更しています。</b>
