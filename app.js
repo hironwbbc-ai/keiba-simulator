@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "12.2";
+const MODEL_VERSION = "12.3";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -75,12 +75,53 @@ async function getHistory(){
   return state.history;
 }
 
+/* -------------------- JRA token / text cleanup -------------------- */
+
+const VENUE_CODE_TO_NAME={"01":"札幌","02":"函館","03":"福島","04":"新潟","05":"東京","06":"中山","07":"中京","08":"京都","09":"阪神","10":"小倉"};
+
+function cleanText(v){
+  return String(v??"").replace(/本文へ移動する/g,"").replace(/\s{2,}/g," ").trim();
+}
+
+function parseRaceToken(token){
+  const t=String(token||"");
+  const m=t.match(/^pw01dde(?<prefix>[0-9A-Za-z]{2})(?<venue>\d{2})(?<year>\d{4})(?<meet>\d{2})(?<day>\d{2})(?<race>\d{2})(?<date>\d{8})\//);
+  if(!m) return null;
+  return {venueCode:m.groups.venue,venue:VENUE_CODE_TO_NAME[m.groups.venue]||"",no:Number(m.groups.race),date:`${m.groups.date.slice(0,4)}-${m.groups.date.slice(4,6)}-${m.groups.date.slice(6,8)}`,token:t};
+}
+
+function normalizeCode(c){ return c==null?"":String(c).padStart(2,"0"); }
+function normalizeRace(r,dailyDate=""){
+  const p=parseRaceToken(r?.token);
+  const vc=p?.venueCode||normalizeCode(r?.venue_code);
+  const venue=p?.venue||VENUE_CODE_TO_NAME[vc]||cleanText(r?.venue)||"";
+  const no=Number(p?.no??r?.no??r?.race_number);
+  const date=p?.date||r?.date||dailyDate||"";
+  return {...r,venue_code:vc,venue,no,date,token:r?.token||p?.token||"",name:cleanText(r?.name)};
+}
+function raceKey(r){ const x=normalizeRace(r); return `${x.date}|${x.venue_code||x.venue}|${x.no}`; }
+function horseIdentitySet(r){ return new Set((r?.horses||[]).map(h=>`${Number(h.number??h.no??0)}|${cleanText(h.name)}`).filter(x=>x!=="0|")); }
+function findHistoryRace(dailyRace,historyRaces){
+  const d=normalizeRace(dailyRace);
+  const exact=(historyRaces||[]).find(h=>raceKey(h)===raceKey(d));
+  if(exact) return exact;
+  const dn=horseIdentitySet(d);
+  let best=null,bestScore=0;
+  for(const h of historyRaces||[]){
+    const hn=horseIdentitySet(h); let score=0;
+    for(const x of dn) if(hn.has(x)) score++;
+    if(score>bestScore){bestScore=score;best=h;}
+  }
+  const threshold=Math.min(3,Math.max(1,(d.horses||[]).length));
+  return bestScore>=threshold?best:null;
+}
+
 /* -------------------- data normalization -------------------- */
 
 function normalizeHorse(h, extra={}){
   return {
     no:Number(h.no ?? h.number ?? h.horse_no ?? 0),
-    name:h.name ?? h.horse_name ?? h.horseName ?? "",
+    name:cleanText(h.name ?? h.horse_name ?? h.horseName ?? ""),
     odds:num(h.odds),
     popularity:num(h.popularity ?? h.odds_rank ?? h.rank),
     bodyWeight:num(h.bodyWeight ?? h.body_weight ?? h.weight),
@@ -99,121 +140,23 @@ function normalizeHorse(h, extra={}){
   };
 }
 
-const VENUE_CODE_TO_NAME = Object.fromEntries(Object.entries(VENUES).map(([name,code])=>[code,name]));
-
-function normalizeCode(code){
-  if(code===null || code===undefined || code==="") return "";
-  const s=String(code).trim();
-  if(/^\d+$/.test(s)) return s.padStart(2,"0");
-  return VENUES[s] || "";
-}
-
-function parseRaceToken(token){
-  if(!token) return null;
-  const t=decodeURIComponent(String(token).trim());
-  // JRA race token: pw01dde + prefix(2) + venue(2) + year(4) + meeting(2) + day(2) + race(2) + date(8) / checksum
-  const m=t.match(/^pw01dde(?<prefix>[0-9A-Za-z]{2})(?<venue>\d{2})(?<year>\d{4})(?<meet>\d{2})(?<day>\d{2})(?<race>\d{2})(?<date>\d{8})\//i);
-  if(!m) return null;
-  return {
-    venueCode:m.groups.venue,
-    venue:VENUE_CODE_TO_NAME[m.groups.venue] || m.groups.venue,
-    no:Number(m.groups.race),
-    date:`${m.groups.date.slice(0,4)}-${m.groups.date.slice(4,6)}-${m.groups.date.slice(6,8)}`,
-    token:t
-  };
-}
-
-function normalizeRace(r,dailyDate=""){
-  const tokenInfo=parseRaceToken(r?.token || r?.url || "");
-  const rawCode=normalizeCode(r?.venue_code ?? r?.venueCode ?? r?.place_code ?? r?.track_code);
-  // Token is authoritative when available. This prevents a malformed/stale venue label
-  // from turning all races into one venue.
-  const venueCode=tokenInfo?.venueCode || rawCode;
-  const venue=VENUE_CODE_TO_NAME[venueCode] ||
-    (r?.venue && VENUES[r.venue] ? r.venue : (r?.venue || ""));
-  const no=Number(r?.no ?? r?.race_number ?? tokenInfo?.no ?? 0);
-  const date=r?.date || tokenInfo?.date || dailyDate || "";
-  return {...r,venue_code:venueCode,venue,no,date,tokenInfo};
-}
-
-function raceKey(r){
-  const x=normalizeRace(r);
-  return `${x.date}|${x.venue_code || VENUES[x.venue] || x.venue}|${Number(x.no)||0}`;
-}
-
-function horseIdentitySet(r){
-  const out=new Set();
-  for(const h of (r?.horses||[])){
-    const no=Number(h.no ?? h.number);
-    if(no>0) out.add(`n:${no}`);
-    const name=String(h.name ?? h.horse_name ?? "").replace(/\s+/g,"").trim();
-    if(name) out.add(`s:${name}`);
-  }
-  return out;
-}
-
-function findHistoryRace(dailyRace,historyRaces){
-  const d=normalizeRace(dailyRace);
-  const list=(historyRaces||[]).map(r=>normalizeRace(r,d.date));
-
-  // Strongest identity: same date + venue code + race number.
-  let hit=list.find(r=>raceKey(r)===raceKey(d));
-  if(hit) return hit;
-
-  // Second identity: same token payload venue/race/date.
-  if(d.tokenInfo){
-    hit=list.find(r=>r.tokenInfo &&
-      r.tokenInfo.venueCode===d.tokenInfo.venueCode &&
-      r.tokenInfo.no===d.tokenInfo.no &&
-      r.tokenInfo.date===d.tokenInfo.date);
-    if(hit) return hit;
-  }
-
-  // Last resort: horse-number/name overlap, never using finish.
-  const ids=horseIdentitySet(d);
-  let best=null,bestScore=0;
-  for(const r of list){
-    const overlap=[...ids].filter(x=>horseIdentitySet(r).has(x)).length;
-    if(overlap>bestScore){best=r;bestScore=overlap;}
-  }
-  return bestScore>=Math.min(3,Math.max(1,(d.horses||[]).length)) ? best : null;
-}
-
 /* -------------------- calendar -------------------- */
 
 function buildRaceList(daily, history){
   const out=[];
-  const dailyRaces=(daily?.races||[]).map(r=>normalizeRace(r,daily?.date||""));
-  const historyRaces=(history?.races||[]).map(r=>normalizeRace(r,history?.date||daily?.date||""));
-
-  for(const r of dailyRaces){
-    const h=findHistoryRace(r,historyRaces);
-    out.push({
-      ...r,
-      name:(r.name && r.name!=="本文へ移動する") ? r.name : (h?.name || `第${r.no}レース`),
-      time:r.time || h?.time || "",
-      surface:r.surface || h?.surface || "",
-      distance:r.distance || h?.distance || null,
-      course:r.course || h?.course || "",
-      historical:!!h,
-      history:h || null
-    });
+  const hrs=history?.races||[];
+  for(const raw of (daily?.races||[])){
+    const r=normalizeRace(raw,daily?.date);
+    const h=findHistoryRace(r,hrs);
+    out.push({...r,date:r.date||daily?.date,name:r.name||cleanText(h?.name)||`第${r.no}レース`,time:r.time||h?.time||"",surface:r.surface||h?.surface||"",distance:r.distance||h?.distance||null,course:r.course||h?.course||"",historical:!!h,history:h||null});
   }
-
-  for(const r of historyRaces){
-    if(!out.some(x=>raceKey(x)===raceKey(r))) out.push({...r,historical:true});
+  for(const raw of hrs){
+    const r=normalizeRace(raw,daily?.date);
+    if(!out.some(x=>raceKey(x)===raceKey(r))) out.push({...r,historical:true,history:r});
   }
-
-  return out.sort((a,b)=>{
-    const va=normalizeCode(a.venue_code)||VENUES[a.venue]||"99";
-    const vb=normalizeCode(b.venue_code)||VENUES[b.venue]||"99";
-    return va.localeCompare(vb) || Number(a.no)-Number(b.no);
-  });
+  return out.sort((a,b)=>String(a.venue_code||"99").localeCompare(String(b.venue_code||"99"))||Number(a.no)-Number(b.no));
 }
-
-function codeToVenue(code){
-  return VENUE_CODE_TO_NAME[normalizeCode(code)] || "";
-}
+function codeToVenue(code){ return VENUE_CODE_TO_NAME[normalizeCode(code)]||""; }
 
 /* -------------------- render races -------------------- */
 
@@ -267,10 +210,13 @@ async function selectRace(r){
   const daily=await getDaily();
   const history=await getHistory();
 
-  const dailyRaces=(daily.races||[]).map(x=>normalizeRace(x,daily.date||""));
-  const historyRaces=(history.races||[]).map(x=>normalizeRace(x,history.date||daily.date||""));
-  const dr=dailyRaces.find(x=>raceKey(x)===raceKey(r));
-  const hr=dr ? findHistoryRace(dr,historyRaces) : findHistoryRace(r,historyRaces);
+  const dr=(daily.races||[]).find(x=>
+    (x.venue||codeToVenue(x.venue_code))===r.venue &&
+    Number(x.no ?? x.race_number)===Number(r.no)
+  );
+  const hr=(history.races||[]).find(x=>
+    x.venue===r.venue && Number(x.no)===Number(r.no)
+  );
 
   const hmap=new Map((hr?.horses||[]).map(h=>[Number(h.no),h]));
   const source=(dr?.horses?.length ? dr.horses : hr?.horses||[]);
@@ -363,82 +309,39 @@ function rankScore(v, reverse=false){
 function buildModel(rawHorses){
   const horses=rawHorses.map(normalizeHorse);
   const pace=inferPace(horses);
-
   const odds=horses.map(h=>h.odds).filter(x=>x>0);
-  const minOdds=Math.min(...odds);
-  const maxOdds=Math.max(...odds);
-  const popVals=horses.map(h=>h.popularity).filter(x=>x>0);
+  const minOdds=odds.length?Math.min(...odds):null, maxOdds=odds.length?Math.max(...odds):null;
   const medWeight=median(horses.map(h=>h.carriedWeight).filter(x=>x!=null));
   const medBody=median(horses.map(h=>h.bodyWeight).filter(x=>x!=null));
 
   const rows=horses.map(h=>{
-    // 市場：オッズがある場合は逆数。バックテストでも「最終オッズ」である点を明示。
-    const marketRaw=h.odds>0 ? 1/h.odds : 0;
-    const market=marketRaw;
-
-    const pop=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
-    const style=styleFactor(h.style,pace.label);
-
-    let weightFactor=1;
-    if(h.carriedWeight!=null && medWeight!=null){
-      weightFactor=1 + Math.max(-0.04,Math.min(0.04,(medWeight-h.carriedWeight)*0.012));
-    }
-
-    let bodyFactor=1;
-    if(h.bodyWeight!=null && medBody!=null){
-      const d=Math.abs(h.bodyWeight-medBody);
-      bodyFactor=1-Math.min(.025,d/10000);
-    }
-
+    const market=h.odds>0?1/h.odds:0;
+    const marketNorm=(minOdds!=null&&maxOdds!==minOdds&&h.odds>0)?(maxOdds-h.odds)/(maxOdds-minOdds):0.5;
+    let weightScore=0.5;
+    if(h.carriedWeight!=null&&medWeight!=null) weightScore=clamp(0.5+(medWeight-h.carriedWeight)/8,0.25,0.75);
+    let bodyScore=0.5;
+    if(h.bodyWeight!=null&&medBody!=null) bodyScore=clamp(0.5-Math.abs(h.bodyWeight-medBody)/400,0.25,0.5);
     const age=parseAge(h.sexAge);
-    let ageFactor=1;
-    if(age!=null){
-      if(age===3) ageFactor=1.015;
-      else if(age===4) ageFactor=1.01;
-      else if(age>=7) ageFactor=.985;
-    }
-
-    const frameFactor=h.frame==null?1:1+((4-h.frame)/100);
-    const popularityFactor=pop>0 ? Math.pow(pop,.12) : 1;
-
-    // 独立補正は弱く、オッズへの過剰依存を避ける
-    // Ver.12.2: 市場情報は重要だが、最終人気の順位をそのままコピーしない。
-    // 発走前に確定している斤量・馬体重・性齢・枠順・脚質が取れる場合は
-    // 市場評価から独立した補正を適度に効かせる。
-    const independent=
-      Math.pow(style,.35)*
-      Math.pow(weightFactor,.25)*
-      Math.pow(bodyFactor,.15)*
-      Math.pow(ageFactor,.12)*
-      Math.pow(frameFactor,.18)*
-      Math.pow(popularityFactor,.08);
-
-    const raw=Math.pow(Math.max(market,1e-9),.62)*independent;
-    return {
-      ...h,
-      score:raw,
-      marketScore:market,
-      independentScore:independent,
-      components:{
-        market:market,
-        style,
-        carriedWeight:weightFactor,
-        bodyWeight:bodyFactor,
-        sexAge:ageFactor,
-        frame:frameFactor,
-        popularity:popularityFactor
-      }
-    };
+    const ageScore=age==null?0.5:(age===3?0.62:age===4?0.58:age===5?0.53:age===6?0.48:age>=7?0.42:0.5);
+    const frameScore=h.frame==null?0.5:clamp(0.5+(4-h.frame)/18,0.25,0.75);
+    const style=styleFactor(h.style,pace.label);
+    const styleScore=clamp(style,0.92,1.08);
+    const popularityScore=h.popularity>0?1/Math.sqrt(h.popularity):0;
+    const independent=(
+      0.34*styleScore +
+      0.20*weightScore +
+      0.14*bodyScore +
+      0.12*ageScore +
+      0.12*frameScore +
+      0.08*(popularityScore>0?clamp(popularityScore/1.0,0.25,0.9):0.5)
+    );
+    // 市場は重要だが、最終人気をそのまま順位にしないため「市場×独立評価」の比率を抑える。
+    const raw=Math.pow(Math.max(market,1e-9),0.48)*(0.70+0.60*independent)*(0.88+0.24*marketNorm);
+    return {...h,score:raw,marketScore:market,independentScore:independent,components:{market,marketNorm,style:styleScore,carriedWeight:weightScore,bodyWeight:bodyScore,sexAge:ageScore,frame:frameScore,popularity:popularityScore}};
   });
-
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
-
-  return {
-    horses:rows.sort((a,b)=>b.prob-a.prob),
-    pace,
-    dataCoverage:coverage(rows)
-  };
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows)};
 }
 
 function median(a){
@@ -598,152 +501,39 @@ function horseName(no,rows){
 /* -------------------- historical backtest -------------------- */
 
 function makeBacktestRace(dailyRace,histRace){
-  const hmap=new Map((histRace?.horses||[]).map(h=>[Number(h.no ?? h.number),h]));
-  return (dailyRace?.horses||[]).map(h=>{
-    const no=Number(h.number ?? h.no);
-    const old=hmap.get(no)||{};
-    return normalizeHorse(h,{
-      no,
-      frame:num(h.frame ?? h.frame_no ?? h.waku ?? old.frame),
-      // finish is evaluation-only and is never consumed by buildModel().
-      historicalFinish:num(old.finish)
-    });
-  }).filter(h=>h.no>0);
+  const hmap=new Map((histRace?.horses||[]).map(h=>[Number(h.no??h.number),h]));
+  return (dailyRace?.horses||[]).map(h=>{const no=Number(h.number??h.no); const old=hmap.get(no)||{}; return normalizeHorse(h,{frame:num(h.frame??old.frame),historicalFinish:num(old.finish)});});
 }
-
 function backtestOne(dailyRace,histRace){
-  const horses=makeBacktestRace(dailyRace,histRace);
-  if(horses.length<2) return null;
-  const model=buildModel(horses);
-  const ranking=model.horses;
-  const winner=horses.find(h=>Number(h.historicalFinish)===1);
-  if(!winner) return null;
-
-  const pos=ranking.findIndex(h=>h.no===winner.no)+1;
-  const popRank=[...horses].filter(h=>Number.isFinite(h.popularity)).sort((a,b)=>a.popularity-b.popularity);
-  const favoriteRank=popRank.findIndex(h=>h.no===winner.no)+1;
-  return {
-    winner,ranking,winnerRank:pos,
-    favoriteRank,
-    top1:ranking[0]?.no===winner.no,
-    top3:ranking.slice(0,3).some(h=>h.no===winner.no),
-    top5:ranking.slice(0,5).some(h=>h.no===winner.no),
-    favorite1:favoriteRank===1,
-    favorite3:favoriteRank>0 && favoriteRank<=3,
-    favorite5:favoriteRank>0 && favoriteRank<=5,
-    modelImproved:favoriteRank>0 && pos<favoriteRank
-  };
+  const horses=makeBacktestRace(dailyRace,histRace); if(horses.length<2)return null;
+  const model=buildModel(horses), ranking=model.horses;
+  const winner=horses.find(h=>Number(h.historicalFinish)===1); if(!winner)return null;
+  const winnerRank=ranking.findIndex(h=>h.no===winner.no)+1;
+  const popularityRanking=horses.slice().sort((a,b)=>(a.popularity||999)-(b.popularity||999));
+  const favoriteRank=popularityRanking.findIndex(h=>h.no===winner.no)+1;
+  return {winner,ranking,winnerRank,favoriteRank,top1:ranking[0]?.no===winner.no,top3:ranking.slice(0,3).some(h=>h.no===winner.no),top5:ranking.slice(0,5).some(h=>h.no===winner.no),favorite1:favoriteRank===1,favorite3:favoriteRank>0&&favoriteRank<=3,favorite5:favoriteRank>0&&favoriteRank<=5,modelImproved:winnerRank>0&&favoriteRank>0&&winnerRank<favoriteRank};
 }
-
 async function runBulkBacktest(){
-  const out=$("bulkBacktestResult");
-  if(!out) return;
+  const out=$("bulkBacktestResult"); if(!out)return;
   out.innerHTML='<div class="status"><span class="spinner"></span> 36レースを評価中…</div>';
-
   try{
-    const daily=await getDaily(), history=await getHistory();
-    const dailyRaces=(daily.races||[]).map(r=>normalizeRace(r,daily.date||""));
-    const historyRaces=(history.races||[]).map(r=>normalizeRace(r,history.date||daily.date||""));
-
-    const results=[];
-    const unmatched=[];
-    for(const dr of dailyRaces){
-      const hr=findHistoryRace(dr,historyRaces);
-      if(!hr){unmatched.push(dr);continue;}
-      const r=backtestOne(dr,hr);
-      if(r) results.push({...r,venue:dr.venue,venue_code:dr.venue_code,no:dr.no,date:dr.date||daily.date});
-    }
-
-    if(!results.length){
-      throw new Error(`バックテスト対象レースを対応付けできませんでした。daily=${dailyRaces.length}、history=${historyRaces.length}`);
-    }
-
-    const n=results.length;
-    const mTop1=results.filter(r=>r.top1).length;
-    const mTop3=results.filter(r=>r.top3).length;
-    const mTop5=results.filter(r=>r.top5).length;
-    const fTop1=results.filter(r=>r.favorite1).length;
-    const fTop3=results.filter(r=>r.favorite3).length;
-    const fTop5=results.filter(r=>r.favorite5).length;
-    const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n;
-    const favAvgRank=results.reduce((s,r)=>s+r.favoriteRank,0)/n;
-
-    const venueRows={};
-    for(const r of results){
-      if(!venueRows[r.venue]) venueRows[r.venue]={n:0,top1:0,top3:0,top5:0};
-      venueRows[r.venue].n++;
-      venueRows[r.venue].top1+=r.top1?1:0;
-      venueRows[r.venue].top3+=r.top3?1:0;
-      venueRows[r.venue].top5+=r.top5?1:0;
-    }
-
-    const improved=results.filter(r=>r.modelImproved)
-      .sort((a,b)=>(a.winnerRank-a.favoriteRank)-(b.winnerRank-b.favoriteRank));
-
+    const daily=await getDaily(),history=await getHistory(),hrs=history.races||[],results=[];
+    for(const raw of daily.races||[]){const dr=normalizeRace(raw,daily.date),hr=findHistoryRace(dr,hrs);if(!hr)continue;const r=backtestOne(dr,hr);if(r)results.push({...r,venue:dr.venue,no:dr.no,date:dr.date});}
+    if(!results.length)throw new Error("バックテスト対象レースを対応付けできませんでした。");
+    const n=results.length,mTop1=results.filter(r=>r.top1).length,mTop3=results.filter(r=>r.top3).length,mTop5=results.filter(r=>r.top5).length,fTop1=results.filter(r=>r.favorite1).length,fTop3=results.filter(r=>r.favorite3).length,fTop5=results.filter(r=>r.favorite5).length;
+    const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n,avgFav=results.reduce((s,r)=>s+r.favoriteRank,0)/n,avgDiff=results.reduce((s,r)=>s+(r.favoriteRank-r.winnerRank),0)/n;
+    const venueRows={}; for(const r of results){const x=venueRows[r.venue]||(venueRows[r.venue]={n:0,top1:0,top3:0,top5:0});x.n++;x.top1+=r.top1?1:0;x.top3+=r.top3?1:0;x.top5+=r.top5?1:0;}
+    const improved=results.filter(r=>r.modelImproved).sort((a,b)=>(a.winnerRank-a.favoriteRank)-(b.winnerRank-b.favoriteRank));
     out.innerHTML=`
-      <div class="result-head">
-        <b>📊 Ver.${MODEL_VERSION} 一括バックテスト</b>
-        <span>${results.length}レース</span>
-      </div>
-      <div class="note warning">
-        このバックテストは、${esc(daily.date||"指定日")}のJRA公式同期データを使った検証です。<br>
-        単勝オッズは同期JSONに保存された最終オッズを利用しています。よって完全な発走前時系列バックテストではありません。<br>
-        着順・4角位置などの結果情報はモデル入力には使用していません。着順は評価専用です。
-      </div>
-      <div class="stats">
-        <div><b>対応付け</b><strong>${results.length}/${dailyRaces.length}</strong></div>
-        <div><b>開催場</b><strong>${Object.keys(venueRows).join("・")}</strong></div>
-        <div><b>人気→モデル順位差</b><strong>${(favAvgRank-avgRank).toFixed(2)}</strong></div>
-      </div>
-      <div class="compare-grid">
-        <div class="metric-card"><b>本命1着</b><strong>${pct(mTop1/n)}</strong><small>モデル ${mTop1}/${n}</small></div>
-        <div class="metric-card"><b>上位3頭</b><strong>${pct(mTop3/n)}</strong><small>モデル ${mTop3}/${n}</small></div>
-        <div class="metric-card"><b>上位5頭</b><strong>${pct(mTop5/n)}</strong><small>モデル ${mTop5}/${n}</small></div>
-        <div class="metric-card"><b>勝ち馬平均順位</b><strong>${avgRank.toFixed(2)}位</strong><small>人気平均 ${favAvgRank.toFixed(2)}位</small></div>
-      </div>
-
-      <h3>最終人気 vs Ver.${MODEL_VERSION}</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>評価</th><th>最終人気</th><th>Ver.${MODEL_VERSION}</th><th>差</th></tr></thead>
-        <tbody>
-          <tr><td>本命1着率</td><td>${pct(fTop1/n)}</td><td>${pct(mTop1/n)}</td><td>${pct(mTop1/n-fTop1/n)}</td></tr>
-          <tr><td>上位3頭</td><td>${pct(fTop3/n)}</td><td>${pct(mTop3/n)}</td><td>${pct(mTop3/n-fTop3/n)}</td></tr>
-          <tr><td>上位5頭</td><td>${pct(fTop5/n)}</td><td>${pct(mTop5/n)}</td><td>${pct(mTop5/n-fTop5/n)}</td></tr>
-        </tbody>
-      </table></div>
-
-      <h3>開催場別</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>開催</th><th>レース</th><th>本命1着</th><th>上位3</th><th>上位5</th></tr></thead>
-        <tbody>${Object.entries(venueRows).map(([v,x])=>`
-          <tr><td>${esc(v)}</td><td>${x.n}</td><td>${pct(x.top1/x.n)}</td><td>${pct(x.top3/x.n)}</td><td>${pct(x.top5/x.n)}</td></tr>
-        `).join("")}</tbody>
-      </table></div>
-
-      <h3>🎯 モデルが人気以上に評価した勝ち馬</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>開催</th><th>R</th><th>馬</th><th>人気順位</th><th>モデル順位</th><th>改善</th></tr></thead>
-        <tbody>${improved.slice(0,20).map(r=>`
-          <tr><td>${esc(r.venue)}</td><td>${r.no}R</td><td>${r.winner.no} ${esc(r.winner.name)}</td>
-          <td>${r.favoriteRank}位</td><td>${r.winnerRank}位</td><td>+${r.favoriteRank-r.winnerRank}</td></tr>
-        `).join("") || '<tr><td colspan="6">該当なし</td></tr>'}</tbody>
-      </table></div>
-
-      <h3>レース別結果</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>開催</th><th>R</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead>
-        <tbody>${results.map(r=>`
-          <tr><td>${esc(r.venue)}</td><td>${r.no}R</td>
-          <td>${r.winner.no} ${esc(r.winner.name)}</td><td>${r.winner.popularity??"—"}</td><td>${r.winnerRank}</td>
-          <td>${r.top1?"○":"—"}</td><td>${r.top3?"○":"—"}</td><td>${r.top5?"○":"—"}</td></tr>`).join("")}</tbody>
-      </table></div>
-
-      ${unmatched.length?`<div class="note">未対応付け：${unmatched.length}レース（開催場コード・R番号・馬番/馬名の順で照合）</div>`:""}
-    `;
-
-  }catch(e){
-    out.innerHTML=`<div class="status err">${esc(e.message)}</div>`;
-  }
+      <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 一括バックテスト</b><span>${n}レース</span></div>
+      <div class="note warning">このバックテストは2026-09-06のJRA公式同期データを使った検証です。単勝オッズは同期JSONに保存された最終オッズを利用しているため、完全な発走前時系列バックテストではありません。着順・4角位置などの結果情報はモデル入力には使用せず、評価専用です。</div>
+      <div class="compare-grid"><div class="metric-card"><b>本命1着</b><strong>${pct(mTop1/n)}</strong><small>モデル ${mTop1}/${n}</small></div><div class="metric-card"><b>上位3頭</b><strong>${pct(mTop3/n)}</strong><small>モデル ${mTop3}/${n}</small></div><div class="metric-card"><b>上位5頭</b><strong>${pct(mTop5/n)}</strong><small>モデル ${mTop5}/${n}</small></div><div class="metric-card"><b>勝ち馬平均順位</b><strong>${avgRank.toFixed(2)}位</strong><small>人気平均 ${avgFav.toFixed(2)}位</small></div></div>
+      <h3>人気 → モデル順位差</h3><div class="note">勝ち馬について「最終人気順位 − モデル順位」を表示。プラスならモデルが人気より高く評価しています。平均 <b>${avgDiff.toFixed(2)}</b></div>
+      <h3>最終人気 vs Ver.${MODEL_VERSION}</h3><div class="table-wrap"><table><thead><tr><th>評価</th><th>最終人気</th><th>Ver.${MODEL_VERSION}</th><th>差</th></tr></thead><tbody><tr><td>本命1着率</td><td>${pct(fTop1/n)}</td><td>${pct(mTop1/n)}</td><td>${pct(mTop1/n-fTop1/n)}</td></tr><tr><td>上位3頭</td><td>${pct(fTop3/n)}</td><td>${pct(mTop3/n)}</td><td>${pct(mTop3/n-fTop3/n)}</td></tr><tr><td>上位5頭</td><td>${pct(fTop5/n)}</td><td>${pct(mTop5/n)}</td><td>${pct(mTop5/n-fTop5/n)}</td></tr></tbody></table></div>
+      <h3>開催場別</h3><div class="table-wrap"><table><thead><tr><th>開催</th><th>レース</th><th>本命1着</th><th>上位3</th><th>上位5</th></tr></thead><tbody>${Object.entries(venueRows).map(([v,x])=>`<tr><td>${esc(v)}</td><td>${x.n}</td><td>${pct(x.top1/x.n)}</td><td>${pct(x.top3/x.n)}</td><td>${pct(x.top5/x.n)}</td></tr>`).join("")}</tbody></table></div>
+      <h3>🎯 モデルが人気以上に評価した勝ち馬</h3><div class="table-wrap"><table><thead><tr><th>開催</th><th>R</th><th>馬</th><th>人気順位</th><th>モデル順位</th><th>改善</th></tr></thead><tbody>${improved.slice(0,20).map(r=>`<tr><td>${esc(r.venue)}</td><td>${r.no}R</td><td>${r.winner.no} ${esc(r.winner.name)}</td><td>${r.favoriteRank}位</td><td>${r.winnerRank}位</td><td>+${r.favoriteRank-r.winnerRank}</td></tr>`).join("")||'<tr><td colspan="6">該当なし</td></tr>'}</tbody></table></div>
+      <h3>レース別結果</h3><div class="table-wrap"><table><thead><tr><th>開催</th><th>R</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead><tbody>${results.map(r=>`<tr><td>${esc(r.venue)}</td><td>${r.no}R</td><td>${r.winner.no} ${esc(r.winner.name)}</td><td>${r.favoriteRank}</td><td>${r.winnerRank}</td><td>${r.top1?'○':'—'}</td><td>${r.top3?'○':'—'}</td><td>${r.top5?'○':'—'}</td></tr>`).join("")}</tbody></table></div>`;
+  }catch(e){out.innerHTML=`<div class="status err">${esc(e.message)}</div>`;}
 }
 
 /* -------------------- init -------------------- */
