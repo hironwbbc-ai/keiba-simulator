@@ -4,156 +4,154 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>競馬シミュレーター Ver.12.0</title>
+<title>競馬シミュレーター Ver.12.1</title>
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#111827;background:#f3f4f6}
+:root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--good:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}
-body{margin:0;padding:16px;line-height:1.55}
-main{max-width:1100px;margin:auto}
-h1{font-size:1.45rem;margin:0 0 6px}
-h2{font-size:1.12rem;margin:0 0 12px}
-h3{font-size:1rem;margin:18px 0 8px}
-.card{background:#fff;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #00000010}
-.note,.summary,.status,.recommend,.combo-list{padding:10px 12px;border-radius:10px;background:#f9fafb;margin:8px 0}
-.summary{background:#eef2ff}
-.status.ok{background:#ecfdf5;color:#065f46}.status.err{background:#fef2f2;color:#991b1b}
-.small{font-size:.82rem;color:#6b7280}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;font-size:.85rem;font-weight:700}
-select,input,button{font:inherit}
-select,input{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;background:#fff;margin-top:5px}
-button{border:0;border-radius:9px;padding:10px 14px;background:#111827;color:#fff;cursor:pointer}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;line-height:1.55}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:24px;margin:0 0 4px}
+h2{font-size:19px;margin:0 0 12px}
+h3{font-size:16px;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #00000008}
+.controls{display:grid;grid-template-columns:1fr 1fr auto;gap:10px}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
+input,select,button{font:inherit}
+input,select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;background:white}
+button{padding:10px 14px;border:0;border-radius:9px;background:var(--accent);color:white;cursor:pointer}
 button.secondary{background:#6b7280}
-button.wide{width:100%;margin-top:10px}
-.race{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin:8px 0;background:#fff}
-.table-scroll{overflow:auto}
-table{border-collapse:collapse;width:100%;font-size:.86rem}
-th,td{border:1px solid #e5e7eb;padding:7px;text-align:center;white-space:nowrap}
-th{background:#f3f4f6}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stats-grid>div{background:#f9fafb;border-radius:10px;padding:10px;text-align:center}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button{flex:1}
-.version{color:#374151}
-@media(max-width:700px){body{padding:10px}.controls{grid-template-columns:1fr}.race{align-items:flex-start;flex-direction:column}.race button{width:100%}.stats-grid{grid-template-columns:repeat(2,1fr)}table{font-size:.78rem}}
+button:disabled{opacity:.5}
+.status{padding:10px;border-radius:9px;background:#f9fafb}
+.status.ok{background:#ecfdf5;color:var(--good)}
+.status.warn,.warning{background:#fffbeb;color:var(--warn)}
+.status.err{background:#fef2f2;color:var(--bad)}
+.small{font-size:12px;color:var(--muted)}
+.note{padding:10px;background:#f9fafb;border-radius:9px;font-size:13px}
+.race-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:11px 0}
+.race-row:last-child{border-bottom:0}
+.race-row span{margin-left:8px}
+.table-wrap{overflow:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:650px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{background:#f9fafb}
+.result-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;background:#111827;color:#fff;border-radius:10px}
+.stats,.compare-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.stats>div,.metric-card{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fafafa}
+.stats b,.metric-card b{display:block;font-size:12px;color:var(--muted)}
+.stats strong,.metric-card strong{display:block;font-size:20px}
+.metric-card small{color:var(--muted)}
+.pick{padding:8px 10px;border-bottom:1px solid var(--line)}
+.hidden{display:none!important}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid #d1d5db;border-top-color:#111827;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{padding:20px 0 40px;color:var(--muted);font-size:12px}
+@media(max-width:700px){
+  main{padding:10px}
+  .controls{grid-template-columns:1fr}
+  .stats,.compare-grid{grid-template-columns:repeat(2,1fr)}
+  .race-row{align-items:flex-start}
+  .race-row button{white-space:nowrap}
+}
 </style>
 </head>
 <body>
 <main>
-<header class="card">
-  <h1>🏇 競馬シミュレーター Ver.12.0</h1>
-  <div class="small">
-    JRA公式同期JSON → 発走前モデル → Monte Carlo → バックテスト
-  </div>
-</header>
+  <section class="card">
+    <h1>🏇 競馬シミュレーター Ver.12.1</h1>
+    <div class="small">JRA公式同期JSON → 出馬表 → Monte Carlo → バックテスト → 市場ベンチマーク比較</div>
+  </section>
 
-<section class="card">
-  <h2>① 開催を取得</h2>
-  <div class="controls">
-    <label>日付<input id="date" type="date"></label>
-    <label>開催場<select id="venue"><option value="">すべて</option></select></label>
-  </div>
-  <button id="loadBtn" class="wide">指定日の開催を取得</button>
-  <div id="status" class="status">同期データを読み込み中…</div>
-  <div id="syncInfo" class="small"></div>
-  <div id="races"></div>
-</section>
+  <section class="card">
+    <h2>① 開催を取得</h2>
+    <div class="controls">
+      <div>
+        <label for="date">日付</label>
+        <input id="date" type="date">
+      </div>
+      <div>
+        <label for="venue">開催場</label>
+        <select id="venue"><option value="">全開催</option></select>
+      </div>
+      <div style="display:flex;align-items:end">
+        <button id="loadBtn">指定日の開催を取得</button>
+      </div>
+    </div>
+    <div id="status" class="status" style="margin-top:10px">読み込み中…</div>
+    <div id="races" style="margin-top:10px"></div>
+  </section>
 
-<section id="entryCard" class="card hidden">
-  <h2>② 出馬表</h2>
-  <div id="raceInfo"></div>
-  <div id="horses"></div>
-  <div class="actions" style="margin-top:12px">
-    <button id="simulateBtn">シミュレーション</button>
-    <button id="backBtn" class="secondary">レース一覧へ戻る</button>
-  </div>
-</section>
+  <section id="entryCard" class="card hidden">
+    <h2>② 出馬表</h2>
+    <div id="raceInfo"></div>
+    <div id="horses" style="margin-top:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="simulateBtn">シミュレーション</button>
+      <button id="backBtn" class="secondary">レース一覧へ戻る</button>
+    </div>
+  </section>
 
-<section id="resultCard" class="card hidden">
-  <h2>③ 分析・バックテスト</h2>
-  <div id="result"></div>
-</section>
+  <section id="resultCard" class="card hidden">
+    <h2>③ 分析・シミュレーション</h2>
+    <div id="result"></div>
+  </section>
 
-<section id="bulkBacktestCard" class="card">
-  <h2>④ Ver.12.0 一括バックテスト</h2>
-  <div class="note">
-    <b>最終人気ベンチマーク</b>と<b>Ver.12.0モデル</b>を同じ過去レースで比較します。
-    <br><br>
-    本命1着率／上位3頭／上位5頭／勝ち馬の平均予測順位／
-    人気以上に評価できたレース／ロングショット捕捉を確認します。
-    <br><br>
-    <b>重要：</b>確定後の着順は予測スコアに使用せず、評価専用にします。
-  </div>
-  <button id="runBulkBacktest">Ver.12.0を過去レースで検証</button>
-  <div id="bulkBacktestResult"></div>
-</section>
+  <section class="card">
+    <h2>④ Ver.12.1 一括バックテスト</h2>
+    <div class="note">
+      同じ36レースについて、<b>最終人気</b>と<b>Ver.12.1モデル</b>を比較します。<br>
+      本命1着率・上位3頭・上位5頭・勝ち馬平均予測順位・開催場別成績を表示します。<br>
+      <b>注意：</b>現在の同期JSONでは最終単勝オッズが保存されているため、これは完全な時系列バックテストではありません。
+      着順や4角位置などの結果情報をモデル入力には使用しません。
+    </div>
+    <button id="runBulkBacktest" style="margin-top:10px">Ver.12.1を36レースで検証</button>
+    <div id="bulkBacktestResult" style="margin-top:12px"></div>
+  </section>
 
-<section class="card">
-  <h2>⑤ JRA公式データ</h2>
-  <div id="officialProgramStatus" class="version">状態を確認中…</div>
-</section>
+  <section class="card">
+    <h2>⑤ JRA公式データ</h2>
+    <div id="officialProgramStatus" class="status">JRA公式データの状態を確認中…</div>
+  </section>
 
-<section class="card">
-  <h2>⑥ Ver.12.0 現在できること</h2>
-  <div class="note">
-    <b>データ</b><br>
-    ・JRA公式同期JSON<br>
-    ・開催場／全レース表示<br>
-    ・出馬表表示<br>
-    ・枠順・斤量・馬体重・馬体重増減・性齢・騎手・人気・単勝
-    <br><br>
-    <b>予測</b><br>
-    ・脚質推定／展開予測<br>
-    ・逃げ争い／ペース判定<br>
-    ・市場評価＋発走前特徴量モデル<br>
-    ・Monte Carlo 10,000回<br>
-    ・1着／2着／3着／3着内率<br>
-    ・単勝期待値<br>
-    ・3連複／3連単候補
-    <br><br>
-    <b>検証</b><br>
-    ・個別バックテスト<br>
-    ・人気ベンチマークとの一括比較<br>
-    ・勝ち馬の予測順位<br>
-    ・ロングショット捕捉
-    <br><br>
-    <b>今後の強化</b><br>
-    ・過去走の時系列取得<br>
-    ・コース適性／馬場適性<br>
-    ・騎手の実績データ<br>
-    ・4角位置／通過順<br>
-    ・レース別・開催別の時系列学習
-  </div>
-</section>
+  <section class="card">
+    <h2>Ver.12.1 現在できること</h2>
+    <div class="note">
+      ・JRA公式同期データの取得（タイムアウト・GitHub Rawフォールバック付き）<br>
+      ・開催場、全レース表示<br>
+      ・出馬表表示<br>
+      ・単勝オッズ・人気評価<br>
+      ・斤量・馬体重・馬体重増減・性齢・枠順評価<br>
+      ・脚質・ペース補正（データが存在する場合のみ）<br>
+      ・Monte Carlo 10,000回<br>
+      ・1着/2着/3着確率<br>
+      ・3着内率<br>
+      ・単勝期待値<br>
+      ・3連複/3連単候補<br>
+      ・個別バックテスト<br>
+      ・36レース一括バックテスト<br>
+      ・最終人気との比較
+    </div>
+
+    <h3>今後の強化</h3>
+    <div class="note">
+      ・過去走データの時系列取得<br>
+      ・コース適性<br>
+      ・騎手成績<br>
+      ・馬場適性<br>
+      ・4角位置の事前推定<br>
+      ・開催単位のトラックバイアス<br>
+      ・時系列学習モデル<br>
+      ・複勝/馬連/ワイド/三連系の期待値評価<br>
+      ・複数開催・複数日での長期バックテスト
+    </div>
+  </section>
+
+  <footer>
+    Ver.12.1 / ルールベース検証モデル。存在しないデータを推測して補完しません。
+  </footer>
 </main>
 
-<script>
-(async()=>{
-  try{
-    const r=await fetch("./data/jra_daily.json?ts="+Date.now(),{cache:"no-store"});
-    if(!r.ok)return;
-    const d=await r.json();
-    const el=document.getElementById("officialProgramStatus");
-    el.innerHTML=
-      "<b>JRA公式同期</b><br>"+
-      "同期日時："+(d.updated_at||"不明")+"<br>"+
-      "公式レースリンク："+((d.official_race_links||[]).length)+"件<br>"+
-      "データ日："+(d.date||"不明")+"<br>"+
-      "parser_version："+(d.parser_version||"不明");
-  }catch(e){console.error(e)}
-})();
-</script>
-
-<script src="./app.js?v=12.0"></script>
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./sw.js").catch(()=>{});
-}
-</script>
+<script src="./app.js?v=12.1"></script>
 </body>
 </html>
