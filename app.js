@@ -267,29 +267,6 @@ function parseAge(sexAge){
   return m?Number(m[1]):null;
 }
 
-function recentFormFactor(recent){
-  if(!Array.isArray(recent) || !recent.length) return {factor:1, count:0};
-
-  const finishes=recent.map(x=>{
-    if(typeof x === "number") return x;
-    if(typeof x === "string" && x.trim()!=="") return num(x);
-    if(x && typeof x === "object") return num(
-      x.finish ?? x.result ?? x.place ?? x.rank ?? x着順
-    );
-    return null;
-  }).filter(x=>Number.isFinite(x) && x>0);
-
-  if(!finishes.length) return {factor:1, count:0};
-
-  // 直近5走まで。過去結果そのものではなく、発走前に取得済みの近走情報だけを利用。
-  const last=finishes.slice(-5);
-  const avg=last.reduce((a,x)=>a+x,0)/last.length;
-  const score=Math.max(0,Math.min(1,(10-avg)/9));
-  // 近走補正は弱く設定し、市場オッズを大きく上書きしない。
-  const factor=0.97 + score*0.06;
-  return {factor,count:last.length};
-}
-
 function styleFactor(style, pace){
   if(!style || style==="不明") return 1;
   const s=String(style);
@@ -345,8 +322,6 @@ function buildModel(rawHorses){
 
     const pop=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
     const style=styleFactor(h.style,pace.label);
-    const recentForm=recentFormFactor(h.recent);
-    const recentFactor=recentForm.factor;
 
     let weightFactor=1;
     if(h.carriedWeight!=null && medWeight!=null){
@@ -373,7 +348,6 @@ function buildModel(rawHorses){
     // 独立補正は弱く、オッズへの過剰依存を避ける
     const independent=
       Math.pow(style,.22)*
-      Math.pow(recentFactor,.14)*
       Math.pow(weightFactor,.16)*
       Math.pow(bodyFactor,.10)*
       Math.pow(ageFactor,.08)*
@@ -389,8 +363,6 @@ function buildModel(rawHorses){
       components:{
         market:market,
         style,
-        recent:recentFactor,
-        recentCount:recentForm.count,
         carriedWeight:weightFactor,
         bodyWeight:bodyFactor,
         sexAge:ageFactor,
@@ -643,8 +615,6 @@ async function runBulkBacktest(){
     const fTop5=results.filter(r=>r.favorite5).length;
 
     const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n;
-    const recentApplied=results.reduce((s,r)=>s+r.ranking.filter(h=>Number(h.components?.recentCount)>0).length,0);
-    const recentPossible=results.reduce((s,r)=>s+r.ranking.length,0);
 
     const venueRows={};
     for(const r of results){
@@ -655,17 +625,8 @@ async function runBulkBacktest(){
       venueRows[r.venue].top5+=r.top5?1:0;
     }
 
-    // 「人気以上に評価」は、人気順位よりモデル順位が上であることを厳密に判定。
-    // 同順位やモデルの方が低評価の馬は除外する。
-    const longshots=results.filter(r=>{
-      const pop=Number(r.winner.popularity);
-      const rank=Number(r.winnerRank);
-      return Number.isFinite(pop) && Number.isFinite(rank) && pop>=6 && rank<pop;
-    }).sort((a,b)=>{
-      const da=Number(a.winner.popularity)-Number(a.winnerRank);
-      const db=Number(b.winner.popularity)-Number(b.winnerRank);
-      return db-da || Number(b.winner.popularity)-Number(a.winner.popularity);
-    });
+    const longshots=results.filter(r=>Number(r.winner.popularity)>=6)
+      .sort((a,b)=>Number(b.winner.popularity)-Number(a.winner.popularity));
 
     out.innerHTML=`
       <div class="result-head">
@@ -676,8 +637,6 @@ async function runBulkBacktest(){
       <div class="note warning">
         このバックテストは、JRA公式のhistoryデータに保存された対象日の過去レースを評価します。
         dailyの公開済みレース数には依存しません。
-        直近5走はhistoryに実データが存在する馬だけに適用し、存在しない場合は補正しません。
-        今回のデータで近走補正が適用された馬：${recentApplied}/${recentPossible}頭。
         単勝オッズは同期JSONに保存された値であり、現状は最終オッズを利用しています。
         よって「完全な発走前時系列バックテスト」ではありません。
         着順・4角位置などの結果情報は評価専用で、モデル入力には使用していません。
