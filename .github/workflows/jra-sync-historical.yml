@@ -227,17 +227,91 @@ jobs:
                   raise RuntimeError(f"JRA過去レース結果の月チェックデジットを取得できません: {yyyymm}")
 
               month_token = f"pw01skl10{yyyymm}/{cd}"
-              print("MONTH TOKEN:", month_token)
-              month_page = post_cname(month_token, ACCESS_S)
 
-              # Find the meeting/day selector tokens (pw01srl...).
+              # JRA historical month pages have used multiple selector variants.
+              # Keep the known-good v19 discovery logic: try both pw01skl10 and
+              # pw01skl00, and inspect both JavaScript doAction() links and
+              # generic CNAME-like text.
+              def clean_token(x):
+                  x = htmlmod.unescape(x)
+                  x = urllib.parse.unquote(x)
+                  x = x.strip().rstrip(',;')
+                  return x
+
+              ACTION_TOKEN_RE = re.compile(
+                  r"doAction\s*\(\s*['\"](?:/JRADB/)?accessS\.html['\"]\s*,\s*['\"]?(pw01(?:srl|sde)[^'\")\s<>&]+)['\"]?",
+                  re.I,
+              )
+              GENERIC_TOKEN_RE = re.compile(
+                  r"(pw01(?:srl|sde)[^\s'\"<>]+/[0-9A-Fa-f]{2})",
+                  re.I,
+              )
+
+              def find_tokens(text, prefix):
+                  text = htmlmod.unescape(text)
+                  found = set()
+                  for x in ACTION_TOKEN_RE.findall(text):
+                      x = clean_token(x)
+                      if x.lower().startswith(prefix.lower()):
+                          found.add(x)
+                  for x in GENERIC_TOKEN_RE.findall(text):
+                      x = clean_token(x)
+                      if x.lower().startswith(prefix.lower()):
+                          found.add(x)
+                  return found
+
+              def find_srl_tokens(text):
+                  return find_tokens(text, 'pw01srl')
+
+              month_candidates = [
+                  month_token,
+                  f"pw01skl00{yyyymm}/{cd}",
+              ]
+
+              chosen_month_token = None
+              month_page = ""
               srl_tokens = set()
-              for raw in re.findall(r"pw01srl[0-9A-Za-z]+(?:/|%2F)[0-9A-Fa-f]{2}", htmlmod.unescape(month_page), re.I):
-                  srl_tokens.add(normalize_token(raw))
+              for candidate in month_candidates:
+                  for mode in ("POST", "GET"):
+                      try:
+                          if mode == "POST":
+                              page = post_cname(candidate, ACCESS_S)
+                          else:
+                              url = ACCESS_S + "?CNAME=" + urllib.parse.quote(candidate, safe="")
+                              page = get_html(url, ACCESS_S)
+                          found = find_srl_tokens(page)
+                          title_m = re.search(r"<title[^>]*>(.*?)</title>", page, re.I | re.S)
+                          title = (
+                              re.sub(r"\s+", " ", htmlmod.unescape(title_m.group(1))).strip()[:120]
+                              if title_m else ""
+                          )
+                          print(
+                              f"MONTH TRY: {candidate} {mode} len={len(page)} "
+                              f"srl={len(found)} title={title}"
+                          )
+                          if found:
+                              chosen_month_token = candidate
+                              month_page = page
+                              srl_tokens = found
+                              break
+                      except Exception as e:
+                          print("MONTH TRY WARNING:", candidate, mode, repr(e))
+                  if chosen_month_token:
+                      break
+
+              print("MONTH TOKEN USED:", chosen_month_token or month_token)
               print("MEETING/DAY TOKENS:", len(srl_tokens))
+              for sample in sorted(srl_tokens)[:10]:
+                  print("  SRL SAMPLE:", sample)
 
               if not srl_tokens:
-                  raise RuntimeError(f"JRA過去レース結果の開催日選択tokenを取得できません: {yyyymm}")
+                  print(
+                      "MONTH PAGE CONTAINS pw01srl:",
+                      "pw01srl" in month_page.lower()
+                  )
+                  raise RuntimeError(
+                      f"JRA過去レース結果の開催日選択tokenを取得できません: {yyyymm}"
+                  )
 
               for idx, srl in enumerate(sorted(srl_tokens), 1):
                   try:
