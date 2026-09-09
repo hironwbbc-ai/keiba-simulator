@@ -304,8 +304,71 @@ function rankScore(v, reverse=false){
   return m;
 }
 
-function buildModel(rawHorses){
+function recentFormFactor(recent){
+  if(!Array.isArray(recent) || !recent.length) return {factor:1,count:0};
+  const finishes=recent.map(x=>{
+    if(typeof x === "number") return x;
+    if(typeof x === "string" && x.trim()!=="") return num(x);
+    if(x && typeof x === "object") return num(
+      x.finish ?? x.result ?? x.place ?? x.rank ?? x.着順
+    );
+    return null;
+  }).filter(x=>Number.isFinite(x) && x>0);
+  if(!finishes.length) return {factor:1,count:0};
+  const last=finishes.slice(-5);
+  const avg=last.reduce((a,x)=>a+x,0)/last.length;
+  const score=Math.max(0,Math.min(1,(10-avg)/9));
+  const factor=0.97 + score*0.06;
+  return {factor,count:last.length};
+}
+
+function courseSimilarity(target,past){
+  if(!target || !past) return 0;
+  if(target.surface && past.surface && target.surface!==past.surface) return 0;
+  const td=num(target.distance), pd=num(past.distance);
+  if(td==null || pd==null) return 0;
+  const distanceScore=Math.exp(-Math.abs(td-pd)/500);
+  const directionScore=(target.course && past.course && target.course!==past.course) ? 0.45 : 1;
+  const venueScore=target.venue && past.venue
+    ? (target.venue===past.venue ? 1 : 0.55) : 0.45;
+  return Math.max(0,Math.min(1,
+    distanceScore*0.45 + venueScore*0.35 + directionScore*0.20
+  ));
+}
+
+function courseResultScore(finish){
+  const f=num(finish);
+  if(f==null || f<=0) return null;
+  return Math.max(0,Math.min(1,(12-f)/11));
+}
+
+function courseSuitabilityForHorse(h,targetRace,historyRaces,excludeRace){
+  const name=String(h.name||"").replace(/ブリンカー着用\s*$/,"").trim();
+  if(!name || !Array.isArray(historyRaces)) return {factor:1,count:0,score:null};
+  const rows=[];
+  for(const r of historyRaces){
+    if(excludeRace && r===excludeRace) continue;
+    for(const ph of (r?.horses||[])){
+      const pn=String(ph.name||"").replace(/ブリンカー着用\s*$/,"").trim();
+      if(pn!==name) continue;
+      const sim=courseSimilarity(targetRace,r);
+      const rs=courseResultScore(ph.finish);
+      if(sim>0 && rs!=null) rows.push({sim,rs});
+    }
+  }
+  if(!rows.length) return {factor:1,count:0,score:null};
+  const weight=rows.reduce((a,x)=>a+x.sim,0);
+  const score=weight>0 ? rows.reduce((a,x)=>a+x.sim*x.rs,0)/weight : null;
+  const confidence=Math.min(1,weight/3);
+  const factor=score==null ? 1 : 1+(score-0.5)*0.08*confidence;
+  return {factor,count:rows.length,score};
+}
+
+function buildModel(rawHorses, context={}){
   const horses=rawHorses.map(normalizeHorse);
+  const targetRace=context.targetRace || state.selected || null;
+  const historyRaces=context.historyRaces || state.history?.races || [];
+
   const pace=inferPace(horses);
 
   const odds=horses.map(h=>h.odds).filter(x=>x>0);
@@ -322,6 +385,12 @@ function buildModel(rawHorses){
 
     const pop=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
     const style=styleFactor(h.style,pace.label);
+    const recentForm=recentFormFactor(h.recent);
+    const courseForm=courseSuitabilityForHorse(
+      h,targetRace,historyRaces,context.excludeRace||null
+    );
+    const recentFactor=recentForm.factor;
+    const courseFactor=courseForm.factor;
 
     let weightFactor=1;
     if(h.carriedWeight!=null && medWeight!=null){
@@ -348,6 +417,8 @@ function buildModel(rawHorses){
     // 独立補正は弱く、オッズへの過剰依存を避ける
     const independent=
       Math.pow(style,.22)*
+      Math.pow(recentFactor,.14)*
+      Math.pow(courseFactor,.16)*
       Math.pow(weightFactor,.16)*
       Math.pow(bodyFactor,.10)*
       Math.pow(ageFactor,.08)*
@@ -363,6 +434,11 @@ function buildModel(rawHorses){
       components:{
         market:market,
         style,
+        recent:recentFactor,
+        recentCount:recentForm.count,
+        courseSuitability:courseFactor,
+        courseCount:courseForm.count,
+        courseScore:courseForm.score,
         carriedWeight:weightFactor,
         bodyWeight:bodyFactor,
         sexAge:ageFactor,
@@ -452,7 +528,7 @@ function runMonteCarlo(horses,n=SIMULATIONS){
 function simulate(){
   if(!state.horses.length) return;
 
-  const model=buildModel(state.horses);
+  const model=buildModel(state.horses,{targetRace:state.selected,historyRaces:state.history?.races||[]});
   const mc=runMonteCarlo(model.horses,SIMULATIONS);
 
   const rows=model.horses.map(h=>{
@@ -555,7 +631,7 @@ function makeBacktestRace(histRace){
 function backtestOne(histRace){
   const horses=makeBacktestRace(histRace);
   if(horses.length<2) return null;
-  const model=buildModel(horses);
+  const model=buildModel(horses,{targetRace:histRace,historyRaces:state.history?.races||[],excludeRace:histRace});
   const ranking=model.horses;
   const winner=horses.find(h=>Number(h.historicalFinish)===1);
   if(!winner) return null;
@@ -615,6 +691,9 @@ async function runBulkBacktest(){
     const fTop5=results.filter(r=>r.favorite5).length;
 
     const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n;
+    const totalHorses=results.reduce((s,r)=>s+r.ranking.length,0);
+    const recentApplied=results.reduce((s,r)=>s+r.ranking.filter(h=>Number(h.components?.recentCount)>0).length,0);
+    const courseApplied=results.reduce((s,r)=>s+r.ranking.filter(h=>Number(h.components?.courseCount)>0).length,0);
 
     const venueRows={};
     for(const r of results){
@@ -625,8 +704,15 @@ async function runBulkBacktest(){
       venueRows[r.venue].top5+=r.top5?1:0;
     }
 
-    const longshots=results.filter(r=>Number(r.winner.popularity)>=6)
-      .sort((a,b)=>Number(b.winner.popularity)-Number(a.winner.popularity));
+    const longshots=results.filter(r=>{
+      const pop=Number(r.winner.popularity);
+      const rank=Number(r.winnerRank);
+      return Number.isFinite(pop) && Number.isFinite(rank) && pop>=6 && rank<pop;
+    }).sort((a,b)=>{
+      const da=Number(a.winner.popularity)-Number(a.winnerRank);
+      const db=Number(b.winner.popularity)-Number(b.winnerRank);
+      return db-da || Number(b.winner.popularity)-Number(a.winner.popularity);
+    });
 
     out.innerHTML=`
       <div class="result-head">
@@ -640,6 +726,11 @@ async function runBulkBacktest(){
         単勝オッズは同期JSONに保存された値であり、現状は最終オッズを利用しています。
         よって「完全な発走前時系列バックテスト」ではありません。
         着順・4角位置などの結果情報は評価専用で、モデル入力には使用していません。
+      </div>
+
+      <div class="stats">
+        <div><b>近走補正適用</b><strong>${recentApplied}/${totalHorses}</strong><small>${totalHorses?pct(recentApplied/totalHorses):"0.0%"}</small></div>
+        <div><b>コース適性適用</b><strong>${courseApplied}/${totalHorses}</strong><small>${totalHorses?pct(courseApplied/totalHorses):"0.0%"}</small></div>
       </div>
 
       <div class="compare-grid">
