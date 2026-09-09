@@ -199,29 +199,27 @@ jobs:
               # JRA exposes the checksum table used by pw01skl10YYYYMM/CD.
               # This avoids guessing the checksum and supports arbitrary years
               # covered by JRA's official result archive.
+              # JRA historical selector exposes objParam keys as YYMM.
+              # Example: objParam["2609"] = "XX" for September 2026.
+              # Keep YYYYMM as a fallback for page variants.
               def discover_month_checksum(yyyymm):
                   seed = "pw01skl00999999/B3"
                   page = post_cname(seed, BASE)
                   scripts = re.findall(r"<script[^>]*>.*?</script>", page, re.I | re.S)
-                  for script in scripts:
-                      if "objParam" not in script:
+                  sources = scripts + [page]
+                  patterns = [
+                      r'objParam\s*\[\s*["\']([0-9]{4})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']',
+                      r'objParam\s*\[\s*["\']([0-9]{6})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']',
+                  ]
+                  for source in sources:
+                      if "objParam" not in source:
                           continue
-                      pairs = re.findall(
-                          r'objParam\s*\[\s*["\']([0-9]{4})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']',
-                          script,
-                          re.I,
-                      )
-                      table = dict(pairs)
-                      if yyyymm in table:
-                          return table[yyyymm]
-                  # Some JRA pages use a slightly different JS formatting.
-                  pairs = re.findall(
-                      r'objParam[^\n]{0,200}?([0-9]{4})[^\n]{0,30}?([0-9A-Fa-f]{2})',
-                      page,
-                      re.I,
-                  )
-                  table = dict(pairs)
-                  return table.get(yyyymm)
+                      for pattern in patterns:
+                          table = dict(re.findall(pattern, source, re.I))
+                          cd = table.get(yyyymm[2:]) or table.get(yyyymm)
+                          if cd:
+                              return cd
+                  return None
 
               yyyymm = target_ymd[:6]
               cd = discover_month_checksum(yyyymm)
@@ -496,6 +494,15 @@ jobs:
               # Remove accidental leading marker symbols while preserving names.
               jockey = re.sub(r"\s+", " ", jockey).strip()
 
+              # Historical result pages expose finish order in the first result cell.
+              finish = None
+              if historical_mode:
+                  fm = re.search(r'<td[^>]*>\s*([0-9]{1,2})\s*</td>', tr, re.I | re.S)
+                  if fm:
+                      fval = int(fm.group(1))
+                      if 1 <= fval <= 18:
+                          finish = fval
+
               return {
                   "number": number,
                   "name": name,
@@ -506,6 +513,7 @@ jobs:
                   "sex_age": sex_age,
                   "carried_weight": carried_weight,
                   "jockey": jockey,
+                  "finish": finish,
               }
 
           # ------------------------------------------------------------
