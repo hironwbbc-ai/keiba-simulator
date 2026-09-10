@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v20
+name: JRA Sync + Pages Deploy - Historical v14.4
 
 on:
   schedule:
@@ -240,65 +240,13 @@ jobs:
                   return attrs
 
               def find_srl_tokens_robust(text):
-                  # JRA's historical monthly page exposes pw01srl links as
-                  # anchor attributes, but the exact quoting/escaping has
-                  # changed.  Use three independent extraction paths.
                   found = set(find_srl_tokens(text))
-                  decoded = urllib.parse.unquote(htmlmod.unescape(text))
-
-                  # 1) Parse actual HTML link attributes and CNAME query values.
-                  for attr in extract_link_attributes(decoded):
-                      attr = urllib.parse.unquote(htmlmod.unescape(attr))
-                      for m in re.finditer(
-                          r"pw01srl[^\s'\"<>]*?/[0-9A-Fa-f]{2}",
-                          attr, re.I,
-                      ):
-                          token = clean_token(m.group(0))
-                          if token.lower().startswith("pw01srl"):
-                              found.add(token)
-                      try:
-                          q = urllib.parse.urlparse(attr)
-                          params = urllib.parse.parse_qs(q.query)
-                          for value in params.get("CNAME", []):
-                              value = clean_token(value)
-                              if value.lower().startswith("pw01srl"):
-                                  found.add(value)
-                      except Exception:
-                          pass
-
-                  # 2) Broad raw-source fallback.  Do not stop at quotes or
-                  # whitespace because JRA may HTML/JS-escape the token.
-                  for m in re.finditer(
-                      r"pw01srl[\s\S]{0,240}?/[0-9A-Fa-f]{2}",
-                      decoded, re.I,
-                  ):
-                      token = clean_token(m.group(0))
-                      # Keep only the token prefix through the checksum.
-                      tm = re.search(
-                          r"(pw01srl[^\s'\"<>\\,;)]*?/[0-9A-Fa-f]{2})",
-                          token, re.I,
-                      )
-                      if tm:
-                          found.add(tm.group(1))
-
-                  # 3) Exact legacy-compatible pattern used by established
-                  # JRA scrapers: search the complete anchor source.
-                  for m in re.finditer(
-                      r"<a\b[^>]*?pw01srl[\s\S]*?</a>",
-                      decoded, re.I,
-                  ):
-                      anchor = m.group(0)
-                      tm = re.search(
-                          r"(pw01srl[^\s'\"<>\\,;)]*?/[0-9A-Fa-f]{2})",
-                          anchor, re.I,
-                      )
-                      if tm:
-                          found.add(clean_token(tm.group(1)))
-
-                  return {x for x in found if re.fullmatch(
-                      r"pw01srl[^\s'\"<>]+/[0-9A-Fa-f]{2}", x, re.I
-                  )}
-
+                  for attr in extract_link_attributes(text):
+                      attr = htmlmod.unescape(attr)
+                      attr = urllib.parse.unquote(attr)
+                      for m in re.finditer(r"(pw01srl[^'\"<>\s,;)]+)", attr, re.I):
+                          found.add(clean_token(m.group(1)))
+                  return found
 
               chosen_token = None
               month_page = ""
@@ -328,11 +276,6 @@ jobs:
 
               if not rsl_all:
                   print("MONTH PAGE CONTAINS pw01srl:", "pw01srl" in month_page.lower())
-                  m = re.search(r"pw01srl", month_page, re.I)
-                  if m:
-                      lo = max(0, m.start() - 300)
-                      hi = min(len(month_page), m.start() + 700)
-                      print("PW01SRL CONTEXT:", re.sub(r"\s+", " ", month_page[lo:hi]))
                   raise RuntimeError(
                       f"{ym} の月別ページから開催選択token(pw01srl)を抽出できませんでした。"
                   )
@@ -477,11 +420,25 @@ jobs:
                   popm=re.search(r"(\d+)", cells[13])
                   popularity=int(popm.group(1)) if popm else None
 
+                  # JRA's result table exposes the corner-passing positions
+                  # in the "コーナー通過順位" cell.  Shorter races often
+                  # contain only 3rd/4th-corner positions (e.g. "2 2"),
+                  # while longer races may contain 1st-4th positions.
+                  # Preserve the raw sequence and, conservatively, map the
+                  # final two values to corner3/corner4.  We intentionally do
+                  # not invent corner1/corner2 when JRA does not provide them.
+                  corner_raw = re.sub(r"\s+", " ", cells[9]).strip() if len(cells) > 9 else ""
+                  corner_nums = [int(x) for x in re.findall(r"\d+", corner_raw)]
+                  corner3 = corner_nums[-2] if len(corner_nums) >= 2 else None
+                  corner4 = corner_nums[-1] if corner_nums else None
+
                   rows.append({
                       "finish":finish,"frame":frame,"no":no,"name":name,
                       "popularity":popularity,"sexAge":sex_age,
                       "bodyWeight":body_weight,"bodyWeightDiff":body_diff,
-                      "jockey":jockey,"carriedWeight":carried
+                      "jockey":jockey,"carriedWeight":carried,
+                      "corner3":corner3,"corner4":corner4,
+                      "cornerRaw":corner_raw
                   })
 
               ded={r["no"]:r for r in rows}
@@ -498,16 +455,69 @@ jobs:
                   "distance": int(dist.group(1).replace(",","")) if dist else None,
                   "surface": dist.group(2) if dist else "",
                   "course": dist.group(3) if dist else "",
+                  "going": "",
                   "meet": meet.group(2).strip() if meet else "",
                   "meet_day": int(meet.group(3)) if meet else None,
                   "no": int(rn.group(1)) if rn else 0,
                   "name": "レース",
               }
-              for line in text.splitlines()[:100]:
-                  line=line.strip()
-                  if line and not re.match(r"^(\d{4}年|天候|芝|ダート|本賞金|コース|発走時刻|レース結果)",line) and len(line)<100:
-                      if "レース" not in line and not line.startswith("着順"):
-                          meta["name"]=line; break
+
+              # JRA presents the track condition as e.g. "芝良" or
+              # "ダート重" in the text extraction.
+              gm=re.search(r"(?:芝|ダート)\s*(良|稍重|重|不良)", text)
+              if gm:
+                  meta["going"]=gm.group(1)
+
+              # Race title: JRA renders the official race name in an <h2>
+              # element.  Extract that element from the raw HTML first instead
+              # of guessing from the flattened text.  This avoids accidentally
+              # selecting navigation text such as "本文へ移動する".
+              title_html = re.findall(
+                  r"<h2\b[^>]*>(.*?)</h2>",
+                  raw_html,
+                  re.I | re.S,
+              )
+              title_candidates = []
+              for frag in title_html:
+                  frag = re.sub(r"<[^>]+>", " ", frag)
+                  line = htmlmod.unescape(frag)
+                  line = re.sub(r"\s+", " ", line).strip()
+                  # Remove UI/accessibility fragments but keep the official
+                  # race title itself, including "第○回..." when present.
+                  line = re.sub(r"(?:\s*G[ⅠⅡⅢⅣⅤ]\s*)+$", "", line).strip()
+                  if not line or line in ("本文へ移動する", "レース映像"):
+                      continue
+                  if "レース結果" in line or "発走時刻" in line:
+                      continue
+                  title_candidates.append(line)
+
+              if title_candidates:
+                  meta["name"] = title_candidates[0]
+              else:
+                  # Conservative fallback for an HTML/layout variation.
+                  # Never use the generic accessibility line as a race name.
+                  for line in text.splitlines()[:120]:
+                      line = line.strip()
+                      if not line or len(line) >= 120:
+                          continue
+                      if line in ("本文へ移動する", "関連メニュー", "レース映像"):
+                          continue
+                      if line.startswith(("着順", "2026年", "天候", "本賞金",
+                                          "付加賞", "ハロンタイム", "上り",
+                                          "コーナー通過順位")):
+                          continue
+                      if "レース結果" in line or "発走時刻" in line or "コース:" in line:
+                          continue
+                      if line.startswith(("開催選択へ", "レース選択へ", "ここから本文")):
+                          continue
+                      if re.search(r"(?:ステークス|カップ|賞|特別|未勝利|クラス|新馬|オープン|条件)", line):
+                          meta["name"] = line
+                          break
+
+              # Absolute safety: the navigation phrase must never be emitted
+              # as the race name.
+              if meta["name"] == "本文へ移動する":
+                  meta["name"] = "レース"
               return meta, sorted(ded.values(), key=lambda x:x["no"])
 
 
@@ -544,6 +554,7 @@ jobs:
                       "meet":meta["meet"],"meet_day":meta["meet_day"],"no":race_no,
                       "date":meta["date"],"time":meta["time"],"name":meta["name"],
                       "distance":meta["distance"],"surface":meta["surface"],"course":meta["course"],
+                      "going":meta["going"],
                       "url":url,"token":token,"historical":True,"horses":horses,
                   })
                   print("OK HIST",venue_names.get(vcode,vcode),f"{race_no}R","horses=",len(horses))
@@ -565,7 +576,7 @@ jobs:
               "date":target_date_iso,"updated_at":now.isoformat(),"target_ymd":target_ymd,
               "source":"JRA公式 accessS 過去レース結果","mode":"historical_result",
               "races":historical_races,"race_count":len(historical_races),
-              "parser_version":"1.1-historical",
+              "parser_version":"1.2-historical-corner-going-name",
           }
           history_archive = Path(f"data/history/{target_ymd}.json")
           history_archive.write_text(
