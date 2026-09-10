@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v14.4
+name: JRA Sync + Pages Deploy - Historical v14.9
 
 on:
   schedule:
@@ -113,7 +113,7 @@ jobs:
               if referer:
                   headers["Referer"] = referer
               req = urllib.request.Request(url, data=data, headers=headers, method=method)
-              with opener.open(req, timeout=45) as r:
+              with opener.open(req, timeout=20) as r:
                   return r.read()
 
           def decode_jra(raw):
@@ -285,25 +285,34 @@ jobs:
               for sample in sorted(rsl_all)[:10]:
                   print("  RSL SAMPLE:", sample)
 
-              sde_tokens = set()
-              rsl_target = []
-              for i, t in enumerate(sorted(rsl_all), 1):
+              # JRA month pages can expose many pw01srl tokens. Probing them
+              # sequentially made a single slow JRA response block the whole
+              # workflow for tens of minutes. Probe a small bounded pool instead.
+              from concurrent.futures import ThreadPoolExecutor, as_completed
+
+              def probe_rsl(item):
+                  i,t=item
                   try:
-                      page = post_s(t, ACCESS_S)
-                      found = find_sde_tokens(page)
-                      target_found = {x for x in found if target_ymd in x}
+                      page=post_s(t, ACCESS_S)
+                      found=find_sde_tokens(page)
+                      target_found={x for x in found if target_ymd in x}
+                      return i,t,target_found,None
+                  except Exception as e:
+                      return i,t,set(),repr(e)
+
+              sde_tokens=set(); rsl_target=[]
+              rsl_items=list(enumerate(sorted(rsl_all),1))
+              with ThreadPoolExecutor(max_workers=6) as ex:
+                  futures=[ex.submit(probe_rsl,item) for item in rsl_items]
+                  for fut in as_completed(futures):
+                      i,t,target_found,err=fut.result()
+                      if err:
+                          print("RSL warning:",t,err)
+                          continue
                       if target_found:
                           rsl_target.append(t)
                           sde_tokens.update(target_found)
-                      print(
-                          f"RSL {i}/{len(rsl_all)}: races={len(found)} "
-                          f"target_races={len(target_found)} total_target={len(sde_tokens)}"
-                      )
-                      if len(sde_tokens) >= 36:
-                          break
-                  except Exception as e:
-                      print("RSL warning:", t, repr(e))
-                  time.sleep(0.25)
+                      print(f"RSL {i}/{len(rsl_all)}: target_races={len(target_found)} total_target={len(sde_tokens)}")
 
               print("TARGET RSL TOKENS:", len(rsl_target))
               print("HISTORICAL RACE TOKENS:", len(sde_tokens))
@@ -381,13 +390,14 @@ jobs:
 
 
           def parse_history_page(raw_html, token):
+              # This is the parser actually used by historical_result mode.
+              # Keep the horse-table parser class-aware, but parse race metadata
+              # strictly from the visible body section after JRA's accessibility
+              # marker. This prevents "検索ウィンドウ" and unrelated navigation
+              # text from becoming race metadata.
               cp=CellParser(); cp.feed(raw_html)
               rows=[]
               for cells in cp.rows:
-                  # Current JRA result table is: finish, frame(image),
-                  # horse no, horse, sex/age, carried weight, jockey,
-                  # time, margin, corner order, last-3F, body weight,
-                  # trainer, popularity.
                   if len(cells) < 14:
                       continue
                   finish_s=cells[0].strip()
@@ -420,13 +430,6 @@ jobs:
                   popm=re.search(r"(\d+)", cells[13])
                   popularity=int(popm.group(1)) if popm else None
 
-                  # JRA's result table exposes the corner-passing positions
-                  # in the "コーナー通過順位" cell.  Shorter races often
-                  # contain only 3rd/4th-corner positions (e.g. "2 2"),
-                  # while longer races may contain 1st-4th positions.
-                  # Preserve the raw sequence and, conservatively, map the
-                  # final two values to corner3/corner4.  We intentionally do
-                  # not invent corner1/corner2 when JRA does not provide them.
                   corner_raw = re.sub(r"\s+", " ", cells[9]).strip() if len(cells) > 9 else ""
                   corner_nums = [int(x) for x in re.findall(r"\d+", corner_raw)]
                   corner3 = corner_nums[-2] if len(corner_nums) >= 2 else None
@@ -444,138 +447,127 @@ jobs:
               ded={r["no"]:r for r in rows}
 
               p=TextParser(); p.feed(raw_html); text=p.text()
+              lines=[x.strip() for x in text.splitlines() if x.strip()]
               dm=re.search(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日",text)
               tm=re.search(r"発走時刻：?\s*(\d{1,2})時\s*(\d{2})分",text)
-              dist=re.search(r"([\d,]+)メートル（(芝|ダート)・([^）]+)）",text)
               meet=re.search(r"(\d+)回([^\n|]+?)(\d+)日",text)
-              rn=re.search(r"(\d{1,2})レース",text)
+
+              mm=HIST_TOKEN_RE.fullmatch(token)
+              venue_code=mm.group("venue") if mm else ""
+              race_no=int(mm.group("race")) if mm else 0
+
               meta={
                   "date": f"{dm.group(1)}-{int(dm.group(2)):02d}-{int(dm.group(3)):02d}" if dm else target_date_iso,
                   "time": f"{int(tm.group(1)):02d}:{tm.group(2)}" if tm else "",
-                  "distance": int(dist.group(1).replace(",","")) if dist else None,
-                  "surface": dist.group(2) if dist else "",
-                  "course": dist.group(3) if dist else "",
+                  "distance": None,
+                  "surface": "",
+                  "course": "",
                   "going": "",
                   "meet": meet.group(2).strip() if meet else "",
                   "meet_day": int(meet.group(3)) if meet else None,
-                  "no": int(rn.group(1)) if rn else 0,
+                  "no": race_no,
                   "name": "レース",
               }
 
-              # JRA presents the track condition immediately after the
-              # weather line in the race-result body.  Do NOT search the whole
-              # page: navigation/hidden data can contain another condition
-              # (this caused a real "重" -> "稍重" false match).
-              going_candidates=[]
-              for line in text.splitlines():
-                  line=line.strip()
-                  if re.fullmatch(r"(?:芝|ダート)\s*(?:良|稍重|重|不良)", line):
-                      going_candidates.append(line)
-                  elif re.fullmatch(r"(?:芝|ダート).*(?:良|稍重|重|不良)", line) and len(line) <= 20:
-                      # Handles JRA's mojibake rendering such as "ダート�c重"
-                      # by taking the condition from the end of the same line.
-                      m=re.search(r"(良|稍重|重|不良)\s*$", line)
-                      if m:
-                          going_candidates.append(line[:line.rfind(m.group(1))]+m.group(1))
-              if going_candidates:
-                  gm=re.search(r"(良|稍重|重|不良)\s*$", going_candidates[0])
-                  if gm:
-                      meta["going"]=gm.group(1)
+              body_start=0
+              for idx,line in enumerate(lines):
+                  if line == "ここから本文です":
+                      body_start=idx
+                      break
+              body_lines=lines[body_start:] if body_start else lines
 
-              # Race title: the page contains an earlier navigation <h2>
-              # "検索ウィンドウ".  The official race title <h2> appears only
-              # after the "ここから本文です" marker, so restrict extraction
-              # to that body section.
-              marker_pos=raw_html.find("ここから本文です")
-              body_html=raw_html[marker_pos:] if marker_pos >= 0 else raw_html
-              title_html = re.findall(
-                  r"<h2\b[^>]*>(.*?)</h2>",
-                  body_html,
-                  re.I | re.S,
-              )
-              title_candidates = []
-              for frag in title_html:
-                  frag = re.sub(r"<[^>]+>", " ", frag)
-                  line = htmlmod.unescape(frag)
-                  line = re.sub(r"\s+", " ", line).strip()
-                  line = re.sub(r"(?:\s*G[ⅠⅡⅢⅣⅤ]\s*)+$", "", line).strip()
-                  if not line or line in ("本文へ移動する", "レース映像", "検索ウィンドウ"):
+              weather_idx=next((i for i,line in enumerate(body_lines) if line.startswith("天候")),None)
+
+              # Track condition is immediately after weather. Prefer the first
+              # track line in the small local window; never scan the whole page.
+              if weather_idx is not None:
+                  for line in body_lines[weather_idx+1:weather_idx+5]:
+                      if re.match(r"^(?:芝|ダート)",line):
+                          gm=re.search(r"(不良|稍重|重|良)\s*$",line)
+                          if gm:
+                              meta["going"]=gm.group(1)
+                              break
+
+              # Official race title is the first meaningful standalone line
+              # after weather/track and before the prize-money section.
+              title_start=weather_idx+1 if weather_idx is not None else 0
+              for line in body_lines[title_start:title_start+20]:
+                  if line in ("本文へ移動する","レース映像","検索ウィンドウ"):
                       continue
-                  if "レース結果" in line or "発走時刻" in line:
+                  if line.startswith(("天候","本賞金","コース：","コース:")):
                       continue
-                  title_candidates.append(line)
+                  if re.search(r"(?:\d+レース|Image:)",line):
+                      continue
+                  if len(line)<=100:
+                      meta["name"]=line
+                      break
 
-              if title_candidates:
-                  meta["name"] = title_candidates[0]
-              else:
-                  # Conservative fallback for an HTML/layout variation.
-                  # Never use the generic accessibility line as a race name.
-                  for line in text.splitlines()[:120]:
-                      line = line.strip()
-                      if not line or len(line) >= 120:
-                          continue
-                      if line in ("本文へ移動する", "関連メニュー", "レース映像"):
-                          continue
-                      if line.startswith(("着順", "2026年", "天候", "本賞金",
-                                          "付加賞", "ハロンタイム", "上り",
-                                          "コーナー通過順位")):
-                          continue
-                      if "レース結果" in line or "発走時刻" in line or "コース:" in line:
-                          continue
-                      if line.startswith(("開催選択へ", "レース選択へ", "ここから本文")):
-                          continue
-                      if re.search(r"(?:ステークス|カップ|賞|特別|未勝利|クラス|新馬|オープン|条件)", line):
-                          meta["name"] = line
-                          break
+              # Course metadata: accept both normal races and obstacle races.
+              # Normal: 1,200メートル（芝・右）
+              # Obstacle: 2,880メートル（芝→ダート）
+              course_line=next((line for line in body_lines[title_start:title_start+30]
+                                if re.match(r"^コース[:：].*メートル（",line)),None)
+              if course_line:
+                  dist=re.search(r"([\d,]+)メートル（([^）]+)）",course_line)
+                  if dist:
+                      meta["distance"]=int(dist.group(1).replace(",",""))
+                      spec=dist.group(2).strip()
+                      if "→" in spec:
+                          meta["surface"]=spec
+                          meta["course"]=""
+                      elif "・" in spec:
+                          surf,course=spec.split("・",1)
+                          meta["surface"]=surf.strip()
+                          meta["course"]=course.strip()
+                      else:
+                          # Conservative fallback: preserve the official
+                          # surface/course string rather than leaving distance
+                          # absent.
+                          meta["surface"]=spec
 
-              # Absolute safety: the navigation phrase must never be emitted
-              # as the race name.
-              if meta["name"] == "本文へ移動する":
-                  meta["name"] = "レース"
               return meta, sorted(ded.values(), key=lambda x:x["no"])
 
 
-          historical_races=[]; failures=[]
-          for i, token in enumerate(sorted(sde_tokens),1):
-              token = clean_token(token)
+          def fetch_historical_result(item):
+              i,token=item
+              token=clean_token(token)
               mm=HIST_TOKEN_RE.fullmatch(token)
               if not mm:
-                  print("SKIP HIST TOKEN (FORMAT):", repr(token))
-                  continue
+                  return None,{"token":token,"error":"format"}
               vcode=mm.group("venue"); race_no=int(mm.group("race"))
               url=f"{ACCESS_S}?CNAME={urllib.parse.quote(token,safe='')}"
               try:
-                  # Historical result tokens are most reliably opened through
-                  # the same POST(cname=...) route used for pw01srl discovery.
-                  # A direct GET can return JRA's "parameter error" page even
-                  # when the token itself is valid, so POST first and GET only
-                  # as a fallback.
-                  raw = post_s(token, ACCESS_S)
-                  title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
-                  title = re.sub(r"\s+", " ", htmlmod.unescape(title_m.group(1))).strip()[:100] if title_m else ""
-                  print("HIST FETCH", vcode, f"{race_no}R", "POST", "len=", len(raw), "title=", title)
-                  if "パラメータエラー" in title or "エラー" == title.strip():
-                      url_get = f"{ACCESS_S}?CNAME={urllib.parse.quote(token,safe='')}"
-                      raw_get = get_html(url_get, ACCESS_S)
-                      title_g = re.search(r"<title[^>]*>(.*?)</title>", raw_get, re.I | re.S)
-                      title2 = re.sub(r"\s+", " ", htmlmod.unescape(title_g.group(1))).strip()[:100] if title_g else ""
-                      print("HIST FETCH", vcode, f"{race_no}R", "GET", "len=", len(raw_get), "title=", title2)
-                      raw = raw_get
-                  meta, horses=parse_history_page(raw, token)
-                  if not horses: raise RuntimeError("結果馬データを抽出できませんでした")
-                  historical_races.append({
+                  raw=post_s(token,ACCESS_S)
+                  title_m=re.search(r"<title[^>]*>(.*?)</title>",raw,re.I|re.S)
+                  title=re.sub(r"\s+"," ",htmlmod.unescape(title_m.group(1))).strip()[:100] if title_m else ""
+                  if "パラメータエラー" in title or title.strip()=="エラー":
+                      raw=get_html(url,ACCESS_S)
+                  meta,horses=parse_history_page(raw,token)
+                  if not horses:
+                      raise RuntimeError("結果馬データを抽出できませんでした")
+                  return {
                       "venue":venue_names.get(vcode,vcode),"venue_code":vcode,
                       "meet":meta["meet"],"meet_day":meta["meet_day"],"no":race_no,
                       "date":meta["date"],"time":meta["time"],"name":meta["name"],
                       "distance":meta["distance"],"surface":meta["surface"],"course":meta["course"],
-                      "going":meta["going"],
-                      "url":url,"token":token,"historical":True,"horses":horses,
-                  })
-                  print("OK HIST",venue_names.get(vcode,vcode),f"{race_no}R","horses=",len(horses))
+                      "going":meta["going"],"url":url,"token":token,"historical":True,
+                      "horses":horses,
+                  },None
               except Exception as e:
-                  failures.append({"token":token,"url":url,"error":repr(e)})
-                  print("FAIL HIST",vcode,race_no,repr(e))
-              time.sleep(0.25)
+                  return None,{"token":token,"url":url,"error":repr(e),"venue_code":vcode,"race":race_no}
+
+          historical_races=[]; failures=[]
+          race_items=list(enumerate(sorted(sde_tokens),1))
+          with ThreadPoolExecutor(max_workers=6) as ex:
+              futures=[ex.submit(fetch_historical_result,item) for item in race_items]
+              for fut in as_completed(futures):
+                  race,err=fut.result()
+                  if err:
+                      failures.append(err)
+                      print("FAIL HIST",err.get("venue_code",""),err.get("race",""),err.get("error"))
+                  else:
+                      historical_races.append(race)
+                      print("OK HIST",race["venue"],f"{race['no']}R","horses=",len(race["horses"]))
 
           historical_races.sort(key=lambda r:(r["venue_code"],r["no"]))
           if failures:
@@ -590,7 +582,7 @@ jobs:
               "date":target_date_iso,"updated_at":now.isoformat(),"target_ymd":target_ymd,
               "source":"JRA公式 accessS 過去レース結果","mode":"historical_result",
               "races":historical_races,"race_count":len(historical_races),
-              "parser_version":"1.2-historical-corner-going-name",
+              "parser_version":"1.4-historical-body-metadata-parallel",
           }
           history_archive = Path(f"data/history/{target_ymd}.json")
           history_archive.write_text(
