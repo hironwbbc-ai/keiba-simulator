@@ -1,0 +1,227 @@
+{
+  "date": "2026-09-06",
+  "updated_at": "2026-09-11T01:33:12.300319+09:00",
+  "target_ymd": "20260906",
+  "source": "JRA公式 accessS 過去レース結果",
+  "mode": "historical_index",
+  "races": [
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 1,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 2,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 3,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 4,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 5,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 6,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 7,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 8,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 9,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 10,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 11,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "札幌",
+      "venue_code": "01",
+      "no": 12,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 1,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 2,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 3,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 4,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 5,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 6,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 7,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 8,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 9,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 10,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 11,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "no": 12,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 1,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 2,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 3,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 4,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 5,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 6,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 7,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 8,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 9,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 10,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 11,
+      "date": "2026-09-06"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "no": 12,
+      "date": "2026-09-06"
+    }
+  ],
+  "race_count": 36,
+  "parser_version": "15.2-selected-race"
+}
