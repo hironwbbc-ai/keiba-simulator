@@ -1,6 +1,6 @@
 {
   "date": "2026-09-06",
-  "updated_at": "2026-09-10T13:17:41.537080+09:00",
+  "updated_at": "2026-09-10T15:38:55.042824+09:00",
   "target_ymd": "20260906",
   "source": "JRA公式 accessS 過去レース結果",
   "mode": "historical_result",
@@ -13,10 +13,11 @@
       "no": 1,
       "date": "2026-09-06",
       "time": "09:50",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1700,
       "surface": "ダート",
       "course": "右",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060120260906%2F05",
       "token": "pw01sde1001202602060120260906/05",
       "historical": true,
@@ -31,7 +32,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": -2,
           "jockey": "松本 大輝",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 6,
+          "cornerRaw": "9 10 8 6"
         },
         {
           "finish": 2,
@@ -43,7 +47,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -4,
           "jockey": "丹内 祐次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "7 8 7 5"
         },
         {
           "finish": 4,
@@ -55,7 +62,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": -8,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 7,
+          "cornerRaw": "11 11 11 7"
         },
         {
           "finish": 12,
@@ -67,7 +77,10 @@
           "bodyWeight": 410,
           "bodyWeightDiff": -8,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 8,
+          "corner4": 12,
+          "cornerRaw": "2 2 8 12"
         },
         {
           "finish": 6,
@@ -79,7 +92,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 0,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 12,
+          "corner4": 8,
+          "cornerRaw": "13 12 12 8"
         },
         {
           "finish": 3,
@@ -91,7 +107,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -2,
           "jockey": "吉田 隼人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 2,
+          "cornerRaw": "4 4 4 2"
         },
         {
           "finish": 1,
@@ -103,7 +122,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 0,
           "jockey": "川又 賢治",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "7 7 2 1"
         },
         {
           "finish": 5,
@@ -115,7 +137,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": -6,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 5 4 4"
         },
         {
           "finish": 10,
@@ -127,7 +152,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 0,
           "jockey": "原田 和真",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "9 8 10 10"
         },
         {
           "finish": 8,
@@ -139,7 +167,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 2,
           "jockey": "横山 武史",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "3 3 2 2"
         },
         {
           "finish": 11,
@@ -151,7 +182,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 4,
           "jockey": "斎藤 新",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 8,
+          "cornerRaw": "4 5 4 8"
         },
         {
           "finish": 13,
@@ -163,7 +197,10 @@
           "bodyWeight": 426,
           "bodyWeightDiff": 2,
           "jockey": "◇古川 奈穂",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 10,
+          "cornerRaw": "1 1 1 10"
         },
         {
           "finish": 9,
@@ -175,7 +212,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": -4,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 13,
+          "corner4": 12,
+          "cornerRaw": "11 12 13 12"
         }
       ]
     },
@@ -187,10 +227,11 @@
       "no": 2,
       "date": "2026-09-06",
       "time": "10:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2000,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060220260906%2FBA",
       "token": "pw01sde1001202602060220260906/BA",
       "historical": true,
@@ -205,7 +246,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": 2,
           "jockey": "丹内 祐次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 4 4 3"
         },
         {
           "finish": 2,
@@ -217,7 +261,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 2,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 10,
@@ -229,7 +276,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 2,
           "jockey": "小沢 大仁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 9,
+          "cornerRaw": "2 2 2 9"
         },
         {
           "finish": 7,
@@ -241,7 +291,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 0,
           "jockey": "横山 武史",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 6,
+          "cornerRaw": "6 6 4 6"
         },
         {
           "finish": 8,
@@ -253,7 +306,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 8,
           "jockey": "古川 吉洋",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "10 9 9 9"
         },
         {
           "finish": 3,
@@ -265,7 +321,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -4,
           "jockey": "浜中 俊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 6,
+          "cornerRaw": "7 7 8 6"
         },
         {
           "finish": 5,
@@ -277,7 +336,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 4,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "9 9 9 8"
         },
         {
           "finish": 9,
@@ -289,7 +351,10 @@
           "bodyWeight": 520,
           "bodyWeightDiff": -4,
           "jockey": "横山 和生",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 4 4 3"
         },
         {
           "finish": 4,
@@ -301,7 +366,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 8,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "7 7 7 5"
         },
         {
           "finish": 6,
@@ -313,7 +381,10 @@
           "bodyWeight": 410,
           "bodyWeightDiff": -2,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         }
       ]
     },
@@ -325,10 +396,11 @@
       "no": 3,
       "date": "2026-09-06",
       "time": "10:50",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1700,
       "surface": "ダート",
       "course": "右",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060320260906%2F6F",
       "token": "pw01sde1001202602060320260906/6F",
       "historical": true,
@@ -343,7 +415,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 0,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 1,
+          "corner4": 2,
+          "cornerRaw": "1 1 1 2"
         },
         {
           "finish": 5,
@@ -355,7 +430,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": 8,
           "jockey": "丹内 祐次",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "14 14 11 10"
         },
         {
           "finish": 12,
@@ -367,7 +445,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "小沢 大仁",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "4 4 5 6"
         },
         {
           "finish": 7,
@@ -379,7 +460,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 4,
           "jockey": "斎藤 新",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "8 7 3 2"
         },
         {
           "finish": 6,
@@ -391,7 +475,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 0,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "6 6 8 9"
         },
         {
           "finish": 4,
@@ -403,7 +490,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 0,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 2 1"
         },
         {
           "finish": 13,
@@ -415,7 +505,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 6,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 12,
+          "cornerRaw": "10 10 13 12"
         },
         {
           "finish": 2,
@@ -427,7 +520,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 6,
           "jockey": "横山 武史",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "6 7 7 5"
         },
         {
           "finish": 8,
@@ -439,7 +535,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": -2,
           "jockey": "荻野 琢真",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "12 11 10 10"
         },
         {
           "finish": 9,
@@ -451,7 +550,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 10,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "3 3 5 6"
         },
         {
           "finish": 10,
@@ -463,7 +565,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 0,
           "jockey": "古川 吉洋",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "11 11 13 13"
         },
         {
           "finish": 1,
@@ -475,7 +580,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": -2,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4 4 4"
         },
         {
           "finish": 11,
@@ -487,7 +595,10 @@
           "bodyWeight": 534,
           "bodyWeightDiff": 0,
           "jockey": "横山 琉人",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "13 11 12 13"
         },
         {
           "finish": 3,
@@ -499,7 +610,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": 0,
           "jockey": "横山 和生",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 6,
+          "cornerRaw": "9 9 9 6"
         }
       ]
     },
@@ -511,10 +625,11 @@
       "no": 4,
       "date": "2026-09-06",
       "time": "11:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060420260906%2F24",
       "token": "pw01sde1001202602060420260906/24",
       "historical": true,
@@ -529,7 +644,10 @@
           "bodyWeight": 418,
           "bodyWeightDiff": 2,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "6 7"
         },
         {
           "finish": 1,
@@ -541,7 +659,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": -2,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 12,
@@ -553,7 +674,10 @@
           "bodyWeight": 416,
           "bodyWeightDiff": -6,
           "jockey": "川又 賢治",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 7,
@@ -565,7 +689,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": 14,
           "jockey": "横山 典弘",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 9,
@@ -577,7 +704,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 6,
           "jockey": "落合 玄太",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10"
         },
         {
           "finish": 11,
@@ -589,7 +719,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": -4,
           "jockey": "黛 弘人",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 10,
+          "corner4": 8,
+          "cornerRaw": "10 8"
         },
         {
           "finish": 16,
@@ -601,7 +734,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": -10,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "16 16"
         },
         {
           "finish": 3,
@@ -613,7 +749,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 2,
           "jockey": "小沢 大仁",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 4,
@@ -625,7 +764,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 0,
           "jockey": "丹内 祐次",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 3"
         },
         {
           "finish": 8,
@@ -637,7 +779,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": 6,
           "jockey": "古川 吉洋",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 12,
+          "cornerRaw": "12 12"
         },
         {
           "finish": 13,
@@ -649,7 +794,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 6,
           "jockey": "斎藤 新",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 10,
+          "cornerRaw": "9 10"
         },
         {
           "finish": 5,
@@ -661,7 +809,10 @@
           "bodyWeight": 424,
           "bodyWeightDiff": 6,
           "jockey": "吉田 隼人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5"
         },
         {
           "finish": 15,
@@ -673,7 +824,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 4,
           "jockey": "横山 琉人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 15,
+          "cornerRaw": "13 15"
         },
         {
           "finish": 2,
@@ -685,7 +839,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -6,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 5,
+          "cornerRaw": "6 5"
         },
         {
           "finish": 10,
@@ -697,7 +854,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": 4,
           "jockey": "横山 武史",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 14,
@@ -709,7 +869,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -2,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 2,
+          "corner4": 3,
+          "cornerRaw": "2 3"
         }
       ]
     },
@@ -721,10 +884,11 @@
       "no": 5,
       "date": "2026-09-06",
       "time": "12:10",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2000,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060520260906%2FD9",
       "token": "pw01sde1001202602060520260906/D9",
       "historical": true,
@@ -739,7 +903,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": -2,
           "jockey": "原田 和真",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "10 9 13 13"
         },
         {
           "finish": 12,
@@ -751,7 +918,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": -2,
           "jockey": "▲大久保 友雅",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "14 15 16 16"
         },
         {
           "finish": 8,
@@ -763,7 +933,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -2,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 11,
+          "cornerRaw": "16 15 13 11"
         },
         {
           "finish": 1,
@@ -775,7 +948,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": -12,
           "jockey": "横山 和生",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 5,
@@ -787,7 +963,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": 4,
           "jockey": "小沢 大仁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 3,
@@ -799,7 +978,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 6,
           "jockey": "吉田 隼人",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 6 7 6"
         },
         {
           "finish": 11,
@@ -811,7 +993,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": 4,
           "jockey": "落合 玄太",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 5,
+          "corner4": 8,
+          "cornerRaw": "3 3 5 8"
         },
         {
           "finish": 9,
@@ -823,7 +1008,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 6,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 4 4 3"
         },
         {
           "finish": 2,
@@ -835,7 +1023,10 @@
           "bodyWeight": 424,
           "bodyWeightDiff": 0,
           "jockey": "丹内 祐次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 3,
+          "cornerRaw": "4 4 5 3"
         },
         {
           "finish": 4,
@@ -847,7 +1038,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": 0,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "10 11 9 8"
         },
         {
           "finish": 15,
@@ -859,7 +1053,10 @@
           "bodyWeight": 368,
           "bodyWeightDiff": 8,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 51.0
+          "carriedWeight": 51.0,
+          "corner3": 15,
+          "corner4": 14,
+          "cornerRaw": "12 13 15 14"
         },
         {
           "finish": 14,
@@ -871,7 +1068,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 4,
           "jockey": "浜中 俊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "6 6 12 11"
         },
         {
           "finish": 7,
@@ -883,7 +1083,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": 0,
           "jockey": "小野 楓馬",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 10,
+          "cornerRaw": "7 8 9 10"
         },
         {
           "finish": 10,
@@ -895,7 +1098,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 8,
           "jockey": "松本 大輝",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "12 12 3 3"
         },
         {
           "finish": 6,
@@ -907,7 +1113,10 @@
           "bodyWeight": 432,
           "bodyWeightDiff": -4,
           "jockey": "斎藤 新",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "9 9 7 6"
         }
       ]
     },
@@ -919,10 +1128,11 @@
       "no": 6,
       "date": "2026-09-06",
       "time": "12:40",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1000,
       "surface": "ダート",
       "course": "右",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060620260906%2F8E",
       "token": "pw01sde1001202602060620260906/8E",
       "historical": true,
@@ -937,7 +1147,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": 0,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 2,
@@ -949,7 +1162,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -4,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 8,
@@ -961,7 +1177,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": 4,
           "jockey": "川又 賢治",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 9,
@@ -973,7 +1192,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": 10,
           "jockey": "横山 武史",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "5 6"
         },
         {
           "finish": 5,
@@ -985,7 +1207,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -4,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 50.0
+          "carriedWeight": 50.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 3"
         },
         {
           "finish": 6,
@@ -997,7 +1222,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -1,
           "jockey": "▲大久保 友雅",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 8,
+          "corner4": 5,
+          "cornerRaw": "8 5"
         },
         {
           "finish": 7,
@@ -1009,7 +1237,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 4,
           "jockey": "小沢 大仁",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 10,
+          "corner4": 8,
+          "cornerRaw": "10 8"
         },
         {
           "finish": 10,
@@ -1021,7 +1252,10 @@
           "bodyWeight": 522,
           "bodyWeightDiff": 0,
           "jockey": "落合 玄太",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 11,
@@ -1033,7 +1267,10 @@
           "bodyWeight": 472,
           "bodyWeightDiff": -2,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 5,
+          "corner4": 8,
+          "cornerRaw": "5 8"
         },
         {
           "finish": 1,
@@ -1045,7 +1282,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 8,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 12,
@@ -1057,7 +1297,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 6,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "5 6"
         },
         {
           "finish": 3,
@@ -1069,7 +1312,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 4,
           "jockey": "斎藤 新",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         }
       ]
     },
@@ -1081,10 +1327,11 @@
       "no": 7,
       "date": "2026-09-06",
       "time": "13:10",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060720260906%2F43",
       "token": "pw01sde1001202602060720260906/43",
       "historical": true,
@@ -1099,7 +1346,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -2,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 8,
+          "corner4": 14,
+          "cornerRaw": "8 14"
         },
         {
           "finish": 13,
@@ -1111,7 +1361,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 0,
           "jockey": "吉田 隼人",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "11 10"
         },
         {
           "finish": 14,
@@ -1123,7 +1376,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 0,
           "jockey": "横山 琉人",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 5,
+          "corner4": 4,
+          "cornerRaw": "5 4"
         },
         {
           "finish": 3,
@@ -1135,7 +1391,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": 2,
           "jockey": "黛 弘人",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 4,
@@ -1147,7 +1406,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 0,
           "jockey": "小沢 大仁",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 16,
+          "corner4": 14,
+          "cornerRaw": "16 14"
         },
         {
           "finish": 10,
@@ -1159,7 +1421,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 0,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 8,
+          "corner4": 10,
+          "cornerRaw": "8 10"
         },
         {
           "finish": 15,
@@ -1171,7 +1436,10 @@
           "bodyWeight": 418,
           "bodyWeightDiff": -2,
           "jockey": "松本 大輝",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 13,
+          "corner4": 14,
+          "cornerRaw": "13 14"
         },
         {
           "finish": 5,
@@ -1183,7 +1451,10 @@
           "bodyWeight": 424,
           "bodyWeightDiff": -2,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 11,
+          "corner4": 7,
+          "cornerRaw": "11 7"
         },
         {
           "finish": 6,
@@ -1195,7 +1466,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": 2,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 8,
@@ -1207,7 +1481,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 2,
           "jockey": "落合 玄太",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 13,
+          "corner4": 10,
+          "cornerRaw": "13 10"
         },
         {
           "finish": 7,
@@ -1219,7 +1496,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": 6,
           "jockey": "古川 吉洋",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 10,
+          "cornerRaw": "13 10"
         },
         {
           "finish": 1,
@@ -1231,7 +1511,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": -2,
           "jockey": "斎藤 新",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "5 6"
         },
         {
           "finish": 9,
@@ -1243,7 +1526,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 12,
           "jockey": "丹内 祐次",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "8 9"
         },
         {
           "finish": 12,
@@ -1255,7 +1541,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 10,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 50.0
+          "carriedWeight": 50.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 16,
@@ -1267,7 +1556,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 4,
           "jockey": "小野 楓馬",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 2,
@@ -1279,7 +1571,10 @@
           "bodyWeight": 412,
           "bodyWeightDiff": -2,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         }
       ]
     },
@@ -1291,10 +1586,11 @@
       "no": 8,
       "date": "2026-09-06",
       "time": "13:40",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1500,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060820260906%2FF8",
       "token": "pw01sde1001202602060820260906/F8",
       "historical": true,
@@ -1309,7 +1605,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -6,
           "jockey": "斎藤 新",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "9 7 6"
         },
         {
           "finish": 2,
@@ -1321,7 +1620,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 4,
           "jockey": "▲和田 陽希",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 3 5"
         },
         {
           "finish": 6,
@@ -1333,7 +1635,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": 20,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "6 7 8"
         },
         {
           "finish": 5,
@@ -1345,7 +1650,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 4,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "3 5 6"
         },
         {
           "finish": 3,
@@ -1357,7 +1665,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": -6,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 5,
+          "corner4": 2,
+          "cornerRaw": "6 5 2"
         },
         {
           "finish": 4,
@@ -1369,7 +1680,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 2,
           "jockey": "▲遠藤 汰月",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 3,
+          "cornerRaw": "1 1 3"
         },
         {
           "finish": 9,
@@ -1381,7 +1695,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 8,
           "jockey": "横山 和生",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 11,
+          "cornerRaw": "12 13 11"
         },
         {
           "finish": 10,
@@ -1393,7 +1710,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": -2,
           "jockey": "小沢 大仁",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "12 10 11"
         },
         {
           "finish": 14,
@@ -1405,7 +1725,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": -2,
           "jockey": "小野 楓馬",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "8 7 8"
         },
         {
           "finish": 12,
@@ -1417,7 +1740,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 2,
           "jockey": "黛 弘人",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 14,
+          "corner4": 14,
+          "cornerRaw": "14 14 14"
         },
         {
           "finish": 1,
@@ -1429,7 +1755,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": -4,
           "jockey": "丹内 祐次",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 1"
         },
         {
           "finish": 13,
@@ -1441,7 +1770,10 @@
           "bodyWeight": 524,
           "bodyWeightDiff": 6,
           "jockey": "横山 琉人",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "11 10 11"
         },
         {
           "finish": 7,
@@ -1453,7 +1785,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 4,
           "jockey": "浜中 俊",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 10,
+          "corner4": 8,
+          "cornerRaw": "9 10 8"
         },
         {
           "finish": 11,
@@ -1465,7 +1800,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": 0,
           "jockey": "横山 武史",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3 3"
         }
       ]
     },
@@ -1477,10 +1815,11 @@
       "no": 9,
       "date": "2026-09-06",
       "time": "14:10",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1700,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602060920260906%2FAD",
       "token": "pw01sde1001202602060920260906/AD",
       "historical": true,
@@ -1495,7 +1834,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 4,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4 4 4"
         },
         {
           "finish": 11,
@@ -1507,7 +1849,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": 8,
           "jockey": "浜中 俊",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13 13 13"
         },
         {
           "finish": 5,
@@ -1519,7 +1864,10 @@
           "bodyWeight": 512,
           "bodyWeightDiff": 2,
           "jockey": "丹内 祐次",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "8 8 7 5"
         },
         {
           "finish": 4,
@@ -1531,7 +1879,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": -2,
           "jockey": "横山 琉人",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 9,
+          "cornerRaw": "10 10 10 9"
         },
         {
           "finish": 8,
@@ -1543,7 +1894,10 @@
           "bodyWeight": 512,
           "bodyWeightDiff": 16,
           "jockey": "荻野 琢真",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 14,
+          "corner4": 11,
+          "cornerRaw": "14 14 14 11"
         },
         {
           "finish": 3,
@@ -1555,7 +1909,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": -2,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 13,
@@ -1567,7 +1924,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 4,
           "jockey": "斎藤 新",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 5,
+          "cornerRaw": "3 3 2 5"
         },
         {
           "finish": 12,
@@ -1579,7 +1939,10 @@
           "bodyWeight": 524,
           "bodyWeightDiff": 6,
           "jockey": "長浜 鴻緒",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 9,
+          "cornerRaw": "12 12 7 9"
         },
         {
           "finish": 7,
@@ -1591,7 +1954,10 @@
           "bodyWeight": 516,
           "bodyWeightDiff": -10,
           "jockey": "横山 武史",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 1,
@@ -1603,7 +1969,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": 6,
           "jockey": "横山 和生",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 5 4 3"
         },
         {
           "finish": 9,
@@ -1615,7 +1984,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -6,
           "jockey": "小沢 大仁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 5,
+          "cornerRaw": "4 5 6 5"
         },
         {
           "finish": 2,
@@ -1627,7 +1999,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": -6,
           "jockey": "吉田 隼人",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "7 7 7 5"
         },
         {
           "finish": 10,
@@ -1639,7 +2014,10 @@
           "bodyWeight": 516,
           "bodyWeightDiff": 2,
           "jockey": "古川 吉洋",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "9 9 10 11"
         },
         {
           "finish": 14,
@@ -1651,7 +2029,10 @@
           "bodyWeight": 510,
           "bodyWeightDiff": -13,
           "jockey": "小野 楓馬",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 12,
+          "corner4": 14,
+          "cornerRaw": "10 10 12 14"
         }
       ]
     },
@@ -1663,10 +2044,11 @@
       "no": 10,
       "date": "2026-09-06",
       "time": "14:45",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602061020260906%2FA2",
       "token": "pw01sde1001202602061020260906/A2",
       "historical": true,
@@ -1681,7 +2063,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -6,
           "jockey": "横山 和生",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 13,
+          "corner4": 12,
+          "cornerRaw": "14 14 13 12"
         },
         {
           "finish": 7,
@@ -1693,7 +2078,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": 0,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 5,
@@ -1705,7 +2093,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": -8,
           "jockey": "斎藤 新",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 7,
+          "cornerRaw": "13 12 9 7"
         },
         {
           "finish": 6,
@@ -1717,7 +2108,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -4,
           "jockey": "浜中 俊",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "10 10 11 10"
         },
         {
           "finish": 8,
@@ -1729,7 +2123,10 @@
           "bodyWeight": 472,
           "bodyWeightDiff": 8,
           "jockey": "古川 吉洋",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "8 8 9 9"
         },
         {
           "finish": 11,
@@ -1741,7 +2138,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 6,
           "jockey": "荻野 琢真",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 13,
@@ -1753,7 +2153,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": -6,
           "jockey": "小野 楓馬",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 12,
+          "cornerRaw": "10 10 11 12"
         },
         {
           "finish": 2,
@@ -1765,7 +2168,10 @@
           "bodyWeight": 494,
           "bodyWeightDiff": 2,
           "jockey": "丹内 祐次",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "6 6 5 5"
         },
         {
           "finish": 1,
@@ -1777,7 +2183,10 @@
           "bodyWeight": 430,
           "bodyWeightDiff": 0,
           "jockey": "吉田 隼人",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "4 4 3 3"
         },
         {
           "finish": 4,
@@ -1789,7 +2198,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -2,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3 3 3"
         },
         {
           "finish": 3,
@@ -1801,7 +2213,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 2,
           "jockey": "小沢 大仁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "4 4 5 5"
         },
         {
           "finish": 12,
@@ -1813,7 +2228,10 @@
           "bodyWeight": 472,
           "bodyWeightDiff": 14,
           "jockey": "和田 陽希",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 13,
+          "corner4": 14,
+          "cornerRaw": "12 12 13 14"
         },
         {
           "finish": 14,
@@ -1825,7 +2243,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": -8,
           "jockey": "落合 玄太",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 7,
+          "corner4": 10,
+          "cornerRaw": "6 6 7 10"
         },
         {
           "finish": 9,
@@ -1837,7 +2258,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": -4,
           "jockey": "横山 武史",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "9 8 7 7"
         }
       ]
     },
@@ -1849,10 +2273,11 @@
       "no": 11,
       "date": "2026-09-06",
       "time": "15:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2600,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602061120260906%2F57",
       "token": "pw01sde1001202602061120260906/57",
       "historical": true,
@@ -1867,7 +2292,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 4,
           "jockey": "横山 武史",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 13,
+          "corner4": 9,
+          "cornerRaw": "14 13 13 9"
         },
         {
           "finish": 8,
@@ -1879,7 +2307,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 2,
           "jockey": "川又 賢治",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 3 3 5"
         },
         {
           "finish": 12,
@@ -1891,7 +2322,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 6,
           "jockey": "吉田 隼人",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 8,
+          "corner4": 7,
+          "cornerRaw": "9 7 8 7"
         },
         {
           "finish": 4,
@@ -1903,7 +2337,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": -2,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 6,
+          "corner4": 3,
+          "cornerRaw": "7 7 6 3"
         },
         {
           "finish": 14,
@@ -1915,7 +2352,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 12,
           "jockey": "横山 典弘",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "5 5 3 2"
         },
         {
           "finish": 9,
@@ -1927,7 +2367,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -4,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 59.0
+          "carriedWeight": 59.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "10 10 6 7"
         },
         {
           "finish": 1,
@@ -1939,7 +2382,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": -6,
           "jockey": "横山 和生",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 3,
@@ -1951,7 +2397,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 10,
           "jockey": "小林 美駒",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 14,
+          "cornerRaw": "7 11 13 14"
         },
         {
           "finish": 5,
@@ -1963,7 +2412,10 @@
           "bodyWeight": 510,
           "bodyWeightDiff": 4,
           "jockey": "横山 琉人",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 12,
+          "corner4": 12,
+          "cornerRaw": "13 13 12 12"
         },
         {
           "finish": 6,
@@ -1975,7 +2427,10 @@
           "bodyWeight": 408,
           "bodyWeightDiff": -10,
           "jockey": "丹内 祐次",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "10 7 3 3"
         },
         {
           "finish": 13,
@@ -1987,7 +2442,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 6,
           "jockey": "斎藤 新",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 6,
+          "cornerRaw": "2 2 2 6"
         },
         {
           "finish": 2,
@@ -1999,7 +2457,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 8,
           "jockey": "浜中 俊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 12,
+          "cornerRaw": "10 11 8 12"
         },
         {
           "finish": 7,
@@ -2011,7 +2472,10 @@
           "bodyWeight": 540,
           "bodyWeightDiff": 6,
           "jockey": "小沢 大仁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "5 5 8 9"
         },
         {
           "finish": 11,
@@ -2023,7 +2487,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": -2,
           "jockey": "松本 大輝",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "3 4 8 9"
         }
       ]
     },
@@ -2035,10 +2502,11 @@
       "no": 12,
       "date": "2026-09-06",
       "time": "16:05",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1700,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602061220260906%2F0C",
       "token": "pw01sde1001202602061220260906/0C",
       "historical": true,
@@ -2053,7 +2521,10 @@
           "bodyWeight": 472,
           "bodyWeightDiff": 4,
           "jockey": "荻野 琢真",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 7 7 6"
         },
         {
           "finish": 11,
@@ -2065,7 +2536,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": 0,
           "jockey": "◇小林 美駒",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 3,
+          "cornerRaw": "1 1 1 3"
         },
         {
           "finish": 8,
@@ -2077,7 +2551,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -4,
           "jockey": "落合 玄太",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 7 7 8"
         },
         {
           "finish": 1,
@@ -2089,7 +2566,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": -2,
           "jockey": "小沢 大仁",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 2 1"
         },
         {
           "finish": 3,
@@ -2101,7 +2581,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "斎藤 新",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "4 4 3 3"
         },
         {
           "finish": 7,
@@ -2113,7 +2596,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -2,
           "jockey": "横山 琉人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 7 7 8"
         },
         {
           "finish": 10,
@@ -2125,7 +2611,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 0,
           "jockey": "☆長浜 鴻緒",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10 10 10"
         },
         {
           "finish": 2,
@@ -2137,7 +2626,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 6,
           "jockey": "丹内 祐次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "3 3 3 2"
         },
         {
           "finish": 5,
@@ -2149,7 +2641,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 4,
           "jockey": "佐々木 大輔",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 3,
+          "cornerRaw": "4 4 5 3"
         },
         {
           "finish": 9,
@@ -2161,7 +2656,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 4,
           "jockey": "鮫島 克駿",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "4 4 5 6"
         },
         {
           "finish": 6,
@@ -2173,7 +2671,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 2,
           "jockey": "★河原田 菜々",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "11 11 10 10"
         },
         {
           "finish": 12,
@@ -2185,7 +2686,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": 6,
           "jockey": "黛 弘人",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "11 11 10 12"
         }
       ]
     },
@@ -2197,10 +2701,11 @@
       "no": 1,
       "date": "2026-09-06",
       "time": "10:05",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": null,
       "surface": "",
       "course": "",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020120260906%2F0D",
       "token": "pw01sde1006202604020120260906/0D",
       "historical": true,
@@ -2215,7 +2720,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 0,
           "jockey": "中村 将之",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "5 5 6 6"
         },
         {
           "finish": 1,
@@ -2227,7 +2735,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 6,
           "jockey": "草野 太郎",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "4 3 3 2"
         },
         {
           "finish": 4,
@@ -2239,7 +2750,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 0,
           "jockey": "上野 翔",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 2,
+          "corner4": 4,
+          "cornerRaw": "2 2 2 4"
         },
         {
           "finish": 7,
@@ -2251,7 +2765,10 @@
           "bodyWeight": 510,
           "bodyWeightDiff": 0,
           "jockey": "伴 啓太",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "7 7 6 7"
         },
         {
           "finish": 6,
@@ -2263,7 +2780,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 2,
           "jockey": "難波 剛健",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "6 5 5 5"
         },
         {
           "finish": 3,
@@ -2275,7 +2795,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 4,
           "jockey": "小野寺 祐太",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "3 3 3 2"
         },
         {
           "finish": 2,
@@ -2287,7 +2810,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": 6,
           "jockey": "大江原 圭",
-          "carriedWeight": 60.0
+          "carriedWeight": 60.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         }
       ]
     },
@@ -2299,10 +2825,11 @@
       "no": 2,
       "date": "2026-09-06",
       "time": "10:40",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右 外",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020220260906%2FC2",
       "token": "pw01sde1006202604020220260906/C2",
       "historical": true,
@@ -2317,7 +2844,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 2,
           "jockey": "丸山 元気",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 13,
@@ -2329,7 +2859,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 2,
           "jockey": "丸田 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 11,
@@ -2341,7 +2874,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -2,
           "jockey": "杉原 誠人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "10 11"
         },
         {
           "finish": 7,
@@ -2353,7 +2889,10 @@
           "bodyWeight": 430,
           "bodyWeightDiff": 4,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 14,
@@ -2365,7 +2904,10 @@
           "bodyWeight": 426,
           "bodyWeightDiff": -2,
           "jockey": "小林 凌大",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 14,
+          "corner4": 14,
+          "cornerRaw": "14 14"
         },
         {
           "finish": 6,
@@ -2377,7 +2919,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 0,
           "jockey": "木幡 初也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 12,
@@ -2389,7 +2934,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 2,
           "jockey": "木幡 巧也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 1,
@@ -2401,7 +2949,10 @@
           "bodyWeight": 414,
           "bodyWeightDiff": -4,
           "jockey": "武藤 雅",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 3,
@@ -2413,7 +2964,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 14,
           "jockey": "大野 拓弥",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 9,
@@ -2425,7 +2979,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": 6,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "12 11"
         },
         {
           "finish": 5,
@@ -2437,7 +2994,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 2,
           "jockey": "△石田 拓郎",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10"
         },
         {
           "finish": 4,
@@ -2449,7 +3009,10 @@
           "bodyWeight": 408,
           "bodyWeightDiff": 10,
           "jockey": "嶋田 純次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 3,
+          "cornerRaw": "2 3"
         },
         {
           "finish": 10,
@@ -2461,7 +3024,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": -4,
           "jockey": "柴田 大知",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 8,
@@ -2473,7 +3039,10 @@
           "bodyWeight": 418,
           "bodyWeightDiff": -10,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         }
       ]
     },
@@ -2485,10 +3054,11 @@
       "no": 3,
       "date": "2026-09-06",
       "time": "11:10",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020320260906%2F77",
       "token": "pw01sde1006202604020320260906/77",
       "historical": true,
@@ -2503,7 +3073,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": -2,
           "jockey": "▲水沼 元輝",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 15,
+          "corner4": 15,
+          "cornerRaw": "13 14 15 15"
         },
         {
           "finish": 4,
@@ -2515,7 +3088,10 @@
           "bodyWeight": 540,
           "bodyWeightDiff": -10,
           "jockey": "嶋田 純次",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "6 6 6 4"
         },
         {
           "finish": 14,
@@ -2527,7 +3103,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 2,
           "jockey": "木幡 育也",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 14,
+          "corner4": 14,
+          "cornerRaw": "9 11 14 14"
         },
         {
           "finish": 1,
@@ -2539,7 +3118,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": -4,
           "jockey": "北村 友一",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "13 11 3 2"
         },
         {
           "finish": 11,
@@ -2551,7 +3133,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -6,
           "jockey": "木幡 巧也",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "12 11 10 12"
         },
         {
           "finish": 9,
@@ -2563,7 +3148,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": -8,
           "jockey": "武藤 雅",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 10,
+          "cornerRaw": "4 5 7 10"
         },
         {
           "finish": 6,
@@ -2575,7 +3163,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 2,
           "jockey": "岩田 康誠",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 10,
+          "cornerRaw": "15 15 13 10"
         },
         {
           "finish": 12,
@@ -2587,7 +3178,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": -2,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "4 3 5 5"
         },
         {
           "finish": 3,
@@ -2599,7 +3193,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 2,
           "jockey": "江田 照男",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 10,
+          "corner4": 8,
+          "cornerRaw": "9 9 10 8"
         },
         {
           "finish": 8,
@@ -2611,7 +3208,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -12,
           "jockey": "石橋 脩",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "6 7 7 8"
         },
         {
           "finish": 2,
@@ -2623,7 +3223,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 2,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "8 7 7 7"
         },
         {
           "finish": 7,
@@ -2635,7 +3238,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": 0,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 3 3 5"
         },
         {
           "finish": 13,
@@ -2647,7 +3253,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": -4,
           "jockey": "原 優介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "9 9 10 12"
         },
         {
           "finish": 5,
@@ -2659,7 +3268,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": 2,
           "jockey": "M.ミシェル",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "2 1 1 1"
         },
         {
           "finish": 10,
@@ -2671,7 +3283,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 2,
           "jockey": "木幡 初也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "1 2 2 2"
         }
       ]
     },
@@ -2683,10 +3298,11 @@
       "no": 4,
       "date": "2026-09-06",
       "time": "11:40",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "ダート",
       "course": "右",
+      "going": "不良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020420260906%2F2C",
       "token": "pw01sde1006202604020420260906/2C",
       "historical": true,
@@ -2701,7 +3317,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 4,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 11,
@@ -2713,7 +3332,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 4,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 7,
@@ -2725,7 +3347,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "嶋田 純次",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 4,
+          "cornerRaw": "3 4"
         },
         {
           "finish": 6,
@@ -2737,7 +3362,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": 5,
           "jockey": "杉原 誠人",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6"
         },
         {
           "finish": 4,
@@ -2749,7 +3377,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 4,
           "jockey": "岩田 康誠",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 13,
@@ -2761,7 +3392,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -4,
           "jockey": "柴田 大知",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 10,
+          "cornerRaw": "9 10"
         },
         {
           "finish": 9,
@@ -2773,7 +3407,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 6,
           "jockey": "△石田 拓郎",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "16 16"
         },
         {
           "finish": 14,
@@ -2785,7 +3422,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 1,
           "jockey": "▲上里 直汰",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         },
         {
           "finish": 12,
@@ -2797,7 +3437,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": -4,
           "jockey": "丸山 元気",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 5"
         },
         {
           "finish": 15,
@@ -2809,7 +3452,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 14,
           "jockey": "小林 脩斗",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "12 11"
         },
         {
           "finish": 8,
@@ -2821,7 +3467,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 12,
           "jockey": "大野 拓弥",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 2,
@@ -2833,7 +3482,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": 6,
           "jockey": "石橋 脩",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 8,
+          "cornerRaw": "6 8"
         },
         {
           "finish": 10,
@@ -2845,7 +3497,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -2,
           "jockey": "木幡 巧也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         },
         {
           "finish": 5,
@@ -2857,7 +3512,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -4,
           "jockey": "C.ルメール",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 1,
@@ -2869,7 +3527,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": -12,
           "jockey": "団野 大成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 7,
+          "cornerRaw": "8 7"
         },
         {
           "finish": 16,
@@ -2881,7 +3542,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 2,
           "jockey": "江田 照男",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 15,
+          "corner4": 15,
+          "cornerRaw": "15 15"
         }
       ]
     },
@@ -2893,10 +3557,11 @@
       "no": 5,
       "date": "2026-09-06",
       "time": "12:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1600,
       "surface": "芝",
       "course": "右 外",
+      "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020520260906%2FE1",
       "token": "pw01sde1006202604020520260906/E1",
       "historical": true,
@@ -2911,7 +3576,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "津村 明秀",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3 3"
         },
         {
           "finish": 4,
@@ -2923,7 +3591,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1"
         },
         {
           "finish": 9,
@@ -2935,7 +3606,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "団野 大成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "8 8 9"
         },
         {
           "finish": 5,
@@ -2947,7 +3621,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "丸山 元気",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 12,
+          "corner4": 12,
+          "cornerRaw": "14 12 12"
         },
         {
           "finish": 6,
@@ -2959,7 +3636,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "M.ミシェル",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 7,
+          "cornerRaw": "8 8 7"
         },
         {
           "finish": 13,
@@ -2971,7 +3651,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 6,
+          "corner4": 8,
+          "cornerRaw": "6 6 8"
         },
         {
           "finish": 12,
@@ -2983,7 +3666,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "内田 博幸",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "11 10 10"
         },
         {
           "finish": 14,
@@ -2995,7 +3681,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "大野 拓弥",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 15,
+          "corner4": 14,
+          "cornerRaw": "13 15 14"
         },
         {
           "finish": 7,
@@ -3007,7 +3696,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "北村 友一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "8 10 10"
         },
         {
           "finish": 2,
@@ -3019,7 +3711,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "C.ルメール",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5 5"
         },
         {
           "finish": 10,
@@ -3031,7 +3726,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "石橋 脩",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "15 12 13"
         },
         {
           "finish": 11,
@@ -3043,7 +3741,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "岩田 康誠",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2"
         },
         {
           "finish": 15,
@@ -3055,7 +3756,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "原 優介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 14,
+          "corner4": 14,
+          "cornerRaw": "11 14 14"
         },
         {
           "finish": 1,
@@ -3067,7 +3771,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3 3"
         },
         {
           "finish": 8,
@@ -3079,7 +3786,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "丸田 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6 6"
         }
       ]
     },
@@ -3091,10 +3801,11 @@
       "no": 6,
       "date": "2026-09-06",
       "time": "13:00",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "不良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020620260906%2F96",
       "token": "pw01sde1006202604020620260906/96",
       "historical": true,
@@ -3109,7 +3820,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "津村 明秀",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 11,
+          "cornerRaw": "8 8 9 11"
         },
         {
           "finish": 12,
@@ -3121,7 +3835,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "▲水沼 元輝",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 12,
+          "corner4": 12,
+          "cornerRaw": "12 12 12 12"
         },
         {
           "finish": 5,
@@ -3133,7 +3850,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "大野 拓弥",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "10 10 9 9"
         },
         {
           "finish": 11,
@@ -3145,7 +3865,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "C.ルメール",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 10,
+          "cornerRaw": "7 7 7 10"
         },
         {
           "finish": 4,
@@ -3157,7 +3880,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "丸田 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 6,
+          "cornerRaw": "10 10 9 6"
         },
         {
           "finish": 7,
@@ -3169,7 +3895,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "△石神 深道",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "8 8 7 6"
         },
         {
           "finish": 2,
@@ -3181,7 +3910,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 1,
@@ -3193,7 +3925,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "北村 友一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 6,
@@ -3205,7 +3940,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "丸山 元気",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 3 4 4"
         },
         {
           "finish": 8,
@@ -3217,7 +3955,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "内田 博幸",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "4 3 5 6"
         },
         {
           "finish": 10,
@@ -3229,7 +3970,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 5,
+          "cornerRaw": "6 6 6 5"
         },
         {
           "finish": 3,
@@ -3241,7 +3985,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "岩田 康誠",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "2 3 3 3"
         }
       ]
     },
@@ -3253,10 +4000,11 @@
       "no": 7,
       "date": "2026-09-06",
       "time": "13:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2000,
       "surface": "芝",
       "course": "右",
+      "going": "重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020720260906%2F4B",
       "token": "pw01sde1006202604020720260906/4B",
       "historical": true,
@@ -3271,7 +4019,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 0,
           "jockey": "M.ミシェル",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "8 7 6 4"
         },
         {
           "finish": 15,
@@ -3283,7 +4034,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 2,
           "jockey": "江田 照男",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "14 13 13 13"
         },
         {
           "finish": 7,
@@ -3295,7 +4049,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": -4,
           "jockey": "△石神 深道",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "11 11 9 8"
         },
         {
           "finish": 2,
@@ -3307,7 +4064,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": -2,
           "jockey": "原 優介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 2,
+          "cornerRaw": "4 3 4 2"
         },
         {
           "finish": 1,
@@ -3319,7 +4079,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -8,
           "jockey": "岩田 康誠",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 12,
@@ -3331,7 +4094,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": -2,
           "jockey": "柴田 大知",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "4 5 6 4"
         },
         {
           "finish": 18,
@@ -3343,7 +4109,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": 8,
           "jockey": "内田 博幸",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 4,
+          "cornerRaw": "2 2 2 4"
         },
         {
           "finish": 5,
@@ -3355,7 +4124,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": -2,
           "jockey": "C.ルメール",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "11 11 12 13"
         },
         {
           "finish": 11,
@@ -3367,7 +4139,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": -2,
           "jockey": "杉原 誠人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "10 10 9 8"
         },
         {
           "finish": 10,
@@ -3379,7 +4154,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": -2,
           "jockey": "団野 大成",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "3 3 2 2"
         },
         {
           "finish": 13,
@@ -3391,7 +4169,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": 6,
           "jockey": "津村 明秀",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "7 7 8 8"
         },
         {
           "finish": 17,
@@ -3403,7 +4184,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": 6,
           "jockey": "木幡 巧也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 5 4 4"
         },
         {
           "finish": 3,
@@ -3415,7 +4199,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -6,
           "jockey": "北村 友一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 18,
+          "corner4": 16,
+          "cornerRaw": "18 18 18 16"
         },
         {
           "finish": 16,
@@ -3427,7 +4214,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": -2,
           "jockey": "嶋田 純次",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 11,
+          "cornerRaw": "8 9 9 11"
         },
         {
           "finish": 8,
@@ -3439,7 +4229,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -6,
           "jockey": "丸田 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 15,
+          "corner4": 13,
+          "cornerRaw": "17 17 15 13"
         },
         {
           "finish": 6,
@@ -3451,7 +4244,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": -4,
           "jockey": "△石田 拓郎",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "14 13 16 16"
         },
         {
           "finish": 14,
@@ -3463,7 +4259,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": 10,
           "jockey": "木幡 初也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 16,
+          "corner4": 18,
+          "cornerRaw": "13 13 16 18"
         },
         {
           "finish": 9,
@@ -3475,7 +4274,10 @@
           "bodyWeight": 422,
           "bodyWeightDiff": -2,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 11,
+          "cornerRaw": "14 13 13 11"
         }
       ]
     },
@@ -3487,10 +4289,11 @@
       "no": 8,
       "date": "2026-09-06",
       "time": "14:01",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "不良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020820260906%2F00",
       "token": "pw01sde1006202604020820260906/00",
       "historical": true,
@@ -3505,7 +4308,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": -4,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "8 7 8 9"
         },
         {
           "finish": 8,
@@ -3517,7 +4323,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": -4,
           "jockey": "津村 明秀",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "5 4 6 6"
         },
         {
           "finish": 9,
@@ -3529,7 +4338,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -2,
           "jockey": "▲上里 直汰",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 13,
+          "corner4": 12,
+          "cornerRaw": "9 10 13 12"
         },
         {
           "finish": 13,
@@ -3541,7 +4353,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 2,
           "jockey": "丸山 元気",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "12 13 10 11"
         },
         {
           "finish": 11,
@@ -3553,7 +4368,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 8,
           "jockey": "△石神 深道",
-          "carriedWeight": 51.0
+          "carriedWeight": 51.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "5 7 6 6"
         },
         {
           "finish": 5,
@@ -3565,7 +4383,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": 0,
           "jockey": "団野 大成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 6,
+          "cornerRaw": "12 10 10 6"
         },
         {
           "finish": 2,
@@ -3577,7 +4398,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 10,
           "jockey": "江田 照男",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 12,
@@ -3589,7 +4413,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -10,
           "jockey": "△石田 拓郎",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 16,
+          "corner4": 15,
+          "cornerRaw": "16 16 16 15"
         },
         {
           "finish": 16,
@@ -3601,7 +4428,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": -8,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 13,
+          "cornerRaw": "9 9 8 13"
         },
         {
           "finish": 14,
@@ -3613,7 +4443,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 0,
           "jockey": "大野 拓弥",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 9,
+          "cornerRaw": "9 10 10 9"
         },
         {
           "finish": 15,
@@ -3625,7 +4458,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": -4,
           "jockey": "M.ミシェル",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 15,
+          "corner4": 16,
+          "cornerRaw": "15 14 15 16"
         },
         {
           "finish": 7,
@@ -3637,7 +4473,10 @@
           "bodyWeight": 516,
           "bodyWeightDiff": -4,
           "jockey": "岩田 康誠",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "2 2 5 5"
         },
         {
           "finish": 3,
@@ -3649,7 +4488,10 @@
           "bodyWeight": 516,
           "bodyWeightDiff": 0,
           "jockey": "C.ルメール",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 4,
@@ -3661,7 +4503,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 8,
           "jockey": "原 優介",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "4 4 3 2"
         },
         {
           "finish": 10,
@@ -3673,7 +4518,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 6,
           "jockey": "丸田 恭介",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 14,
+          "corner4": 13,
+          "cornerRaw": "14 14 14 13"
         },
         {
           "finish": 1,
@@ -3685,7 +4533,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": -2,
           "jockey": "木幡 巧也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "5 6 3 2"
         }
       ]
     },
@@ -3697,10 +4548,11 @@
       "no": 9,
       "date": "2026-09-06",
       "time": "14:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "ダート",
       "course": "右",
+      "going": "不良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604020920260906%2FB5",
       "token": "pw01sde1006202604020920260906/B5",
       "historical": true,
@@ -3715,7 +4567,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 6,
           "jockey": "菅原 隆一",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 15,
+          "corner4": 16,
+          "cornerRaw": "15 16"
         },
         {
           "finish": 11,
@@ -3727,7 +4582,10 @@
           "bodyWeight": 526,
           "bodyWeightDiff": -4,
           "jockey": "石橋 脩",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 14,
+          "corner4": 13,
+          "cornerRaw": "14 13"
         },
         {
           "finish": 2,
@@ -3739,7 +4597,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 0,
           "jockey": "内田 博幸",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 5,
@@ -3751,7 +4612,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": -4,
           "jockey": "岩田 康誠",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 12,
+          "corner4": 10,
+          "cornerRaw": "12 10"
         },
         {
           "finish": 14,
@@ -3763,7 +4627,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": -2,
           "jockey": "丸田 恭介",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 15,
+          "corner4": 15,
+          "cornerRaw": "15 15"
         },
         {
           "finish": 1,
@@ -3775,7 +4642,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 6,
           "jockey": "北村 友一",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 12,
@@ -3787,7 +4657,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 10,
           "jockey": "柴田 大知",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         },
         {
           "finish": 4,
@@ -3799,7 +4672,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -4,
           "jockey": "原 優介",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 9,
+          "corner4": 7,
+          "cornerRaw": "9 7"
         },
         {
           "finish": 7,
@@ -3811,7 +4687,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 4,
           "jockey": "木幡 巧也",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 5,
+          "corner4": 4,
+          "cornerRaw": "5 4"
         },
         {
           "finish": 3,
@@ -3823,7 +4702,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": -4,
           "jockey": "津村 明秀",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 6,
@@ -3835,7 +4717,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -8,
           "jockey": "大野 拓弥",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6"
         },
         {
           "finish": 16,
@@ -3847,7 +4732,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 0,
           "jockey": "団野 大成",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 9,
@@ -3859,7 +4747,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 4,
           "jockey": "木幡 初也",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "11 10"
         },
         {
           "finish": 10,
@@ -3871,7 +4762,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": 2,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 9,
+          "corner4": 10,
+          "cornerRaw": "9 10"
         },
         {
           "finish": 8,
@@ -3883,7 +4777,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 10,
           "jockey": "M.ミシェル",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 13,
@@ -3895,7 +4792,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 0,
           "jockey": "三浦 皇成",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         }
       ]
     },
@@ -3907,10 +4807,11 @@
       "no": 10,
       "date": "2026-09-06",
       "time": "15:05",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右 外",
+      "going": "重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604021020260906%2FAA",
       "token": "pw01sde1006202604021020260906/AA",
       "historical": true,
@@ -3925,7 +4826,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 2,
           "jockey": "団野 大成",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 3,
@@ -3937,7 +4841,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 6,
           "jockey": "丸山 元気",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 7,
@@ -3949,7 +4856,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -4,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 8,
@@ -3961,7 +4871,10 @@
           "bodyWeight": 532,
           "bodyWeightDiff": -6,
           "jockey": "津村 明秀",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5"
         },
         {
           "finish": 9,
@@ -3973,7 +4886,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 4,
           "jockey": "北村 友一",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 3"
         },
         {
           "finish": 1,
@@ -3985,7 +4901,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 6,
           "jockey": "杉原 誠人",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 5,
@@ -3997,7 +4916,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": 0,
           "jockey": "原 優介",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 2,
@@ -4009,7 +4931,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 10,
           "jockey": "C.ルメール",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5"
         },
         {
           "finish": 4,
@@ -4021,7 +4946,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": -2,
           "jockey": "木幡 巧也",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         }
       ]
     },
@@ -4033,10 +4961,11 @@
       "no": 11,
       "date": "2026-09-06",
       "time": "15:45",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2000,
       "surface": "芝",
       "course": "右",
+      "going": "重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604021120260906%2F5F",
       "token": "pw01sde1006202604021120260906/5F",
       "historical": true,
@@ -4051,7 +4980,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": 0,
           "jockey": "三浦 皇成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11 11 11"
         },
         {
           "finish": 2,
@@ -4063,7 +4995,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 10,
           "jockey": "団野 大成",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 7,
+          "cornerRaw": "9 8 9 7"
         },
         {
           "finish": 7,
@@ -4075,7 +5010,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -10,
           "jockey": "津村 明秀",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "4 4 3 2"
         },
         {
           "finish": 1,
@@ -4087,7 +5025,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 10,
           "jockey": "大野 拓弥",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 5,
+          "cornerRaw": "8 8 6 5"
         },
         {
           "finish": 8,
@@ -4099,7 +5040,10 @@
           "bodyWeight": 410,
           "bodyWeightDiff": 8,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "6 6 6 7"
         },
         {
           "finish": 4,
@@ -4111,7 +5055,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": -4,
           "jockey": "M.ミシェル",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 7,
+          "cornerRaw": "9 8 9 7"
         },
         {
           "finish": 11,
@@ -4123,7 +5070,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 4,
           "jockey": "杉原 誠人",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 3,
+          "cornerRaw": "2 2 2 3"
         },
         {
           "finish": 6,
@@ -4135,7 +5085,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 0,
           "jockey": "岩田 康誠",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 3,
@@ -4147,7 +5100,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 4,
           "jockey": "C.ルメール",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 3,
+          "cornerRaw": "4 4 5 3"
         },
         {
           "finish": 10,
@@ -4159,7 +5115,10 @@
           "bodyWeight": 434,
           "bodyWeightDiff": 12,
           "jockey": "北村 友一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 2 3 5"
         },
         {
           "finish": 9,
@@ -4171,7 +5130,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 8,
           "jockey": "石橋 脩",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "6 6 6 7"
         }
       ]
     },
@@ -4183,10 +5145,11 @@
       "no": 12,
       "date": "2026-09-06",
       "time": "16:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右 外",
+      "going": "重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604021220260906%2F14",
       "token": "pw01sde1006202604021220260906/14",
       "historical": true,
@@ -4201,7 +5164,10 @@
           "bodyWeight": 434,
           "bodyWeightDiff": 2,
           "jockey": "団野 大成",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 6"
         },
         {
           "finish": 5,
@@ -4213,7 +5179,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 8,
           "jockey": "津村 明秀",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 3"
         },
         {
           "finish": 1,
@@ -4225,7 +5194,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 6,
           "jockey": "C.ルメール",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 4,
+          "corner4": 3,
+          "cornerRaw": "4 3"
         },
         {
           "finish": 13,
@@ -4237,7 +5209,10 @@
           "bodyWeight": 426,
           "bodyWeightDiff": 0,
           "jockey": "大野 拓弥",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 7,
@@ -4249,7 +5224,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 8,
           "jockey": "▲佐藤 翔馬",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 8,
@@ -4261,7 +5239,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 2,
           "jockey": "▲上里 直汰",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 2,
@@ -4273,7 +5254,10 @@
           "bodyWeight": 532,
           "bodyWeightDiff": -16,
           "jockey": "石橋 脩",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 6"
         },
         {
           "finish": 10,
@@ -4285,7 +5269,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": -18,
           "jockey": "原 優介",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 12,
@@ -4297,7 +5284,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 0,
           "jockey": "柴田 大知",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "12 11"
         },
         {
           "finish": 14,
@@ -4309,7 +5299,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": 2,
           "jockey": "三浦 皇成",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 6,
@@ -4321,7 +5314,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 10,
           "jockey": "北村 友一",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "16 16"
         },
         {
           "finish": 16,
@@ -4333,7 +5329,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": -8,
           "jockey": "菊沢 一樹",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         },
         {
           "finish": 9,
@@ -4345,7 +5344,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": 4,
           "jockey": "嶋田 純次",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         },
         {
           "finish": 15,
@@ -4357,7 +5359,10 @@
           "bodyWeight": 414,
           "bodyWeightDiff": 6,
           "jockey": "△石田 拓郎",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 15,
+          "corner4": 15,
+          "cornerRaw": "15 15"
         },
         {
           "finish": 11,
@@ -4369,7 +5374,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": 0,
           "jockey": "木幡 巧也",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 3,
@@ -4381,7 +5389,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 4,
           "jockey": "△石神 深道",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 4,
+          "corner4": 6,
+          "cornerRaw": "4 6"
         }
       ]
     },
@@ -4393,10 +5404,11 @@
       "no": 1,
       "date": "2026-09-06",
       "time": "09:55",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1400,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020120260906%2FEB",
       "token": "pw01sde1009202604020120260906/EB",
       "historical": true,
@@ -4411,7 +5423,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 12,
           "jockey": "松山 弘平",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10"
         },
         {
           "finish": 8,
@@ -4423,7 +5438,10 @@
           "bodyWeight": 410,
           "bodyWeightDiff": 2,
           "jockey": "田口 貫太",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 2,
@@ -4435,7 +5453,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 2,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 7,
+          "cornerRaw": "9 7"
         },
         {
           "finish": 9,
@@ -4447,7 +5468,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 12,
           "jockey": "幸 英明",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 4,
+          "cornerRaw": "3 4"
         },
         {
           "finish": 4,
@@ -4459,7 +5483,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -2,
           "jockey": "松若 風馬",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 7,
@@ -4471,7 +5498,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -2,
           "jockey": "富田 暁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 5,
@@ -4483,7 +5513,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": 8,
           "jockey": "武 豊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 3,
@@ -4495,7 +5528,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": 2,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 6,
+          "corner4": 5,
+          "cornerRaw": "6 5"
         },
         {
           "finish": 6,
@@ -4507,7 +5543,10 @@
           "bodyWeight": 414,
           "bodyWeightDiff": 0,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 3,
+          "corner4": 5,
+          "cornerRaw": "3 5"
         },
         {
           "finish": 10,
@@ -4519,7 +5558,10 @@
           "bodyWeight": 404,
           "bodyWeightDiff": -6,
           "jockey": "国分 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "3 2"
         }
       ]
     },
@@ -4531,10 +5573,11 @@
       "no": 2,
       "date": "2026-09-06",
       "time": "10:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020220260906%2FA0",
       "token": "pw01sde1009202604020220260906/A0",
       "historical": true,
@@ -4549,7 +5592,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": -8,
           "jockey": "秋山 稔樹",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 9,
+          "cornerRaw": "5 9"
         },
         {
           "finish": 14,
@@ -4561,7 +5607,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": -2,
           "jockey": "◇永島 まなみ",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 16,
+          "corner4": 15,
+          "cornerRaw": "16 15"
         },
         {
           "finish": 16,
@@ -4573,7 +5622,10 @@
           "bodyWeight": 436,
           "bodyWeightDiff": 10,
           "jockey": "西塚 洸二",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 5,
+          "cornerRaw": "2 5"
         },
         {
           "finish": 4,
@@ -4585,7 +5637,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": -6,
           "jockey": "藤懸 貴志",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 12,
+          "cornerRaw": "12 12"
         },
         {
           "finish": 5,
@@ -4597,7 +5652,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 0,
           "jockey": "長岡 禎仁",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5"
         },
         {
           "finish": 7,
@@ -4609,7 +5667,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": -2,
           "jockey": "▲森田 誠也",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 13,
+          "corner4": 14,
+          "cornerRaw": "13 14"
         },
         {
           "finish": 15,
@@ -4621,7 +5682,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 0,
           "jockey": "酒井 学",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 16,
+          "cornerRaw": "13 16"
         },
         {
           "finish": 3,
@@ -4633,7 +5697,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 8,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 2,
+          "cornerRaw": "4 2"
         },
         {
           "finish": 12,
@@ -4645,7 +5712,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 2,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 11,
+          "cornerRaw": "10 11"
         },
         {
           "finish": 9,
@@ -4657,7 +5727,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "菱田 裕二",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 11,
@@ -4669,7 +5742,10 @@
           "bodyWeight": 444,
           "bodyWeightDiff": 2,
           "jockey": "松若 風馬",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 10,
@@ -4681,7 +5757,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 0,
           "jockey": "松山 弘平",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 4,
+          "cornerRaw": "7 4"
         },
         {
           "finish": 1,
@@ -4693,7 +5772,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": 4,
           "jockey": "西村 淳也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 6,
@@ -4705,7 +5787,10 @@
           "bodyWeight": 412,
           "bodyWeightDiff": 2,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 9,
+          "cornerRaw": "11 9"
         },
         {
           "finish": 13,
@@ -4717,7 +5802,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": 8,
           "jockey": "幸 英明",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 8,
@@ -4729,7 +5817,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": 2,
           "jockey": "◇今村 聖奈",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         }
       ]
     },
@@ -4741,10 +5832,11 @@
       "no": 3,
       "date": "2026-09-06",
       "time": "11:00",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020320260906%2F55",
       "token": "pw01sde1009202604020320260906/55",
       "historical": true,
@@ -4759,7 +5851,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": -4,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 7 7 8"
         },
         {
           "finish": 9,
@@ -4771,7 +5866,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 0,
           "jockey": "中井 裕二",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "11 11 12 11"
         },
         {
           "finish": 6,
@@ -4783,7 +5881,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": -14,
           "jockey": "田辺 裕信",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 4,
+          "corner4": 5,
+          "cornerRaw": "3 4 4 5"
         },
         {
           "finish": 14,
@@ -4795,7 +5896,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 6,
           "jockey": "西村 淳也",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 13,
+          "cornerRaw": "9 9 9 13"
         },
         {
           "finish": 5,
@@ -4807,7 +5911,10 @@
           "bodyWeight": 536,
           "bodyWeightDiff": 2,
           "jockey": "松山 弘平",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 5,
+          "cornerRaw": "10 9 9 5"
         },
         {
           "finish": 2,
@@ -4819,7 +5926,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": 4,
           "jockey": "M.デムーロ",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "13 12 9 8"
         },
         {
           "finish": 15,
@@ -4831,7 +5941,10 @@
           "bodyWeight": 464,
           "bodyWeightDiff": 2,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 2,
+          "cornerRaw": "1 1 1 2"
         },
         {
           "finish": 12,
@@ -4843,7 +5956,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 2,
           "jockey": "池添 謙一",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 12,
+          "corner4": 11,
+          "cornerRaw": "11 12 12 11"
         },
         {
           "finish": 11,
@@ -4855,7 +5971,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": 0,
           "jockey": "川須 栄彦",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 14,
+          "corner4": 13,
+          "cornerRaw": "14 14 14 13"
         },
         {
           "finish": 8,
@@ -4867,7 +5986,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 10,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 2 1"
         },
         {
           "finish": 13,
@@ -4879,7 +6001,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -6,
           "jockey": "藤懸 貴志",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 14,
+          "corner4": 15,
+          "cornerRaw": "14 14 14 15"
         },
         {
           "finish": 10,
@@ -4891,7 +6016,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 4,
           "jockey": "加藤 祥太",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 6,
+          "corner4": 7,
+          "cornerRaw": "5 5 6 7"
         },
         {
           "finish": 7,
@@ -4903,7 +6031,10 @@
           "bodyWeight": 510,
           "bodyWeightDiff": 24,
           "jockey": "松若 風馬",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 8 7 8"
         },
         {
           "finish": 1,
@@ -4915,7 +6046,10 @@
           "bodyWeight": 494,
           "bodyWeightDiff": 2,
           "jockey": "川田 将雅",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "3 2 2 2"
         },
         {
           "finish": 4,
@@ -4927,7 +6061,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 4,
           "jockey": "D.レーン",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 4,
+          "corner4": 2,
+          "cornerRaw": "5 5 4 2"
         }
       ]
     },
@@ -4939,10 +6076,11 @@
       "no": 4,
       "date": "2026-09-06",
       "time": "11:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 2000,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020420260906%2F0A",
       "token": "pw01sde1009202604020420260906/0A",
       "historical": true,
@@ -4957,7 +6095,10 @@
           "bodyWeight": 454,
           "bodyWeightDiff": -8,
           "jockey": "中井 裕二",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 5,
+          "cornerRaw": "7 7 7 5"
         },
         {
           "finish": 6,
@@ -4969,7 +6110,10 @@
           "bodyWeight": 422,
           "bodyWeightDiff": 2,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 15,
+          "corner4": 14,
+          "cornerRaw": "15 15 15 14"
         },
         {
           "finish": 1,
@@ -4981,7 +6125,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -4,
           "jockey": "松山 弘平",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1 1 1"
         },
         {
           "finish": 7,
@@ -4993,7 +6140,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 4,
           "jockey": "西村 淳也",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 13,
+          "corner4": 11,
+          "cornerRaw": "13 12 13 11"
         },
         {
           "finish": 2,
@@ -5005,7 +6155,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "高倉 稜",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 7,
+          "cornerRaw": "12 12 11 7"
         },
         {
           "finish": 9,
@@ -5017,7 +6170,10 @@
           "bodyWeight": 384,
           "bodyWeightDiff": 0,
           "jockey": "川須 栄彦",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 15,
+          "corner4": 16,
+          "cornerRaw": "16 16 15 16"
         },
         {
           "finish": 12,
@@ -5029,7 +6185,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 6,
           "jockey": "西塚 洸二",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 14,
+          "cornerRaw": "7 7 7 14"
         },
         {
           "finish": 3,
@@ -5041,7 +6200,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 8,
           "jockey": "◇永島 まなみ",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2 2 2"
         },
         {
           "finish": 5,
@@ -5053,7 +6215,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": 4,
           "jockey": "▲森田 誠也",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "2 3 3 3"
         },
         {
           "finish": 15,
@@ -5065,7 +6230,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 10,
           "jockey": "松若 風馬",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 11,
+          "cornerRaw": "6 5 5 11"
         },
         {
           "finish": 14,
@@ -5077,7 +6245,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": -4,
           "jockey": "国分 恭介",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "11 10 11 10"
         },
         {
           "finish": 10,
@@ -5089,7 +6260,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": -8,
           "jockey": "加藤 祥太",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 11,
+          "cornerRaw": "13 12 13 11"
         },
         {
           "finish": 13,
@@ -5101,7 +6275,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": -4,
           "jockey": "幸 英明",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "4 5 5 5"
         },
         {
           "finish": 8,
@@ -5113,7 +6290,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": -2,
           "jockey": "川田 将雅",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7 7 7"
         },
         {
           "finish": 11,
@@ -5125,7 +6305,10 @@
           "bodyWeight": 430,
           "bodyWeightDiff": -2,
           "jockey": "富田 暁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 9,
+          "cornerRaw": "10 10 10 9"
         }
       ]
     },
@@ -5137,10 +6320,11 @@
       "no": 5,
       "date": "2026-09-06",
       "time": "12:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "芝",
       "course": "右 外",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020520260906%2FBF",
       "token": "pw01sde1009202604020520260906/BF",
       "historical": true,
@@ -5155,7 +6339,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "D.レーン",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 5,
@@ -5167,7 +6354,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "西村 淳也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 6,
@@ -5179,7 +6369,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "菱田 裕二",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 3,
+          "cornerRaw": "2 3"
         },
         {
           "finish": 3,
@@ -5191,7 +6384,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "武 豊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 4,
@@ -5203,7 +6399,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 9,
@@ -5215,7 +6414,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "池添 謙一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 8,
@@ -5227,7 +6429,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "◇今村 聖奈",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 10,
@@ -5239,7 +6444,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 2,
@@ -5251,7 +6459,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "松山 弘平",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 6,
+          "cornerRaw": "4 6"
         },
         {
           "finish": 7,
@@ -5263,7 +6474,10 @@
           "bodyWeight": null,
           "bodyWeightDiff": null,
           "jockey": "幸 英明",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10"
         }
       ]
     },
@@ -5275,10 +6489,11 @@
       "no": 6,
       "date": "2026-09-06",
       "time": "12:50",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020620260906%2F74",
       "token": "pw01sde1009202604020620260906/74",
       "historical": true,
@@ -5293,7 +6508,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": -4,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 3 4 4"
         },
         {
           "finish": 12,
@@ -5305,7 +6523,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": 10,
           "jockey": "秋山 稔樹",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 1,
+          "corner4": 7,
+          "cornerRaw": "1 1 1 7"
         },
         {
           "finish": 10,
@@ -5317,7 +6538,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 2,
           "jockey": "▲森田 誠也",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "6 7 10 12"
         },
         {
           "finish": 9,
@@ -5329,7 +6553,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 2,
           "jockey": "M.デムーロ",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 12,
+          "corner4": 9,
+          "cornerRaw": "12 12 12 9"
         },
         {
           "finish": 11,
@@ -5341,7 +6568,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": 12,
           "jockey": "◇今村 聖奈",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "8 8 7 7"
         },
         {
           "finish": 2,
@@ -5353,7 +6583,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -8,
           "jockey": "岩田 望来",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 2,
+          "cornerRaw": "5 5 4 2"
         },
         {
           "finish": 1,
@@ -5365,7 +6598,10 @@
           "bodyWeight": 428,
           "bodyWeightDiff": 6,
           "jockey": "田口 貫太",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 2 1"
         },
         {
           "finish": 7,
@@ -5377,7 +6613,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": -10,
           "jockey": "松山 弘平",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 10,
+          "corner4": 9,
+          "cornerRaw": "10 11 10 9"
         },
         {
           "finish": 5,
@@ -5389,7 +6628,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 22,
           "jockey": "武 豊",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "6 6 6 4"
         },
         {
           "finish": 8,
@@ -5401,7 +6643,10 @@
           "bodyWeight": 442,
           "bodyWeightDiff": -2,
           "jockey": "△柴田 裕一郎",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "10 10 9 9"
         },
         {
           "finish": 4,
@@ -5413,7 +6658,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": 2,
           "jockey": "松若 風馬",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 3,
+          "corner4": 2,
+          "cornerRaw": "3 3 3 2"
         },
         {
           "finish": 3,
@@ -5425,7 +6673,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": -4,
           "jockey": "西村 淳也",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 8,
+          "corner4": 6,
+          "cornerRaw": "8 8 8 6"
         }
       ]
     },
@@ -5437,10 +6688,11 @@
       "no": 7,
       "date": "2026-09-06",
       "time": "13:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1600,
       "surface": "芝",
       "course": "右 外",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020720260906%2F29",
       "token": "pw01sde1009202604020720260906/29",
       "historical": true,
@@ -5455,7 +6707,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": 24,
           "jockey": "岩田 望来",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 14,
@@ -5467,7 +6722,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 0,
           "jockey": "△柴田 裕一郎",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 12,
@@ -5479,7 +6737,10 @@
           "bodyWeight": 508,
           "bodyWeightDiff": 0,
           "jockey": "西村 淳也",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 6,
@@ -5491,7 +6752,10 @@
           "bodyWeight": 452,
           "bodyWeightDiff": 8,
           "jockey": "田口 貫太",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 5,
+          "corner4": 4,
+          "cornerRaw": "5 4"
         },
         {
           "finish": 3,
@@ -5503,7 +6767,10 @@
           "bodyWeight": 432,
           "bodyWeightDiff": 6,
           "jockey": "池添 謙一",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 14,
+          "corner4": 11,
+          "cornerRaw": "14 11"
         },
         {
           "finish": 10,
@@ -5515,7 +6782,10 @@
           "bodyWeight": 526,
           "bodyWeightDiff": 6,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "6 4"
         },
         {
           "finish": 1,
@@ -5527,7 +6797,10 @@
           "bodyWeight": 438,
           "bodyWeightDiff": -4,
           "jockey": "菱田 裕二",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 11,
@@ -5539,7 +6812,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": -4,
           "jockey": "西塚 洸二",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 6,
+          "corner4": 4,
+          "cornerRaw": "6 4"
         },
         {
           "finish": 5,
@@ -5551,7 +6827,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": -2,
           "jockey": "酒井 学",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 8,
+          "corner4": 8,
+          "cornerRaw": "8 8"
         },
         {
           "finish": 7,
@@ -5563,7 +6842,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": -4,
           "jockey": "M.デムーロ",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 8,
+          "cornerRaw": "10 8"
         },
         {
           "finish": 8,
@@ -5575,7 +6857,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": -2,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 13,
@@ -5587,7 +6872,10 @@
           "bodyWeight": 440,
           "bodyWeightDiff": -4,
           "jockey": "長岡 禎仁",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 4,
@@ -5599,7 +6887,10 @@
           "bodyWeight": 482,
           "bodyWeightDiff": 6,
           "jockey": "松若 風馬",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "10 12"
         },
         {
           "finish": 9,
@@ -5611,7 +6902,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": -12,
           "jockey": "幸 英明",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 12,
+          "corner4": 13,
+          "cornerRaw": "12 13"
         }
       ]
     },
@@ -5623,10 +6917,11 @@
       "no": 8,
       "date": "2026-09-06",
       "time": "13:50",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1600,
       "surface": "芝",
       "course": "右 外",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020820260906%2FDE",
       "token": "pw01sde1009202604020820260906/DE",
       "historical": true,
@@ -5641,7 +6936,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -2,
           "jockey": "D.レーン",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 2,
@@ -5653,7 +6951,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": -8,
           "jockey": "幸 英明",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 4,
@@ -5665,7 +6966,10 @@
           "bodyWeight": 522,
           "bodyWeightDiff": -6,
           "jockey": "富田 暁",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 6,
@@ -5677,7 +6981,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 16,
           "jockey": "岩田 望来",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4"
         },
         {
           "finish": 3,
@@ -5689,7 +6996,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 8,
           "jockey": "田山 旺佑",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 7,
+          "corner4": 7,
+          "cornerRaw": "7 7"
         },
         {
           "finish": 5,
@@ -5701,7 +7011,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 2,
           "jockey": "西村 淳也",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6"
         },
         {
           "finish": 7,
@@ -5713,7 +7026,10 @@
           "bodyWeight": 504,
           "bodyWeightDiff": 6,
           "jockey": "田口 貫太",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         }
       ]
     },
@@ -5725,10 +7041,11 @@
       "no": 9,
       "date": "2026-09-06",
       "time": "14:20",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1800,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604020920260906%2F93",
       "token": "pw01sde1009202604020920260906/93",
       "historical": true,
@@ -5743,7 +7060,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 2,
           "jockey": "富田 暁",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 6,
+          "cornerRaw": "4 4 4 6"
         },
         {
           "finish": 12,
@@ -5755,7 +7075,10 @@
           "bodyWeight": 424,
           "bodyWeightDiff": 8,
           "jockey": "加藤 祥太",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 10,
+          "corner4": 15,
+          "cornerRaw": "8 8 10 15"
         },
         {
           "finish": 3,
@@ -5767,7 +7090,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 4,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "4 4 4 4"
         },
         {
           "finish": 9,
@@ -5779,7 +7105,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 0,
           "jockey": "西塚 洸二",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "10 10 11 11"
         },
         {
           "finish": 13,
@@ -5791,7 +7120,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 12,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 1,
+          "corner4": 2,
+          "cornerRaw": "1 1 1 2"
         },
         {
           "finish": 10,
@@ -5803,7 +7135,10 @@
           "bodyWeight": 450,
           "bodyWeightDiff": 8,
           "jockey": "川田 将雅",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "6 7 7 8"
         },
         {
           "finish": 11,
@@ -5815,7 +7150,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": -8,
           "jockey": "田口 貫太",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 4,
+          "corner4": 4,
+          "cornerRaw": "6 4 4 4"
         },
         {
           "finish": 7,
@@ -5827,7 +7165,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": 2,
           "jockey": "中井 裕二",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 11,
+          "corner4": 12,
+          "cornerRaw": "12 12 11 12"
         },
         {
           "finish": 14,
@@ -5839,7 +7180,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 4,
           "jockey": "国分 恭介",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 9,
+          "cornerRaw": "12 12 11 9"
         },
         {
           "finish": 6,
@@ -5851,7 +7195,10 @@
           "bodyWeight": 448,
           "bodyWeightDiff": -4,
           "jockey": "◇今村 聖奈",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 16,
+          "corner4": 12,
+          "cornerRaw": "16 16 16 12"
         },
         {
           "finish": 2,
@@ -5863,7 +7210,10 @@
           "bodyWeight": 522,
           "bodyWeightDiff": -2,
           "jockey": "西村 淳也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 2,
+          "corner4": 1,
+          "cornerRaw": "2 2 2 1"
         },
         {
           "finish": 8,
@@ -5875,7 +7225,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 0,
           "jockey": "高倉 稜",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 15,
+          "corner4": 16,
+          "cornerRaw": "15 15 15 16"
         },
         {
           "finish": 4,
@@ -5887,7 +7240,10 @@
           "bodyWeight": 446,
           "bodyWeightDiff": -6,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 8,
+          "corner4": 7,
+          "cornerRaw": "10 10 8 7"
         },
         {
           "finish": 1,
@@ -5899,7 +7255,10 @@
           "bodyWeight": 500,
           "bodyWeightDiff": 6,
           "jockey": "松山 弘平",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 2 3 3"
         },
         {
           "finish": 5,
@@ -5911,7 +7270,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": 2,
           "jockey": "藤懸 貴志",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 14,
+          "corner4": 12,
+          "cornerRaw": "12 12 14 12"
         },
         {
           "finish": 16,
@@ -5923,7 +7285,10 @@
           "bodyWeight": 512,
           "bodyWeightDiff": 0,
           "jockey": "酒井 学",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 8,
+          "corner4": 9,
+          "cornerRaw": "8 8 8 9"
         }
       ]
     },
@@ -5935,10 +7300,11 @@
       "no": 10,
       "date": "2026-09-06",
       "time": "14:55",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604021020260906%2F88",
       "token": "pw01sde1009202604021020260906/88",
       "historical": true,
@@ -5953,7 +7319,10 @@
           "bodyWeight": 532,
           "bodyWeightDiff": 8,
           "jockey": "田辺 裕信",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 10,
+          "cornerRaw": "9 10"
         },
         {
           "finish": 12,
@@ -5965,7 +7334,10 @@
           "bodyWeight": 470,
           "bodyWeightDiff": 4,
           "jockey": "柴田 裕一郎",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 7,
+          "corner4": 9,
+          "cornerRaw": "7 9"
         },
         {
           "finish": 13,
@@ -5977,7 +7349,10 @@
           "bodyWeight": 498,
           "bodyWeightDiff": 2,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 1,
@@ -5989,7 +7364,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": -4,
           "jockey": "武 豊",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 6"
         },
         {
           "finish": 6,
@@ -6001,7 +7379,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 2,
           "jockey": "D.レーン",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 4,
+          "cornerRaw": "3 4"
         },
         {
           "finish": 11,
@@ -6013,7 +7394,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 4,
           "jockey": "田山 旺佑",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 9,
@@ -6025,7 +7409,10 @@
           "bodyWeight": 492,
           "bodyWeightDiff": 4,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 5,
+          "corner4": 6,
+          "cornerRaw": "5 6"
         },
         {
           "finish": 8,
@@ -6037,7 +7424,10 @@
           "bodyWeight": 528,
           "bodyWeightDiff": -2,
           "jockey": "松山 弘平",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 5,
@@ -6049,7 +7439,10 @@
           "bodyWeight": 458,
           "bodyWeightDiff": -6,
           "jockey": "菱田 裕二",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 9,
+          "corner4": 8,
+          "cornerRaw": "9 8"
         },
         {
           "finish": 2,
@@ -6061,7 +7454,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": 4,
           "jockey": "田口 貫太",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 5,
+          "corner4": 4,
+          "cornerRaw": "5 4"
         },
         {
           "finish": 10,
@@ -6073,7 +7469,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": -16,
           "jockey": "西村 淳也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 11,
+          "cornerRaw": "11 11"
         },
         {
           "finish": 3,
@@ -6085,7 +7484,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 0,
           "jockey": "松若 風馬",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 4,
@@ -6097,7 +7499,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": -2,
           "jockey": "幸 英明",
-          "carriedWeight": 52.0
+          "carriedWeight": 52.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         }
       ]
     },
@@ -6109,10 +7514,11 @@
       "no": 11,
       "date": "2026-09-06",
       "time": "15:30",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1200,
       "surface": "芝",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604021120260906%2F3D",
       "token": "pw01sde1009202604021120260906/3D",
       "historical": true,
@@ -6127,7 +7533,10 @@
           "bodyWeight": 502,
           "bodyWeightDiff": 10,
           "jockey": "武 豊",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6"
         },
         {
           "finish": 4,
@@ -6139,7 +7548,10 @@
           "bodyWeight": 514,
           "bodyWeightDiff": -4,
           "jockey": "小崎 綾也",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 3,
+          "corner4": 4,
+          "cornerRaw": "3 4"
         },
         {
           "finish": 1,
@@ -6151,7 +7563,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": -2,
           "jockey": "松山 弘平",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 5,
@@ -6163,7 +7578,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": 0,
           "jockey": "田口 貫太",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 10,
+          "corner4": 10,
+          "cornerRaw": "10 10"
         },
         {
           "finish": 8,
@@ -6175,7 +7593,10 @@
           "bodyWeight": 484,
           "bodyWeightDiff": 4,
           "jockey": "川田 将雅",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 8"
         },
         {
           "finish": 7,
@@ -6187,7 +7608,10 @@
           "bodyWeight": 480,
           "bodyWeightDiff": -6,
           "jockey": "亀田 温心",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 14,
+          "cornerRaw": "11 14"
         },
         {
           "finish": 6,
@@ -6199,7 +7623,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": 4,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 3,
+          "corner4": 3,
+          "cornerRaw": "3 3"
         },
         {
           "finish": 15,
@@ -6211,7 +7638,10 @@
           "bodyWeight": 506,
           "bodyWeightDiff": -28,
           "jockey": "D.レーン",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 5,
+          "corner4": 5,
+          "cornerRaw": "5 5"
         },
         {
           "finish": 2,
@@ -6223,7 +7653,10 @@
           "bodyWeight": 460,
           "bodyWeightDiff": 0,
           "jockey": "岩田 望来",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 9,
@@ -6235,7 +7668,10 @@
           "bodyWeight": 486,
           "bodyWeightDiff": -4,
           "jockey": "田山 旺佑",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 11,
+          "corner4": 10,
+          "cornerRaw": "11 10"
         },
         {
           "finish": 11,
@@ -6247,7 +7683,10 @@
           "bodyWeight": 494,
           "bodyWeightDiff": 8,
           "jockey": "田辺 裕信",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 6,
+          "cornerRaw": "7 6"
         },
         {
           "finish": 16,
@@ -6259,7 +7698,10 @@
           "bodyWeight": 512,
           "bodyWeightDiff": 12,
           "jockey": "酒井 学",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "16 16"
         },
         {
           "finish": 12,
@@ -6271,7 +7713,10 @@
           "bodyWeight": 476,
           "bodyWeightDiff": 2,
           "jockey": "西村 淳也",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 12,
+          "cornerRaw": "11 12"
         },
         {
           "finish": 10,
@@ -6283,7 +7728,10 @@
           "bodyWeight": 530,
           "bodyWeightDiff": 10,
           "jockey": "幸 英明",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 15,
+          "corner4": 14,
+          "cornerRaw": "15 14"
         },
         {
           "finish": 13,
@@ -6295,7 +7743,10 @@
           "bodyWeight": 518,
           "bodyWeightDiff": -2,
           "jockey": "M.デムーロ",
-          "carriedWeight": 57.0
+          "carriedWeight": 57.0,
+          "corner3": 7,
+          "corner4": 8,
+          "cornerRaw": "7 8"
         },
         {
           "finish": 14,
@@ -6307,7 +7758,10 @@
           "bodyWeight": 522,
           "bodyWeightDiff": 4,
           "jockey": "池添 謙一",
-          "carriedWeight": 55.0
+          "carriedWeight": 55.0,
+          "corner3": 11,
+          "corner4": 12,
+          "cornerRaw": "11 12"
         }
       ]
     },
@@ -6319,10 +7773,11 @@
       "no": 12,
       "date": "2026-09-06",
       "time": "16:15",
-      "name": "本文へ移動する",
+      "name": "検索ウィンドウ",
       "distance": 1400,
       "surface": "ダート",
       "course": "右",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604021220260906%2FF2",
       "token": "pw01sde1009202604021220260906/F2",
       "historical": true,
@@ -6337,7 +7792,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": -6,
           "jockey": "松山 弘平",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 16,
+          "corner4": 16,
+          "cornerRaw": "16 16"
         },
         {
           "finish": 16,
@@ -6349,7 +7807,10 @@
           "bodyWeight": 496,
           "bodyWeightDiff": 8,
           "jockey": "川田 将雅",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 6,
+          "corner4": 8,
+          "cornerRaw": "6 8"
         },
         {
           "finish": 11,
@@ -6361,7 +7822,10 @@
           "bodyWeight": 488,
           "bodyWeightDiff": 0,
           "jockey": "◇永島 まなみ",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 13,
+          "corner4": 14,
+          "cornerRaw": "13 14"
         },
         {
           "finish": 6,
@@ -6373,7 +7837,10 @@
           "bodyWeight": 510,
           "bodyWeightDiff": -18,
           "jockey": "西村 淳也",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 11,
+          "corner4": 9,
+          "cornerRaw": "11 9"
         },
         {
           "finish": 7,
@@ -6385,7 +7852,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": -8,
           "jockey": "松若 風馬",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 1,
+          "corner4": 1,
+          "cornerRaw": "1 1"
         },
         {
           "finish": 4,
@@ -6397,7 +7867,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": 10,
           "jockey": "中井 裕二",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 10,
+          "corner4": 12,
+          "cornerRaw": "10 12"
         },
         {
           "finish": 8,
@@ -6409,7 +7882,10 @@
           "bodyWeight": 478,
           "bodyWeightDiff": 2,
           "jockey": "吉村 誠之助",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 6,
+          "corner4": 6,
+          "cornerRaw": "6 6"
         },
         {
           "finish": 5,
@@ -6421,7 +7897,10 @@
           "bodyWeight": 462,
           "bodyWeightDiff": -2,
           "jockey": "田口 貫太",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 9,
+          "corner4": 9,
+          "cornerRaw": "9 9"
         },
         {
           "finish": 9,
@@ -6433,7 +7912,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 6,
           "jockey": "酒井 学",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 2,
@@ -6445,7 +7927,10 @@
           "bodyWeight": 456,
           "bodyWeightDiff": -2,
           "jockey": "岩田 望来",
-          "carriedWeight": 54.0
+          "carriedWeight": 54.0,
+          "corner3": 2,
+          "corner4": 2,
+          "cornerRaw": "2 2"
         },
         {
           "finish": 12,
@@ -6457,7 +7942,10 @@
           "bodyWeight": 468,
           "bodyWeightDiff": 2,
           "jockey": "M.デムーロ",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 11,
+          "corner4": 9,
+          "cornerRaw": "11 9"
         },
         {
           "finish": 10,
@@ -6469,7 +7957,10 @@
           "bodyWeight": 474,
           "bodyWeightDiff": 16,
           "jockey": "☆田山 旺佑",
-          "carriedWeight": 53.0
+          "carriedWeight": 53.0,
+          "corner3": 13,
+          "corner4": 13,
+          "cornerRaw": "13 13"
         },
         {
           "finish": 1,
@@ -6481,7 +7972,10 @@
           "bodyWeight": 528,
           "bodyWeightDiff": 0,
           "jockey": "幸 英明",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 8,
+          "corner4": 6,
+          "cornerRaw": "8 6"
         },
         {
           "finish": 15,
@@ -6493,7 +7987,10 @@
           "bodyWeight": 466,
           "bodyWeightDiff": 8,
           "jockey": "菱田 裕二",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 15,
+          "corner4": 14,
+          "cornerRaw": "15 14"
         },
         {
           "finish": 13,
@@ -6505,7 +8002,10 @@
           "bodyWeight": 490,
           "bodyWeightDiff": -4,
           "jockey": "D.レーン",
-          "carriedWeight": 56.0
+          "carriedWeight": 56.0,
+          "corner3": 2,
+          "corner4": 4,
+          "cornerRaw": "2 4"
         },
         {
           "finish": 3,
@@ -6517,11 +8017,14 @@
           "bodyWeight": 494,
           "bodyWeightDiff": 2,
           "jockey": "田辺 裕信",
-          "carriedWeight": 58.0
+          "carriedWeight": 58.0,
+          "corner3": 2,
+          "corner4": 4,
+          "cornerRaw": "2 4"
         }
       ]
     }
   ],
   "race_count": 36,
-  "parser_version": "1.1-historical"
+  "parser_version": "1.2-historical-corner-going-name"
 }
