@@ -1,0 +1,143 @@
+name: JRA horse history sync - Phase 2
+
+on:
+  workflow_dispatch:
+    inputs:
+      race_date:
+        description: "対象レース日 YYYYMMDD（例: 20260906）"
+        required: true
+        type: string
+      max_runs:
+        description: "各馬について保存する過去走数"
+        required: false
+        default: "12"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  horse-history:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run JRA horse history Phase 2
+        env:
+          RACE_DATE: ${{ inputs.race_date }}
+          MAX_RUNS: ${{ inputs.max_runs }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${RACE_DATE}" =~ ^[0-9]{8}$ ]]; then
+            echo "race_date は YYYYMMDD の8桁で指定してください: ${RACE_DATE}"
+            exit 1
+          fi
+
+          INPUT="data/history/${RACE_DATE}.json"
+          if [ ! -f "${INPUT}" ]; then
+            echo "対象履歴JSONがありません: ${INPUT}"
+            echo "先に jra-sync-historical.yml で対象日を取得してください。"
+            exit 1
+          fi
+
+          python scripts/jra_horse_history_phase2.py \
+            --date "${RACE_DATE}" \
+            --input "${INPUT}" \
+            --max-runs "${MAX_RUNS}" \
+            --sleep 0.25
+
+      - name: Validate generated horse history
+        env:
+          RACE_DATE: ${{ inputs.race_date }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="data/horse_history/${RACE_DATE}.json"
+
+          test -s "${FILE}"
+
+          python - <<'PY'
+          import json, os, sys
+          from datetime import date
+
+          ymd = os.environ["RACE_DATE"]
+          path = f"data/horse_history/{ymd}.json"
+          d = json.load(open(path, encoding="utf-8"))
+
+          if d.get("target_ymd") != ymd:
+              raise SystemExit("target_ymd不一致")
+
+          horses = d.get("horses", [])
+          if not horses:
+              raise SystemExit("馬データが0件です")
+
+          seen = set()
+          for h in horses:
+              tok = h.get("horse_token")
+              if not tok or tok in seen:
+                  raise SystemExit("horse_token欠落または重複")
+              seen.add(tok)
+
+              for r in h.get("history_before_target", []):
+                  if r.get("date", "") >= d["target_date"]:
+                      raise SystemExit(
+                          f"未来データ混入: {h.get('name')} {r.get('date')}"
+                      )
+
+          print("VALIDATION OK")
+          print("HORSES:", len(horses))
+          print("FAILURES:", d.get("failure_count"))
+          PY
+
+      - name: Write Actions summary
+        env:
+          RACE_DATE: ${{ inputs.race_date }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+
+          ymd = os.environ["RACE_DATE"]
+          path = f"data/horse_history/{ymd}.json"
+          d = json.load(open(path, encoding="utf-8"))
+
+          s = os.environ.get("GITHUB_STEP_SUMMARY")
+          if s:
+              with open(s, "a", encoding="utf-8") as f:
+                  f.write("## JRA horse history Phase 2\n\n")
+                  f.write(f"- 対象日: **{d['target_date']}**\n")
+                  f.write(f"- 対象馬数: **{d['horse_count']}**\n")
+                  f.write(f"- 取得失敗: **{d['failure_count']}**\n")
+                  f.write("- 未来データ混入チェック: **PASS**\n")
+                  f.write("\n### サンプル\n\n")
+                  for h in d["horses"][:10]:
+                      f.write(
+                          f"- {h['name']} / 過去走 {h['history_count']}走\n"
+                      )
+          PY
+
+      - name: Commit horse history
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add scripts/jra_horse_history_phase2.py data/horse_history
+
+          if git diff --cached --quiet; then
+            echo "No horse history changes to commit."
+          else
+            git commit -m "chore: sync JRA horse history phase2"
+            git push
+          fi
