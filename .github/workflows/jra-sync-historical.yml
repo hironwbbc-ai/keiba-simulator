@@ -1039,7 +1039,10 @@ jobs:
               dm = re.search(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日", text)
               tm = re.search(r"発走時刻：?\s*(\d{1,2})時\s*(\d{2})分", text)
               rm = re.search(r"(?:第\s*)?(\d{1,2})レース", text)
-              dist = re.search(r"([\d,]+)メートル（(芝|ダート)・([^）]+)）", text)
+              # Race metadata must come from the actual race-result body, not
+              # from navigation/hidden text elsewhere on the page.
+              # The visible JRA layout is: weather -> track condition ->
+              # race title -> race condition line containing distance/course.
               meet = re.search(r"(\d+)回([^\n|]+?)(\d+)日", text)
 
               # Use token for venue/race identity when text extraction is ambiguous.
@@ -1056,23 +1059,60 @@ jobs:
                   "meet_day": int(meet.group(3)) if meet else None,
                   "no": int(rm.group(1)) if rm else race_no,
                   "time": f"{int(tm.group(1)):02d}:{tm.group(2)}" if tm else "",
-                  "distance": int(dist.group(1).replace(",", "")) if dist else None,
-                  "surface": dist.group(2) if dist else "",
-                  "course": dist.group(3) if dist else "",
+                  "distance": None,
+                  "surface": "",
+                  "course": "",
                   "going": "",
               }
 
-              # Try a few common going expressions.
-              gm = re.search(r"(?:芝|ダート)[^\n|]{0,30}(良|稍重|重|不良)", text)
-              if gm:
-                  meta["going"] = gm.group(1)
+              # Parse the actual race-result body in order. This avoids
+              # picking up the site's global "検索ウィンドウ" or other
+              # hidden/navigation text.
+              body_start = 0
+              for idx, line in enumerate(lines):
+                  if line == "ここから本文です":
+                      body_start = idx
+                      break
 
-              # Name: locate a likely race title line near the top.
+              body_lines = lines[body_start:] if body_start else lines
+              weather_idx = next((i for i, line in enumerate(body_lines)
+                                  if line.startswith("天候")), None)
+
+              # Track condition: take the first 芝/ダート line immediately
+              # after the weather line. The condition is the suffix.
+              if weather_idx is not None:
+                  for line in body_lines[weather_idx + 1:weather_idx + 5]:
+                      m = re.search(r"^(?:芝|ダート).*?(不良|稍重|重|良)\s*$", line)
+                      if m:
+                          meta["going"] = m.group(1)
+                          break
+
+              # Race title: after the weather/track lines, the first meaningful
+              # line before 本賞金 is the official race title.
               meta["name"] = "レース"
-              for line in lines[:120]:
-                  if "レース" in line and len(line) < 120:
+              title_start = weather_idx + 1 if weather_idx is not None else 0
+              for line in body_lines[title_start:title_start + 20]:
+                  if not line or line in ("レース映像", "検索ウィンドウ", "本文へ移動する"):
+                      continue
+                  if line.startswith(("天候", "本賞金", "コース：", "コース:")):
+                      continue
+                  if re.search(r"(?:\d+レース|Image:)", line):
+                      continue
+                  # The official title is a short standalone line here.
+                  if len(line) <= 100:
                       meta["name"] = line
                       break
+
+              # Distance / surface / course: use the course line belonging to
+              # this race, not an unrelated distance string elsewhere.
+              course_line = next((line for line in body_lines[title_start:title_start + 30]
+                                  if re.search(r"コース[:：].*メートル（(?:芝|ダート)・", line)), None)
+              if course_line:
+                  dist = re.search(r"([\d,]+)メートル（(芝|ダート)・([^）]+)）", course_line)
+                  if dist:
+                      meta["distance"] = int(dist.group(1).replace(",", ""))
+                      meta["surface"] = dist.group(2)
+                      meta["course"] = dist.group(3)
 
               return meta, horses
 
