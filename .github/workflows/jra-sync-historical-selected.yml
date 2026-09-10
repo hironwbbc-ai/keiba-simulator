@@ -1,4 +1,4 @@
-name: JRA Sync - Historical Selected Race v15.1
+name: JRA Sync - Historical Selected Race v15.2
 
 on:
   workflow_dispatch:
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Sync JRA official race pages
+      - name: Sync selected JRA historical race
         shell: bash
         env:
           RACE_DATE_INPUT: ${{ inputs.race_date }}
@@ -38,69 +38,94 @@ jobs:
           RACE_NO_INPUT: ${{ inputs.race_no }}
         run: |
           set -euo pipefail
-          # Date-based archives preserve previously synced races.
-          # jra_daily.json / jra_history.json remain as compatibility aliases.
-          mkdir -p data/daily data/history
-
+          mkdir -p data/history
           python3 - <<'PY'
           import datetime
           import html as htmlmod
+          import http.cookiejar
           import json
+          import os
           import re
-          import time
           import urllib.parse
           import urllib.request
-          import http.cookiejar
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           from html.parser import HTMLParser
           from pathlib import Path
           from zoneinfo import ZoneInfo
-          import os
-          import sys
-
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.1)"
+          
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.2)"
           BASE = "https://www.jra.go.jp"
-          ACCESS = BASE + "/JRADB/accessD.html"
-          cal_url = BASE + "/JRADB/"
+          ACCESS_S = BASE + "/JRADB/accessS.html"
           JST = ZoneInfo("Asia/Tokyo")
-
-          # ------------------------------------------------------------
-          # Date
-          # ------------------------------------------------------------
+          
+          VENUE_NAMES = {
+              "01": "札幌", "02": "函館", "03": "福島", "04": "新潟",
+              "05": "東京", "06": "中山", "07": "中京", "08": "京都",
+              "09": "阪神", "10": "小倉",
+          }
+          VENUE_CODES = {name: code for code, name in VENUE_NAMES.items()}
+          
+          HIST_TOKEN_RE = re.compile(
+              r"^pw01sde(?P<prefix>[0-9A-Za-z]{2})(?P<venue>[0-9]{2})"
+              r"(?P<year>[0-9]{4})(?P<meet>[0-9]{2})(?P<day>[0-9]{2})"
+              r"(?P<race>[0-9]{2})(?P<date>[0-9]{8})/(?P<hex>[0-9A-Fa-f]{2})$",
+              re.I,
+          )
+          ACTION_TOKEN_RE = re.compile(
+              r"doAction\s*\(\s*['\"](?:/JRADB/)?accessS\.html['\"]\s*,\s*['\"]?"
+              r"(pw01(?:srl|sde)[^'\")\s<>&]+)['\"]?",
+              re.I,
+          )
+          GENERIC_TOKEN_RE = re.compile(
+              r"(pw01(?:srl|sde)[^\s'\"<>]+/[0-9A-Fa-f]{2})", re.I
+          )
+          
           now = datetime.datetime.now(JST)
           requested = os.environ.get("RACE_DATE_INPUT", "").strip()
-          auto_date = False
-
-          if requested:
-              if not re.fullmatch(r"\d{8}", requested):
-                  raise RuntimeError("race_date は YYYYMMDD 形式で指定してください")
-              target_ymd = requested
-          else:
-              target_ymd = now.strftime("%Y%m%d")
-
-          target_date = datetime.datetime.strptime(target_ymd, "%Y%m%d").date()
+          selected_venue_input = os.environ.get("RACE_VENUE_INPUT", "").strip()
+          selected_race_s = os.environ.get("RACE_NO_INPUT", "").strip()
+          
+          if not re.fullmatch(r"\d{8}", requested):
+              raise RuntimeError("race_date は YYYYMMDD 形式で指定してください")
+          if not selected_venue_input:
+              raise RuntimeError("race_venue を指定してください")
+          if not re.fullmatch(r"\d{1,2}", selected_race_s):
+              raise RuntimeError("race_no は1～18の数字で指定してください")
+          
+          selected_race = int(selected_race_s)
+          if not 1 <= selected_race <= 18:
+              raise RuntimeError("race_no は1～18で指定してください")
+          
+          target_date = datetime.datetime.strptime(requested, "%Y%m%d").date()
+          target_ymd = requested
           target_date_iso = target_date.isoformat()
-
-          # GitHub Actionsの手動指定がない場合は、今日が非開催日でも
-          # 次回のJRA開催日を自動的に選ぶ。
-          search_from_date = target_date
-          search_to_date = target_date + datetime.timedelta(days=14)
-
-          print("")
+          
+          if target_date >= now.date():
+              raise RuntimeError("このworkflowは過去レース専用です。開催終了後の日付を指定してください。")
+          
+          if selected_venue_input in VENUE_NAMES:
+              selected_venue_code = selected_venue_input
+          elif selected_venue_input in VENUE_CODES:
+              selected_venue_code = VENUE_CODES[selected_venue_input]
+          else:
+              raise RuntimeError(
+                  f"開催場が認識できません: {selected_venue_input}。"
+                  f" 例: 阪神 または 09"
+              )
+          selected_venue_name = VENUE_NAMES[selected_venue_code]
+          
           print("=" * 70)
           print("DATE SELECTION")
           print("=" * 70)
-          print("MODE:", "AUTO / NEXT JRA RACE DAY" if auto_date else "MANUAL")
-          print("START DATE:", target_date_iso)
-          if auto_date:
-              print("SEARCH RANGE:", search_from_date.isoformat(), "->", search_to_date.isoformat())
+          print("MODE: MANUAL")
+          print("TARGET DATE:", target_date_iso)
+          print("TARGET VENUE:", selected_venue_name, selected_venue_code)
+          print("TARGET RACE:", selected_race)
           print("=" * 70)
-
-          # ------------------------------------------------------------
-          # HTTP session
-          # ------------------------------------------------------------
+          
           cj = http.cookiejar.CookieJar()
           opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
-
+          
           def request_bytes(url, method="GET", data=None, referer=None):
               headers = {
                   "User-Agent": UA,
@@ -110,11 +135,10 @@ jobs:
               if referer:
                   headers["Referer"] = referer
               req = urllib.request.Request(url, data=data, headers=headers, method=method)
-              with opener.open(req, timeout=20) as r:
-                  return r.read()
-
+              with opener.open(req, timeout=20) as response:
+                  return response.read()
+          
           def decode_jra(raw):
-              # JRA accessD pages declare Shift_JIS. Do not use response.apparent_encoding.
               for enc in ("cp932", "shift_jis", "utf-8"):
                   try:
                       text = raw.decode(enc)
@@ -123,504 +147,443 @@ jobs:
                   except UnicodeDecodeError:
                       pass
               return raw.decode("cp932", "replace")
-
-          def get_html(url, referer=None):
-              return decode_jra(request_bytes(url, "GET", None, referer))
-
-          def post_cname(token, referer=None):
+          
+          def post_s(token, referer=None):
               data = urllib.parse.urlencode({"cname": token}).encode("ascii")
-              return decode_jra(request_bytes(ACCESS, "POST", data, referer))
-
-          # ------------------------------------------------------------
-          # HISTORICAL RESULT MODE
-          # ------------------------------------------------------------
-          # Past dates are not reachable from the current accessD menu.
-          # JRA provides a dedicated historical-result selector:
-          #   pw01skl00999999/B3 -> year/month -> pw01srl -> pw01sde
-          # The month selector exposes an objParam table containing the
-          # current check digit for each YYYYMM. We use that table rather
-          # than trying to guess JRA's checksum.
-          if requested and target_date < now.date():
-              print("")
-              print("=" * 70)
-              print("HISTORICAL RESULT MODE")
-              print("=" * 70)
-              print("TARGET DATE:", target_date_iso)
-
-              ACCESS_S = BASE + "/JRADB/accessS.html"
-              HIST_ENTRY = "pw01skl00999999/B3"
-
-              def post_s(token, referer=None):
-                  data = urllib.parse.urlencode({"cname": token}).encode("ascii")
-                  raw = request_bytes(ACCESS_S, "POST", data, referer or BASE)
-                  return decode_jra(raw)
-
-              def extract_objparam(text):
-                  # JRA historical selector contains e.g.
-                  # var objParam = new Array();objParam["2609"]="XX";
-                  pairs = re.findall(
-                      r'objParam\s*\[\s*["\'](\d{4})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']',
-                      text,
-                      re.I,
-                  )
-                  return {k.upper(): v.upper() for k, v in pairs}
-
-              def normalize_s_token(t):
-                  return urllib.parse.unquote(htmlmod.unescape(t).strip())
-
-              # JRA renders these internal links as JavaScript doAction()
-              # calls (and some result links as hrefs).  Do not assume a
-              # fixed character set for the token body; JRA has changed the
-              # surrounding markup over time.
-              ACTION_TOKEN_RE = re.compile(
-                  r"doAction\s*\(\s*['\"](?:/JRADB/)?accessS\.html['\"]\s*,\s*['\"]?(pw01(?:srl|sde)[^'\")\s<>&]+)['\"]?",
+              return decode_jra(request_bytes(ACCESS_S, "POST", data, referer or BASE))
+          
+          def get_s(token, referer=None):
+              url = ACCESS_S + "?CNAME=" + urllib.parse.quote(token, safe="")
+              return decode_jra(request_bytes(url, "GET", None, referer or BASE))
+          
+          def clean_token(value):
+              value = htmlmod.unescape(value)
+              value = urllib.parse.unquote(value)
+              return value.strip().rstrip(",;")
+          
+          def extract_objparam(text):
+              pairs = re.findall(
+                  r'objParam\s*\[\s*["\'](\d{4})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']',
+                  text,
                   re.I,
               )
-              GENERIC_TOKEN_RE = re.compile(
-                  r"(pw01(?:srl|sde)[^\s'\"<>]+/[0-9A-Fa-f]{2})",
-                  re.I,
-              )
-
-              def clean_token(x):
-                  x = htmlmod.unescape(x)
-                  x = urllib.parse.unquote(x)
-                  x = x.strip().rstrip(',;')
-                  return x
-
-              def find_tokens(text, prefix):
-                  text = htmlmod.unescape(text)
-                  found = set()
-                  for x in ACTION_TOKEN_RE.findall(text):
-                      x = clean_token(x)
-                      if x.lower().startswith(prefix.lower()):
-                          found.add(x)
-                  for x in GENERIC_TOKEN_RE.findall(text):
-                      x = clean_token(x)
-                      if x.lower().startswith(prefix.lower()):
-                          found.add(x)
-                  return found
-
-              def find_srl_tokens(text):
-                  return find_tokens(text, 'pw01srl')
-
-              def find_sde_tokens(text):
-                  return find_tokens(text, 'pw01sde')
-
-              def token_contains_date(token, ymd):
-                  return ymd in token
-
-              selector = post_s(HIST_ENTRY, BASE)
-              obj = extract_objparam(selector)
-              ym = target_ymd[:6]
-              cd = obj.get(ym[2:].upper()) or obj.get(ym.upper())
-              if not cd:
-                  raise RuntimeError(
-                      f"JRA過去レース検索のチェックデジットを取得できませんでした: {ym}"
+              return {k.upper(): v.upper() for k, v in pairs}
+          
+          def extract_link_attributes(text):
+              return [
+                  match.group(2)
+                  for match in re.finditer(
+                      r"(?:href|onclick)\s*=\s*(['\"])(.*?)\1", text, re.I | re.S
                   )
-
-              # JRA has used both pw01skl10YYYYMM/CD and pw01skl00YYYYMM/CD
-              # for the monthly historical selector.  Prefer the 10 variant,
-              # but fall back to 00 and also try GET if POST returns a selector
-              # page without the meeting links.
-              month_candidates = [
-                  f"pw01skl10{ym}/{cd}",
-                  f"pw01skl00{ym}/{cd}",
               ]
-
-              def extract_link_attributes(text):
-                  # Collect every href/onclick-like attribute first.  This is
-                  # deliberately broader than a single doAction regex because
-                  # JRA has changed quoting and link markup over time.
-                  attrs = []
-                  for m in re.finditer(r"(?:href|onclick)\s*=\s*(['\"])(.*?)\1", text, re.I | re.S):
-                      attrs.append(m.group(2))
-                  return attrs
-
-              def find_srl_tokens_robust(text):
-                  found = set(find_srl_tokens(text))
+          
+          def find_tokens(text, prefix):
+              text = htmlmod.unescape(text)
+              found = set()
+              for value in ACTION_TOKEN_RE.findall(text):
+                  value = clean_token(value)
+                  if value.lower().startswith(prefix.lower()):
+                      found.add(value)
+              for value in GENERIC_TOKEN_RE.findall(text):
+                  value = clean_token(value)
+                  if value.lower().startswith(prefix.lower()):
+                      found.add(value)
+              if prefix.lower() == "pw01srl":
                   for attr in extract_link_attributes(text):
-                      attr = htmlmod.unescape(attr)
-                      attr = urllib.parse.unquote(attr)
-                      for m in re.finditer(r"(pw01srl[^'\"<>\s,;)]+)", attr, re.I):
-                          found.add(clean_token(m.group(1)))
-                  return found
-
-              chosen_token = None
-              month_page = ""
-              rsl_all = set()
-              for candidate in month_candidates:
-                  for mode in ("POST", "GET"):
-                      try:
-                          if mode == "POST":
-                              page = post_s(candidate, ACCESS_S)
-                          else:
-                              url = ACCESS_S + "?CNAME=" + urllib.parse.quote(candidate, safe="")
-                              page = get_html(url, ACCESS_S)
-                          found = find_srl_tokens_robust(page)
-                          print(f"MONTH TRY: {candidate} {mode} len={len(page)} rsl={len(found)}")
-                          title_m = re.search(r"<title[^>]*>(.*?)</title>", page, re.I | re.S)
-                          if title_m:
-                              print("  TITLE:", re.sub(r"\s+", " ", htmlmod.unescape(title_m.group(1))).strip()[:120])
-                          if found:
-                              chosen_token = candidate
-                              month_page = page
-                              rsl_all = found
-                              break
-                      except Exception as e:
-                          print("MONTH TRY WARNING:", candidate, mode, repr(e))
-                  if chosen_token:
-                      break
-
-              if not rsl_all:
-                  print("MONTH PAGE CONTAINS pw01srl:", "pw01srl" in month_page.lower())
-                  raise RuntimeError(
-                      f"{ym} の月別ページから開催選択token(pw01srl)を抽出できませんでした。"
-                  )
-
-              print("MONTH TOKEN USED:", chosen_token)
-              print("MONTH RSL TOKENS:", len(rsl_all))
-              for sample in sorted(rsl_all)[:10]:
-                  print("  RSL SAMPLE:", sample)
-
-              # JRA month pages can expose many pw01srl tokens. Probing them
-              # sequentially made a single slow JRA response block the whole
-              # workflow for tens of minutes. Probe a small bounded pool instead.
-              from concurrent.futures import ThreadPoolExecutor, as_completed
-
-              def probe_rsl(item):
-                  i,t=item
+                      attr = urllib.parse.unquote(htmlmod.unescape(attr))
+                      for match in re.finditer(r"(pw01srl[^'\"<>\s,;)]+)", attr, re.I):
+                          found.add(clean_token(match.group(1)))
+              return found
+          
+          # ------------------------------------------------------------
+          # 1. Get the monthly historical selector.
+          # ------------------------------------------------------------
+          HIST_ENTRY = "pw01skl00999999/B3"
+          selector = post_s(HIST_ENTRY, BASE)
+          obj = extract_objparam(selector)
+          ym = target_ymd[:6]
+          check_digit = obj.get(ym[2:].upper()) or obj.get(ym.upper())
+          if not check_digit:
+              raise RuntimeError(f"JRA過去レース検索のチェックデジットを取得できませんでした: {ym}")
+          
+          month_candidates = [
+              f"pw01skl10{ym}/{check_digit}",
+              f"pw01skl00{ym}/{check_digit}",
+          ]
+          
+          chosen_month_token = None
+          rsl_tokens = set()
+          for candidate in month_candidates:
+              for method in ("POST", "GET"):
                   try:
-                      page=post_s(t, ACCESS_S)
-                      found=find_sde_tokens(page)
-                      target_found={x for x in found if target_ymd in x}
-                      return i,t,target_found,None
-                  except Exception as e:
-                      return i,t,set(),repr(e)
-
-              sde_tokens=set(); rsl_target=[]
-              rsl_items=list(enumerate(sorted(rsl_all),1))
-              with ThreadPoolExecutor(max_workers=6) as ex:
-                  futures=[ex.submit(probe_rsl,item) for item in rsl_items]
-                  for fut in as_completed(futures):
-                      i,t,target_found,err=fut.result()
-                      if err:
-                          print("RSL warning:",t,err)
-                          continue
-                      if target_found:
-                          rsl_target.append(t)
-                          sde_tokens.update(target_found)
-                      print(f"RSL {i}/{len(rsl_all)}: target_races={len(target_found)} total_target={len(sde_tokens)}")
-
-              print("TARGET RSL TOKENS:", len(rsl_target))
-              print("HISTORICAL RACE TOKENS:", len(sde_tokens))
-              if not rsl_target or not sde_tokens:
-                  raise RuntimeError(
-                      f"{target_ymd} の開催選択/レース結果token(pw01srl/pw01sde)を取得できませんでした。"
+                      page = post_s(candidate, ACCESS_S) if method == "POST" else get_s(candidate, ACCESS_S)
+                      found = find_tokens(page, "pw01srl")
+                      print(f"MONTH TRY: {candidate} {method} len={len(page)} rsl={len(found)}")
+                      title_match = re.search(r"<title[^>]*>(.*?)</title>", page, re.I | re.S)
+                      if title_match:
+                          title = re.sub(r"\s+", " ", htmlmod.unescape(title_match.group(1))).strip()
+                          print("  TITLE:", title[:120])
+                      if found:
+                          chosen_month_token = candidate
+                          rsl_tokens = found
+                          break
+                  except Exception as exc:
+                      print("MONTH TRY WARNING:", candidate, method, repr(exc))
+              if chosen_month_token:
+                  break
+          
+          if not rsl_tokens:
+              raise RuntimeError(f"{ym} の月別ページから開催選択token(pw01srl)を抽出できませんでした。")
+          
+          print("MONTH TOKEN USED:", chosen_month_token)
+          print("MONTH RSL TOKENS:", len(rsl_tokens))
+          
+          # ------------------------------------------------------------
+          # 2. Discover lightweight race tokens only.
+          #    No historical horse-data sweep is performed here.
+          # ------------------------------------------------------------
+          def probe_rsl(item):
+              index, token = item
+              try:
+                  page = post_s(token, ACCESS_S)
+                  found = {
+                      clean_token(x)
+                      for x in find_tokens(page, "pw01sde")
+                      if target_ymd in x
+                  }
+                  return index, token, found, None
+              except Exception as exc:
+                  return index, token, set(), repr(exc)
+          
+          rsl_items = list(enumerate(sorted(rsl_tokens), 1))
+          sde_tokens = set()
+          with ThreadPoolExecutor(max_workers=min(6, max(1, len(rsl_items)))) as executor:
+              futures = [executor.submit(probe_rsl, item) for item in rsl_items]
+              for future in as_completed(futures):
+                  index, token, found, error = future.result()
+                  if error:
+                      print("RSL warning:", token, error)
+                      continue
+                  sde_tokens.update(found)
+                  print(
+                      f"RSL {index}/{len(rsl_items)}: "
+                      f"target_races={len(found)} total_target={len(sde_tokens)}"
                   )
-
-              venue_names = {
-                  "01": "札幌", "02": "函館", "03": "福島", "04": "新潟",
-                  "05": "東京", "06": "中山", "07": "中京", "08": "京都",
-                  "09": "阪神", "10": "小倉",
-              }
-
-              HIST_TOKEN_RE = re.compile(
-                  r"^pw01sde(?P<prefix>[0-9A-Za-z]{2})(?P<venue>[0-9]{2})(?P<year>[0-9]{4})(?P<meet>[0-9]{2})(?P<day>[0-9]{2})(?P<race>[0-9]{2})(?P<date>[0-9]{8})/(?P<hex>[0-9A-Fa-f]{2})$",
-                  re.I,
+          
+          print("HISTORICAL RACE TOKENS:", len(sde_tokens))
+          if not sde_tokens:
+              raise RuntimeError(f"{target_ymd} のレース結果token(pw01sde)を取得できませんでした。")
+          
+          # ------------------------------------------------------------
+          # 3. Select exactly one race token.
+          # ------------------------------------------------------------
+          target_tokens = []
+          for token in sorted(sde_tokens):
+              match = HIST_TOKEN_RE.fullmatch(token)
+              if not match:
+                  continue
+              if match.group("date") != target_ymd:
+                  continue
+              if match.group("venue") != selected_venue_code:
+                  continue
+              if int(match.group("race")) != selected_race:
+                  continue
+              target_tokens.append(token)
+          
+          if not target_tokens:
+              raise RuntimeError(
+                  f"{target_ymd} の {selected_venue_name} {selected_race}R のtokenが見つかりません。"
               )
-
-              class CellParser(HTMLParser):
-                  def __init__(self):
-                      super().__init__(convert_charrefs=True)
-                      self.rows=[]; self.row=None; self.cell=None; self.parts=[]
-                  def handle_starttag(self, tag, attrs):
-                      if tag == "tr":
-                          self.row=[]
-                      elif self.row is not None and tag in ("td","th"):
-                          self.cell=[]; self.parts=[]
-                      elif self.cell is not None and tag == "img":
-                          # JRA renders the frame number as an image, e.g.
-                          # alt="枠5黄".  Preserve the alt text so the frame
-                          # column is not mistaken for an empty cell.
-                          ad = dict(attrs)
-                          alt = ad.get("alt", "")
-                          if alt:
-                              self.parts.append(alt)
-                  def handle_endtag(self, tag):
-                      if tag in ("td","th") and self.row is not None and self.cell is not None:
-                          txt=re.sub(r"\s+", " ", htmlmod.unescape("".join(self.parts))).strip()
-                          self.row.append(txt)
-                          self.cell=None; self.parts=[]
-                      elif tag == "tr" and self.row is not None:
-                          if self.row: self.rows.append(self.row)
-                          self.row=None; self.cell=None; self.parts=[]
-                  def handle_data(self, data):
-                      if self.cell is not None:
-                          self.parts.append(data)
-
+          
+          selected_token = sorted(target_tokens)[0]
+          print("SELECTED TOKEN:", selected_token)
+          
+          # ------------------------------------------------------------
+          # 4. Download only the selected official result page.
+          # ------------------------------------------------------------
+          selected_url = ACCESS_S + "?CNAME=" + urllib.parse.quote(selected_token, safe="")
+          raw = post_s(selected_token, ACCESS_S)
+          title_match = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
+          title = (
+              re.sub(r"\s+", " ", htmlmod.unescape(title_match.group(1))).strip()
+              if title_match else ""
+          )
+          if "パラメータエラー" in title or title == "エラー":
+              raw = get_s(selected_token, ACCESS_S)
+          
+          class CellParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.rows = []
+                  self.row = None
+                  self.cell = None
+                  self.parts = []
+          
+              def handle_starttag(self, tag, attrs):
+                  if tag == "tr":
+                      self.row = []
+                  elif self.row is not None and tag in ("td", "th"):
+                      self.cell = []
+                      self.parts = []
+                  elif self.cell is not None and tag == "img":
+                      alt = dict(attrs).get("alt", "")
+                      if alt:
+                          self.parts.append(alt)
+          
+              def handle_endtag(self, tag):
+                  if tag in ("td", "th") and self.row is not None and self.cell is not None:
+                      text = re.sub(r"\s+", " ", htmlmod.unescape("".join(self.parts))).strip()
+                      self.row.append(text)
+                      self.cell = None
+                      self.parts = []
+                  elif tag == "tr" and self.row is not None:
+                      if self.row:
+                          self.rows.append(self.row)
+                      self.row = None
+                      self.cell = None
+                      self.parts = []
+          
+              def handle_data(self, data):
+                  if self.cell is not None:
+                      self.parts.append(data)
+          
           class TextParser(HTMLParser):
               def __init__(self):
                   super().__init__(convert_charrefs=True)
                   self.out = []
-
+          
               def handle_starttag(self, tag, attrs):
                   if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
                       self.out.append("\n")
                   elif tag in ("td", "th"):
                       self.out.append(" | ")
-
+          
               def handle_endtag(self, tag):
                   if tag in ("tr", "p", "div", "li", "h1", "h2", "h3"):
                       self.out.append("\n")
-
+          
               def handle_data(self, data):
                   self.out.append(data)
-
+          
               def text(self):
-                  s = htmlmod.unescape("".join(self.out))
+                  text = htmlmod.unescape("".join(self.out))
                   lines = []
-                  for raw_line in s.splitlines():
-                      x = re.sub(r"\s+", " ", raw_line).strip(" |")
-                      if x:
-                          lines.append(x)
+                  for raw_line in text.splitlines():
+                      value = re.sub(r"\s+", " ", raw_line).strip(" |")
+                      if value:
+                          lines.append(value)
                   return "\n".join(lines)
-
-
+          
           def parse_history_page(raw_html, token):
-              # This is the parser actually used by historical_result mode.
-              # Keep the horse-table parser class-aware, but parse race metadata
-              # strictly from the visible body section after JRA's accessibility
-              # marker. This prevents "検索ウィンドウ" and unrelated navigation
-              # text from becoming race metadata.
-              cp=CellParser(); cp.feed(raw_html)
-              rows=[]
-              for cells in cp.rows:
+              cell_parser = CellParser()
+              cell_parser.feed(raw_html)
+              rows = []
+              for cells in cell_parser.rows:
                   if len(cells) < 14:
                       continue
-                  finish_s=cells[0].strip()
-                  if not re.fullmatch(r"\d+", finish_s):
+                  finish_match = re.fullmatch(r"\d+", cells[0].strip())
+                  frame_match = re.search(r"(\d+)", cells[1])
+                  number_match = re.fullmatch(r"\d+", cells[2].strip())
+                  if not finish_match or not frame_match or not number_match:
                       continue
-                  frame_m=re.search(r"(\d+)", cells[1])
-                  no_m=re.fullmatch(r"\d+", cells[2].strip())
-                  if not frame_m or not no_m:
+                  finish = int(finish_match.group(0))
+                  frame = int(frame_match.group(1))
+                  number = int(number_match.group(0))
+                  if not (1 <= finish <= 18 and 1 <= frame <= 8 and 1 <= number <= 18):
                       continue
-                  finish=int(finish_s); frame=int(frame_m.group(1)); no=int(cells[2])
-                  if not 1 <= no <= 18 or not 1 <= finish <= 18 or not 1 <= frame <= 8:
-                      continue
-
-                  name=re.sub(r"\s+", " ", cells[3]).strip()
+                  name = re.sub(r"\s+", " ", cells[3]).strip()
                   if not name:
                       continue
-                  sex_age=cells[4].strip()
-                  carried=None
-                  cm=re.search(r"([0-9]+(?:\.[0-9]+)?)", cells[5])
-                  if cm:
-                      carried=float(cm.group(1))
-                  jockey=re.sub(r"\s+", " ", cells[6]).strip()
-
-                  body_weight=None; body_diff=None
-                  bw=re.search(r"(\d{3})\s*\(([-+]?\d+|-)\)", cells[11])
-                  if bw:
-                      body_weight=int(bw.group(1))
-                      body_diff=None if bw.group(2)=="-" else int(bw.group(2))
-
-                  popm=re.search(r"(\d+)", cells[13])
-                  popularity=int(popm.group(1)) if popm else None
-
-                  corner_raw = re.sub(r"\s+", " ", cells[9]).strip() if len(cells) > 9 else ""
-                  corner_nums = [int(x) for x in re.findall(r"\d+", corner_raw)]
-                  corner3 = corner_nums[-2] if len(corner_nums) >= 2 else None
-                  corner4 = corner_nums[-1] if corner_nums else None
-
+                  carried_match = re.search(r"([0-9]+(?:\.[0-9]+)?)", cells[5])
+                  body_match = re.search(r"(\d{3})\s*\(([-+]?\d+|-)\)", cells[11])
+                  popularity_match = re.search(r"(\d+)", cells[13])
+                  corner_raw = re.sub(r"\s+", " ", cells[9]).strip()
+                  corner_numbers = [int(x) for x in re.findall(r"\d+", corner_raw)]
                   rows.append({
-                      "finish":finish,"frame":frame,"no":no,"name":name,
-                      "popularity":popularity,"sexAge":sex_age,
-                      "bodyWeight":body_weight,"bodyWeightDiff":body_diff,
-                      "jockey":jockey,"carriedWeight":carried,
-                      "corner3":corner3,"corner4":corner4,
-                      "cornerRaw":corner_raw
+                      "finish": finish,
+                      "frame": frame,
+                      "no": number,
+                      "name": name,
+                      "popularity": int(popularity_match.group(1)) if popularity_match else None,
+                      "sexAge": cells[4].strip(),
+                      "bodyWeight": int(body_match.group(1)) if body_match else None,
+                      "bodyWeightDiff": (
+                          None if not body_match or body_match.group(2) == "-"
+                          else int(body_match.group(2))
+                      ),
+                      "jockey": re.sub(r"\s+", " ", cells[6]).strip(),
+                      "carriedWeight": float(carried_match.group(1)) if carried_match else None,
+                      "corner3": corner_numbers[-2] if len(corner_numbers) >= 2 else None,
+                      "corner4": corner_numbers[-1] if corner_numbers else None,
+                      "cornerRaw": corner_raw,
                   })
-
-              ded={r["no"]:r for r in rows}
-
-              p=TextParser(); p.feed(raw_html); text=p.text()
-              lines=[x.strip() for x in text.splitlines() if x.strip()]
-              dm=re.search(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日",text)
-              tm=re.search(r"発走時刻：?\s*(\d{1,2})時\s*(\d{2})分",text)
-              meet=re.search(r"(\d+)回([^\n|]+?)(\d+)日",text)
-
-              mm=HIST_TOKEN_RE.fullmatch(token)
-              venue_code=mm.group("venue") if mm else ""
-              race_no=int(mm.group("race")) if mm else 0
-
-              meta={
-                  "date": f"{dm.group(1)}-{int(dm.group(2)):02d}-{int(dm.group(3)):02d}" if dm else target_date_iso,
-                  "time": f"{int(tm.group(1)):02d}:{tm.group(2)}" if tm else "",
+          
+              deduped = {row["no"]: row for row in rows}
+              text_parser = TextParser()
+              text_parser.feed(raw_html)
+              text = text_parser.text()
+              lines = [line.strip() for line in text.splitlines() if line.strip()]
+          
+              date_match = re.search(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日", text)
+              time_match = re.search(r"発走時刻：?\s*(\d{1,2})時\s*(\d{2})分", text)
+              meet_match = re.search(r"(\d+)回([^\n|]+?)(\d+)日", text)
+              token_match = HIST_TOKEN_RE.fullmatch(token)
+          
+              meta = {
+                  "date": (
+                      f"{date_match.group(1)}-{int(date_match.group(2)):02d}-{int(date_match.group(3)):02d}"
+                      if date_match else target_date_iso
+                  ),
+                  "time": f"{int(time_match.group(1)):02d}:{time_match.group(2)}" if time_match else "",
                   "distance": None,
                   "surface": "",
                   "course": "",
                   "going": "",
-                  "meet": meet.group(2).strip() if meet else "",
-                  "meet_day": int(meet.group(3)) if meet else None,
-                  "no": race_no,
+                  "meet": meet_match.group(2).strip() if meet_match else "",
+                  "meet_day": int(meet_match.group(3)) if meet_match else None,
+                  "no": int(token_match.group("race")) if token_match else selected_race,
                   "name": "レース",
               }
-
-              body_start=0
-              for idx,line in enumerate(lines):
+          
+              body_start = 0
+              for index, line in enumerate(lines):
                   if line == "ここから本文です":
-                      body_start=idx
+                      body_start = index
                       break
-              body_lines=lines[body_start:] if body_start else lines
-
-              weather_idx=next((i for i,line in enumerate(body_lines) if line.startswith("天候")),None)
-
-              # Track condition is immediately after weather. Prefer the first
-              # track line in the small local window; never scan the whole page.
-              if weather_idx is not None:
-                  for line in body_lines[weather_idx+1:weather_idx+5]:
-                      if re.match(r"^(?:芝|ダート)",line):
-                          gm=re.search(r"(不良|稍重|重|良)\s*$",line)
-                          if gm:
-                              meta["going"]=gm.group(1)
+              body_lines = lines[body_start:] if body_start else lines
+          
+              weather_index = next(
+                  (index for index, line in enumerate(body_lines) if line.startswith("天候")),
+                  None,
+              )
+              if weather_index is not None:
+                  for line in body_lines[weather_index + 1:weather_index + 5]:
+                      if re.match(r"^(?:芝|ダート)", line):
+                          going_match = re.search(r"(不良|稍重|重|良)\s*$", line)
+                          if going_match:
+                              meta["going"] = going_match.group(1)
                               break
-
-              # Official race title is the first meaningful standalone line
-              # after weather/track and before the prize-money section.
-              title_start=weather_idx+1 if weather_idx is not None else 0
-              for line in body_lines[title_start:title_start+20]:
-                  if line in ("本文へ移動する","レース映像","検索ウィンドウ"):
+          
+              title_start = weather_index + 1 if weather_index is not None else 0
+              for line in body_lines[title_start:title_start + 20]:
+                  if line in ("本文へ移動する", "レース映像", "検索ウィンドウ"):
                       continue
-                  if line.startswith(("天候","本賞金","コース：","コース:")):
+                  if line.startswith(("天候", "本賞金", "コース：", "コース:")):
                       continue
-                  if re.search(r"(?:\d+レース|Image:)",line):
+                  if re.search(r"(?:\d+レース|Image:)", line):
                       continue
-                  if len(line)<=100:
-                      meta["name"]=line
+                  if len(line) <= 100:
+                      meta["name"] = line
                       break
-
-              # Course metadata: accept both normal races and obstacle races.
-              # Normal: 1,200メートル（芝・右）
-              # Obstacle: 2,880メートル（芝→ダート）
-              course_line=next((line for line in body_lines[title_start:title_start+30]
-                                if re.match(r"^コース[:：].*メートル（",line)),None)
+          
+              course_line = next(
+                  (
+                      line for line in body_lines[title_start:title_start + 30]
+                      if re.match(r"^コース[:：].*メートル（", line)
+                  ),
+                  None,
+              )
               if course_line:
-                  dist=re.search(r"([\d,]+)メートル（([^）]+)）",course_line)
-                  if dist:
-                      meta["distance"]=int(dist.group(1).replace(",",""))
-                      spec=dist.group(2).strip()
+                  distance_match = re.search(r"([\d,]+)メートル（([^）]+)）", course_line)
+                  if distance_match:
+                      meta["distance"] = int(distance_match.group(1).replace(",", ""))
+                      spec = distance_match.group(2).strip()
                       if "→" in spec:
-                          meta["surface"]=spec
-                          meta["course"]=""
+                          meta["surface"] = spec
                       elif "・" in spec:
-                          surf,course=spec.split("・",1)
-                          meta["surface"]=surf.strip()
-                          meta["course"]=course.strip()
+                          surface, course = spec.split("・", 1)
+                          meta["surface"] = surface.strip()
+                          meta["course"] = course.strip()
                       else:
-                          # Conservative fallback: preserve the official
-                          # surface/course string rather than leaving distance
-                          # absent.
-                          meta["surface"]=spec
-
-              return meta, sorted(ded.values(), key=lambda x:x["no"])
-
-
-          def fetch_historical_result(item):
-              i,token=item
-              token=clean_token(token)
-              mm=HIST_TOKEN_RE.fullmatch(token)
-              if not mm:
-                  return None,{"token":token,"error":"format"}
-              vcode=mm.group("venue"); race_no=int(mm.group("race"))
-              url=f"{ACCESS_S}?CNAME={urllib.parse.quote(token,safe='')}"
+                          meta["surface"] = spec
+          
+              return meta, sorted(deduped.values(), key=lambda row: row["no"])
+          
+          meta, horses = parse_history_page(raw, selected_token)
+          if not horses:
+              raise RuntimeError("選択レースの結果馬データを抽出できませんでした")
+          
+          race = {
+              "venue": selected_venue_name,
+              "venue_code": selected_venue_code,
+              "meet": meta["meet"],
+              "meet_day": meta["meet_day"],
+              "no": selected_race,
+              "date": meta["date"],
+              "time": meta["time"],
+              "name": meta["name"],
+              "distance": meta["distance"],
+              "surface": meta["surface"],
+              "course": meta["course"],
+              "going": meta["going"],
+              "url": selected_url,
+              "token": selected_token,
+              "historical": True,
+              "horses": horses,
+          }
+          
+          # ------------------------------------------------------------
+          # 5. Save exactly one detailed race + lightweight index.
+          # ------------------------------------------------------------
+          out_dir = Path(f"data/history/{target_ymd}")
+          out_dir.mkdir(parents=True, exist_ok=True)
+          out_file = out_dir / f"{selected_venue_code}_{selected_race:02d}.json"
+          out_file.write_text(
+              json.dumps(race, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          
+          index_file = out_dir / "index.json"
+          index = {
+              "date": target_date_iso,
+              "updated_at": now.isoformat(),
+              "target_ymd": target_ymd,
+              "source": "JRA公式 accessS 過去レース結果",
+              "mode": "historical_index",
+              "races": [],
+          }
+          if index_file.exists():
               try:
-                  raw=post_s(token,ACCESS_S)
-                  title_m=re.search(r"<title[^>]*>(.*?)</title>",raw,re.I|re.S)
-                  title=re.sub(r"\s+"," ",htmlmod.unescape(title_m.group(1))).strip()[:100] if title_m else ""
-                  if "パラメータエラー" in title or title.strip()=="エラー":
-                      raw=get_html(url,ACCESS_S)
-                  meta,horses=parse_history_page(raw,token)
-                  if not horses:
-                      raise RuntimeError("結果馬データを抽出できませんでした")
-                  return {
-                      "venue":venue_names.get(vcode,vcode),"venue_code":vcode,
-                      "meet":meta["meet"],"meet_day":meta["meet_day"],"no":race_no,
-                      "date":meta["date"],"time":meta["time"],"name":meta["name"],
-                      "distance":meta["distance"],"surface":meta["surface"],"course":meta["course"],
-                      "going":meta["going"],"url":url,"token":token,"historical":True,
-                      "horses":horses,
-                  },None
-              except Exception as e:
-                  return None,{"token":token,"url":url,"error":repr(e),"venue_code":vcode,"race":race_no}
-
-              # ------------------------------------------------------------
-              # SELECTED-RACE MODE
-              # ------------------------------------------------------------
-              # Discover only the lightweight race tokens, then download exactly
-              # one requested result page. No 36-race horse-data sweep.
-              selected_venue=os.environ.get("RACE_VENUE_INPUT","").strip()
-              selected_race_s=os.environ.get("RACE_NO_INPUT","").strip()
-              if not selected_venue or not re.fullmatch(r"\d{1,2}",selected_race_s):
-                  raise RuntimeError("race_venue と race_no を指定してください。")
-              selected_race=int(selected_race_s)
-
-              code_to_name={v:k for k,v in venue_names.items()}
-              target_tokens=[]
-              for token in sorted(sde_tokens):
-                  mm=HIST_TOKEN_RE.fullmatch(token)
-                  if not mm or mm.group("date")!=target_ymd:
-                      continue
-                  vcode=mm.group("venue"); rno=int(mm.group("race"))
-                  if (selected_venue in venue_names and vcode==venue_names[selected_venue] and rno==selected_race) or (selected_venue in code_to_name and vcode==selected_venue and rno==selected_race):
-                      target_tokens.append(token)
-              if not target_tokens:
-                  raise RuntimeError(f"{target_ymd} の {selected_venue} {selected_race}R のtokenが見つかりません。")
-
-              token=sorted(target_tokens)[0]
-              url=f"{ACCESS_S}?CNAME={urllib.parse.quote(token,safe='')}"
-              print("SELECTED TOKEN:",token)
-              raw=post_s(token,ACCESS_S)
-              title_m=re.search(r"<title[^>]*>(.*?)</title>",raw,re.I|re.S)
-              title=re.sub(r"\s+"," ",htmlmod.unescape(title_m.group(1))).strip()[:100] if title_m else ""
-              if "パラメータエラー" in title or title.strip()=="エラー":
-                  raw=get_html(url,ACCESS_S)
-
-              meta,horses=parse_history_page(raw,token)
-              if not horses:
-                  raise RuntimeError("選択レースの結果馬データを抽出できませんでした")
-
-              vcode=venue_names.get(selected_venue,selected_venue)
-              race={
-                  "venue":code_to_name.get(vcode,selected_venue),
-                  "venue_code":vcode,
-                  "meet":meta["meet"],"meet_day":meta["meet_day"],"no":selected_race,
-                  "date":meta["date"],"time":meta["time"],"name":meta["name"],
-                  "distance":meta["distance"],"surface":meta["surface"],"course":meta["course"],
-                  "going":meta["going"],"url":url,"token":token,"historical":True,"horses":horses
-              }
-              out_dir=Path(f"data/history/{target_ymd}"); out_dir.mkdir(parents=True,exist_ok=True)
-              out_file=out_dir/f"{vcode}_{selected_race:02d}.json"
-              out_file.write_text(json.dumps(race,ensure_ascii=False,indent=2),encoding="utf-8")
-
-              index_file=out_dir/"index.json"
-              index={"date":target_date_iso,"updated_at":now.isoformat(),"target_ymd":target_ymd,
-                     "source":"JRA公式 accessS 過去レース結果","mode":"historical_index","races":[]}
-              if index_file.exists():
-                  try:index=json.loads(index_file.read_text(encoding="utf-8"))
-                  except Exception:pass
-              bykey={f"{x.get('venue_code')}-{x.get('no')}":x for x in index.get("races",[])}
-              for t in sorted(sde_tokens):
-                  mm=HIST_TOKEN_RE.fullmatch(t)
-                  if not mm or mm.group("date")!=target_ymd: continue
-                  vc=mm.group("venue"); rn=int(mm.group("race")); key=f"{vc}-{rn}"
-                  bykey.setdefault(key,{"venue":code_to_name.get(vc,vc),"venue_code":vc,"no":rn,"date":target_date_iso})
-              index["races"]=sorted(bykey.values(),key=lambda x:(x.get("venue_code",""),x.get("no",0)))
-              index["race_count"]=len(index["races"]); index["parser_version"]="15.1-selected-race"
-              index_file.write_text(json.dumps(index,ensure_ascii=False,indent=2),encoding="utf-8")
-              print("WROTE:",out_file)
-              print("WROTE:",index_file,"RACES INDEX:",len(index["races"]))
-              print("SELECTED:",race["venue"],f"{selected_race}R","HORSES:",len(horses))
-              sys.exit(0)
+                  index = json.loads(index_file.read_text(encoding="utf-8"))
+              except Exception:
+                  pass
+          
+          by_key = {
+              f"{item.get('venue_code')}-{item.get('no')}": item
+              for item in index.get("races", [])
+          }
+          for token in sorted(sde_tokens):
+              match = HIST_TOKEN_RE.fullmatch(token)
+              if not match or match.group("date") != target_ymd:
+                  continue
+              venue_code = match.group("venue")
+              race_no = int(match.group("race"))
+              key = f"{venue_code}-{race_no}"
+              by_key.setdefault(
+                  key,
+                  {
+                      "venue": VENUE_NAMES.get(venue_code, venue_code),
+                      "venue_code": venue_code,
+                      "no": race_no,
+                      "date": target_date_iso,
+                  },
+              )
+          
+          index["races"] = sorted(
+              by_key.values(),
+              key=lambda item: (item.get("venue_code", ""), item.get("no", 0)),
+          )
+          index["race_count"] = len(index["races"])
+          index["parser_version"] = "15.2-selected-race"
+          index_file.write_text(
+              json.dumps(index, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+          
+          print("WROTE:", out_file)
+          print("WROTE:", index_file, "RACES INDEX:", len(index["races"]))
+          print("SELECTED:", race["venue"], f"{selected_race}R", "HORSES:", len(horses))
+          PY
 
       - name: Commit selected historical race data
         shell: bash
