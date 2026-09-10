@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v14.7
+name: JRA Sync + Pages Deploy - Historical v14.4
 
 on:
   schedule:
@@ -1105,28 +1105,25 @@ jobs:
 
               # Distance / surface / course: use the course line belonging to
               # this race, not an unrelated distance string elsewhere.
-              # Distance / surface / course: support both normal tracks
-              # (e.g. 芝・右, ダート・右) and obstacle courses
-              # (e.g. 芝→ダート). The latter does not have a separate
-              # left/right course suffix in the JRA course label.
               course_line = next((line for line in body_lines[title_start:title_start + 30]
-                                  if re.search(r"コース[:：].*メートル（", line)), None)
+                                  if re.search(r"コース[:：].*メートル（(?:芝|ダート)(?:→(?:芝|ダート))?(?:・[^）]+)?）", line)), None)
               if course_line:
-                  # Normal: コース：1,200メートル（芝・右）
-                  normal = re.search(r"([\d,]+)メートル（(芝|ダート)・([^）]+)）", course_line)
-                  if normal:
-                      meta["distance"] = int(normal.group(1).replace(",", ""))
-                      meta["surface"] = normal.group(2)
-                      meta["course"] = normal.group(3)
-                  else:
-                      # Obstacle: コース：2,880メートル（芝→ダート）
-                      obstacle = re.search(r"([\d,]+)メートル（([^）]+)）", course_line)
-                      if obstacle:
-                          meta["distance"] = int(obstacle.group(1).replace(",", ""))
-                          surface_text = obstacle.group(2).strip()
-                          if "→" in surface_text:
-                              meta["surface"] = surface_text
-                              meta["course"] = ""
+                  # Normal races: 例「1,200メートル（芝・右）」
+                  # Obstacle races: 例「2,880メートル（芝→ダート）」
+                  dist = re.search(r"([\d,]+)メートル（([^）]+)）", course_line)
+                  if dist:
+                      meta["distance"] = int(dist.group(1).replace(",", ""))
+                      course_spec = dist.group(2).strip()
+                      if "→" in course_spec:
+                          # JRA obstacle-course notation. Keep the official
+                          # surface transition as-is; there is no single
+                          # left/right course direction to store.
+                          meta["surface"] = course_spec
+                          meta["course"] = ""
+                      elif "・" in course_spec:
+                          surf, course = course_spec.split("・", 1)
+                          meta["surface"] = surf.strip()
+                          meta["course"] = course.strip()
 
               return meta, horses
 
