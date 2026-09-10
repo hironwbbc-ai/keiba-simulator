@@ -462,19 +462,35 @@ jobs:
                   "name": "レース",
               }
 
-              # JRA presents the track condition as e.g. "芝良" or
-              # "ダート重" in the text extraction.
-              gm=re.search(r"(?:芝|ダート)\s*(良|稍重|重|不良)", text)
-              if gm:
-                  meta["going"]=gm.group(1)
+              # JRA presents the track condition immediately after the
+              # weather line in the race-result body.  Do NOT search the whole
+              # page: navigation/hidden data can contain another condition
+              # (this caused a real "重" -> "稍重" false match).
+              going_candidates=[]
+              for line in text.splitlines():
+                  line=line.strip()
+                  if re.fullmatch(r"(?:芝|ダート)\s*(?:良|稍重|重|不良)", line):
+                      going_candidates.append(line)
+                  elif re.fullmatch(r"(?:芝|ダート).*(?:良|稍重|重|不良)", line) and len(line) <= 20:
+                      # Handles JRA's mojibake rendering such as "ダート�c重"
+                      # by taking the condition from the end of the same line.
+                      m=re.search(r"(良|稍重|重|不良)\s*$", line)
+                      if m:
+                          going_candidates.append(line[:line.rfind(m.group(1))]+m.group(1))
+              if going_candidates:
+                  gm=re.search(r"(良|稍重|重|不良)\s*$", going_candidates[0])
+                  if gm:
+                      meta["going"]=gm.group(1)
 
-              # Race title: JRA renders the official race name in an <h2>
-              # element.  Extract that element from the raw HTML first instead
-              # of guessing from the flattened text.  This avoids accidentally
-              # selecting navigation text such as "本文へ移動する".
+              # Race title: the page contains an earlier navigation <h2>
+              # "検索ウィンドウ".  The official race title <h2> appears only
+              # after the "ここから本文です" marker, so restrict extraction
+              # to that body section.
+              marker_pos=raw_html.find("ここから本文です")
+              body_html=raw_html[marker_pos:] if marker_pos >= 0 else raw_html
               title_html = re.findall(
                   r"<h2\b[^>]*>(.*?)</h2>",
-                  raw_html,
+                  body_html,
                   re.I | re.S,
               )
               title_candidates = []
@@ -482,10 +498,8 @@ jobs:
                   frag = re.sub(r"<[^>]+>", " ", frag)
                   line = htmlmod.unescape(frag)
                   line = re.sub(r"\s+", " ", line).strip()
-                  # Remove UI/accessibility fragments but keep the official
-                  # race title itself, including "第○回..." when present.
                   line = re.sub(r"(?:\s*G[ⅠⅡⅢⅣⅤ]\s*)+$", "", line).strip()
-                  if not line or line in ("本文へ移動する", "レース映像"):
+                  if not line or line in ("本文へ移動する", "レース映像", "検索ウィンドウ"):
                       continue
                   if "レース結果" in line or "発走時刻" in line:
                       continue
