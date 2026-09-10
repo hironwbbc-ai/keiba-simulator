@@ -372,19 +372,6 @@ jobs:
               if not unique:
                   raise RuntimeError(f"指定日 {target_ymd} のJRA過去レース結果が0件です。")
 
-              if not target_tokens:
-                  raise RuntimeError(f"指定した過去日 {target_ymd} のJRAレース結果tokenを取得できませんでした。")
-
-              unique = {}
-              for token in sorted(target_tokens):
-                  mm = TOKEN_EXACT.fullmatch(token)
-                  if mm and mm.group("date") == target_ymd:
-                      unique[(mm.group("venue"), int(mm.group("race")))] = token
-
-              print("TARGET HISTORICAL RACES:", len(unique))
-              if not unique:
-                  raise RuntimeError(f"指定日 {target_ymd} のJRAレース結果が0件です。")
-
           else:
               ENTRY_TOKEN = "pw01dli00/F3"
               RACE_TOKEN_RE = re.compile(
