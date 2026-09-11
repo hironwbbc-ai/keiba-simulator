@@ -1,20 +1,21 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.8
+   競馬シミュレーター Ver.15.9.1
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
-   → 個別バックテスト → 36レース比較
+   → 個別バックテスト → 学習反映
    ---------------------------------------------------------
    方針：
    ・存在しないデータは推測しない
    ・確定後データを発走前予測に混ぜない
    ・バックテストでは「発走前に確定している情報」を優先
-   ・学習済みAIではなく、ルールベースの検証モデル
+   ・バックテスト結果を次回以降のモデル係数へ学習反映
+   ・学習は予測後にのみ実行し、同一レースの重複学習を防止
    ========================================================= */
 
 "use strict";
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.8";
+const MODEL_VERSION = "15.9.1";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -243,7 +244,7 @@ function renderRaces(){
     });
     box.querySelectorAll('button[data-individual-backtest]').forEach(b=>{
       b.onclick=()=>{
-        const [v,n]=b.dataset.backtest.split('|');
+        const [v,n]=b.dataset.individualBacktest.split('|');
         const r=state.races.find(x=>x.venue===v&&Number(x.no)===Number(n));
         if(r)runIndividualBacktest(r);
       };
@@ -359,6 +360,84 @@ function rankScore(v, reverse=false){
   return m;
 }
 
+const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_9";
+const LEARNING_FEATURES = ["market","style","carriedWeight","bodyWeight","sexAge","frame","popularity"];
+const BASE_COEFFICIENTS = {
+  market: null, style:.22, carriedWeight:.16, bodyWeight:.10,
+  sexAge:.08, frame:.08, popularity:.08
+};
+
+function defaultLearning(){
+  return {
+    schema:1,
+    trainedRaces:0,
+    trainedKeys:[],
+    delta:Object.fromEntries(LEARNING_FEATURES.map(k=>[k,0])),
+    lastUpdated:""
+  };
+}
+
+function getLearning(){
+  try{
+    const raw=localStorage.getItem(LEARNING_STORAGE_KEY);
+    if(!raw) return defaultLearning();
+    const x=JSON.parse(raw);
+    const d=defaultLearning();
+    return {
+      ...d,...x,
+      delta:{...d.delta,...(x.delta||{})},
+      trainedKeys:Array.isArray(x.trainedKeys)?x.trainedKeys:[]
+    };
+  }catch(_e){ return defaultLearning(); }
+}
+
+function saveLearning(x){
+  try{localStorage.setItem(LEARNING_STORAGE_KEY,JSON.stringify(x));}catch(_e){}
+}
+
+function learningKey(histRace){
+  const d=historyDateKey(histRace?.date||"");
+  const v=histRace?.venue||codeToVenue(histRace?.venue_code)||"";
+  const n=Number(histRace?.no??histRace?.race_number);
+  return `${d}|${v}|${n}`;
+}
+
+function learningCoefficient(feature,hasOdds,learning){
+  const base=feature==="market" ? (hasOdds?.72:1.0) : BASE_COEFFICIENTS[feature];
+  const delta=Number(learning?.delta?.[feature]||0);
+  return Math.max(.01,Math.min(2.0,base+delta));
+}
+
+function trainFromBacktest(histRace,result){
+  if(!result?.winner) return {trained:false,reason:"no_result"};
+  const key=learningKey(histRace);
+  const learning=getLearning();
+  if(learning.trainedKeys.includes(key)) return {trained:false,reason:"already_trained",learning};
+
+  const rows=result.ranking||[];
+  const winner=rows.find(h=>h.no===result.winner.no);
+  if(!winner) return {trained:false,reason:"winner_not_found",learning};
+
+  // Softmaxの正解（実着順1着）に対する勾配。予測完成後にだけ実行する。
+  const lr=.035;
+  const reg=.002;
+  for(const feature of LEARNING_FEATURES){
+    const wf=Number(winner.learningFeatures?.[feature]||0);
+    let expected=0;
+    for(const h of rows){
+      expected += (Number(h.prob)||0)*Number(h.learningFeatures?.[feature]||0);
+    }
+    const grad=wf-expected-reg*Number(learning.delta?.[feature]||0);
+    learning.delta[feature]=Math.max(-.75,Math.min(.75,Number(learning.delta?.[feature]||0)+lr*grad));
+  }
+  learning.trainedRaces++;
+  learning.trainedKeys.push(key);
+  if(learning.trainedKeys.length>5000) learning.trainedKeys=learning.trainedKeys.slice(-5000);
+  learning.lastUpdated=new Date().toISOString();
+  saveLearning(learning);
+  return {trained:true,learning};
+}
+
 function buildModel(rawHorses){
   const horses=rawHorses.map(normalizeHorse);
   const pace=inferPace(horses);
@@ -398,20 +477,41 @@ function buildModel(rawHorses){
     }
     const frameFactor=h.frame==null?1:1+((4-h.frame)/100);
     const popularityFactor=popularityRaw>0 ? Math.pow(popularityRaw,.12) : 1;
-    const independent=
-      Math.pow(style,.22)*
-      Math.pow(weightFactor,.16)*
-      Math.pow(bodyFactor,.10)*
-      Math.pow(ageFactor,.08)*
-      Math.pow(frameFactor,.08)*
-      Math.pow(popularityFactor,.08);
-    const raw=Math.pow(Math.max(marketBase,1e-12), hasOdds?.72:1.0)*independent;
+    const learning=getLearning();
+    const coeff={
+      market:learningCoefficient("market",hasOdds,learning),
+      style:learningCoefficient("style",hasOdds,learning),
+      carriedWeight:learningCoefficient("carriedWeight",hasOdds,learning),
+      bodyWeight:learningCoefficient("bodyWeight",hasOdds,learning),
+      sexAge:learningCoefficient("sexAge",hasOdds,learning),
+      frame:learningCoefficient("frame",hasOdds,learning),
+      popularity:learningCoefficient("popularity",hasOdds,learning)
+    };
+    const features={
+      market:Math.log(Math.max(marketBase,1e-12)),
+      style:Math.log(Math.max(style,1e-12)),
+      carriedWeight:Math.log(Math.max(weightFactor,1e-12)),
+      bodyWeight:Math.log(Math.max(bodyFactor,1e-12)),
+      sexAge:Math.log(Math.max(ageFactor,1e-12)),
+      frame:Math.log(Math.max(frameFactor,1e-12)),
+      popularity:Math.log(Math.max(popularityFactor,1e-12))
+    };
+    const raw=Math.exp(
+      coeff.market*features.market +
+      coeff.style*features.style +
+      coeff.carriedWeight*features.carriedWeight +
+      coeff.bodyWeight*features.bodyWeight +
+      coeff.sexAge*features.sexAge +
+      coeff.frame*features.frame +
+      coeff.popularity*features.popularity
+    );
     const marketSource=h.odds>0 ? "odds" : (h.popularity>0 ? "popularity_proxy" : "none");
-    return {...h,score:raw,marketScore:marketBase,marketSource,independentScore:independent,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
+    return {...h,score:raw,marketScore:marketBase,marketSource,independentScore:raw/Math.pow(Math.max(marketBase,1e-12),coeff.market),learningFeatures:features,learningCoefficients:coeff,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
   });
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
-  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds};
+  const learning=getLearning();
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,learning};
 }
 function median(a){
   if(!a.length) return null;
@@ -620,11 +720,13 @@ async function runIndividualBacktest(race){
     const hr=await getHistoryRace(date,venue,no);
     const result=backtestOne(hr);
     if(!result)throw new Error("指定したレースのバックテストデータを評価できませんでした。");
+    const learningResult=trainFromBacktest(hr,result);
     const modelRank=result.winnerRank;
     const winner=result.winner;
     out.innerHTML=`
       <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b><span>${esc(venue)} ${no}R</span></div>
-      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。着順・4角位置などの結果情報は評価専用です。</div>
+      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前データだけで予測を確定し、その後に実着順を使って学習します。着順・4角位置などの結果情報は予測には使用していません。</div>
+      <div class="note ${learningResult.trained?'':'warning'}">${learningResult.trained?'このバックテスト結果を学習し、次回以降の予測係数に反映しました。':'このレースは既に学習済みのため、重複学習はしていません。'}<br>学習済みレース数：<b>${learningResult.learning?.trainedRaces??getLearning().trainedRaces}</b></div>
       <div class="compare-grid">
         <div class="metric-card"><b>本命1着</b><strong>${result.top1?'○':'—'}</strong><small>モデル1位</small></div>
         <div class="metric-card"><b>上位3頭</b><strong>${result.top3?'○':'—'}</strong><small>モデル3位以内</small></div>
