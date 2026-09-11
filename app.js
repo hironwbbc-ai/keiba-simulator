@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.9.1
+   競馬シミュレーター Ver.15.10
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 学習反映
    ---------------------------------------------------------
@@ -15,7 +15,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.9.1";
+const MODEL_VERSION = "15.10";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -360,7 +360,7 @@ function rankScore(v, reverse=false){
   return m;
 }
 
-const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_9";
+const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_9"; // 15.9系の学習データを継続利用
 const LEARNING_FEATURES = ["market","style","carriedWeight","bodyWeight","sexAge","frame","popularity"];
 const BASE_COEFFICIENTS = {
   market: null, style:.22, carriedWeight:.16, bodyWeight:.10,
@@ -373,6 +373,7 @@ function defaultLearning(){
     trainedRaces:0,
     trainedKeys:[],
     delta:Object.fromEntries(LEARNING_FEATURES.map(k=>[k,0])),
+    records:[],
     lastUpdated:""
   };
 }
@@ -386,7 +387,8 @@ function getLearning(){
     return {
       ...d,...x,
       delta:{...d.delta,...(x.delta||{})},
-      trainedKeys:Array.isArray(x.trainedKeys)?x.trainedKeys:[]
+      trainedKeys:Array.isArray(x.trainedKeys)?x.trainedKeys:[],
+      records:Array.isArray(x.records)?x.records:[]
     };
   }catch(_e){ return defaultLearning(); }
 }
@@ -433,9 +435,35 @@ function trainFromBacktest(histRace,result){
   learning.trainedRaces++;
   learning.trainedKeys.push(key);
   if(learning.trainedKeys.length>5000) learning.trainedKeys=learning.trainedKeys.slice(-5000);
+  learning.records.push({
+    key,
+    date:historyDateKey(histRace?.date||""),
+    venue:histRace?.venue||codeToVenue(histRace?.venue_code)||"",
+    no:Number(histRace?.no??histRace?.race_number),
+    winnerRank:Number(result.winnerRank)||null,
+    top1:!!result.top1,
+    top3:!!result.top3,
+    top5:!!result.top5,
+    trainedAt:new Date().toISOString()
+  });
+  if(learning.records.length>5000) learning.records=learning.records.slice(-5000);
   learning.lastUpdated=new Date().toISOString();
   saveLearning(learning);
   return {trained:true,learning};
+}
+
+function learningSummary(learning=getLearning()){
+  const records=Array.isArray(learning.records)?learning.records:[];
+  const n=records.length;
+  const avgRank=n?records.reduce((s,r)=>s+(Number(r.winnerRank)||0),0)/n:null;
+  return {
+    races:Number(learning.trainedRaces)||n,
+    top1:n?records.filter(r=>r.top1).length/n:null,
+    top3:n?records.filter(r=>r.top3).length/n:null,
+    top5:n?records.filter(r=>r.top5).length/n:null,
+    avgRank,
+    delta:{...learning.delta}
+  };
 }
 
 function buildModel(rawHorses){
@@ -511,7 +539,7 @@ function buildModel(rawHorses){
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
   const learning=getLearning();
-  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,learning};
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,learning,learningSummary:learningSummary(learning)};
 }
 function median(a){
   if(!a.length) return null;
@@ -727,6 +755,7 @@ async function runIndividualBacktest(race){
       <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b><span>${esc(venue)} ${no}R</span></div>
       <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前データだけで予測を確定し、その後に実着順を使って学習します。着順・4角位置などの結果情報は予測には使用していません。</div>
       <div class="note ${learningResult.trained?'':'warning'}">${learningResult.trained?'このバックテスト結果を学習し、次回以降の予測係数に反映しました。':'このレースは既に学習済みのため、重複学習はしていません。'}<br>学習済みレース数：<b>${learningResult.learning?.trainedRaces??getLearning().trainedRaces}</b></div>
+      ${(()=>{const ls=learningSummary(learningResult.learning||getLearning()); const pct=x=>x==null?'—':`${(x*100).toFixed(1)}%`; return `<div class="note"><b>学習状況</b>：本命1着率 ${pct(ls.top1)} ／ 上位3頭率 ${pct(ls.top3)} ／ 上位5頭率 ${pct(ls.top5)} ／ 勝ち馬平均順位 ${ls.avgRank==null?'—':ls.avgRank.toFixed(2)}位</div>`;})()}
       <div class="compare-grid">
         <div class="metric-card"><b>本命1着</b><strong>${result.top1?'○':'—'}</strong><small>モデル1位</small></div>
         <div class="metric-card"><b>上位3頭</b><strong>${result.top3?'○':'—'}</strong><small>モデル3位以内</small></div>

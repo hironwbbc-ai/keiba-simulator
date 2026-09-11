@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>競馬シミュレーター Ver.15.9.1</title>
+<title>競馬シミュレーター Ver.15.10</title>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--good:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}
@@ -30,14 +30,14 @@ footer{padding:20px 0 40px;color:var(--muted);font-size:12px}.actions{display:fl
 </head>
 <body>
 <main>
-<section class="card"><h1>🏇 競馬シミュレーター Ver.15.9.1</h1><div class="small">JRA公式同期JSON → 出馬表 → Monte Carlo → バックテスト → 市場ベンチマーク比較</div></section>
+<section class="card"><h1>🏇 競馬シミュレーター Ver.15.10</h1><div class="small">JRA公式同期JSON → 出馬表 → Monte Carlo → バックテスト → 市場ベンチマーク比較</div></section>
 <section class="card"><h2>① 開催を取得</h2><div class="controls"><div><label for="date">日付</label><input id="date" type="date"></div><div><label for="venue">開催場</label><select id="venue"><option value="">全開催</option></select></div><div style="display:flex;align-items:end"><button id="loadBtn">指定日の開催を取得</button></div></div><div id="status" class="status" style="margin-top:10px">読み込み中…</div><div id="races" style="margin-top:10px"></div></section>
 <section id="entryCard" class="card hidden"><h2>② 出馬表</h2><div id="raceInfo"></div><div id="horses" style="margin-top:10px"></div><div style="display:flex;gap:8px;margin-top:12px"><button id="simulateBtn">シミュレーション</button><button id="backBtn" class="secondary">レース一覧へ戻る</button></div></section>
 <section id="resultCard" class="card hidden"><h2>③ 分析・シミュレーション</h2><div id="result"></div></section>
-<section class="card"><h2>④ Ver.15.9.1 個別バックテスト</h2><div class="note">過去日では、<b>指定した1レースだけ</b>をバックテストします。<br>36レース×全頭の詳細データを毎回取得する方式は廃止しました。<br>取得済みのレースデータはレース単位で保存し、次回はキャッシュを利用します。</div><div id="individualBacktestResult" style="margin-top:12px"><div class="small">過去日を選び、レース一覧の「バックテスト」を押してください。</div></div></section>
+<section class="card"><h2>④ Ver.15.10 個別バックテスト</h2><div class="note">過去日では、<b>指定した1レースだけ</b>をバックテストします。<br>36レース×全頭の詳細データを毎回取得する方式は廃止しました。<br>取得済みのレースデータはレース単位で保存し、次回はキャッシュを利用します。</div><div id="individualBacktestResult" style="margin-top:12px"><div class="small">過去日を選び、レース一覧の「バックテスト」を押してください。</div></div></section>
 <section class="card"><h2>⑤ JRA公式データ</h2><div id="officialProgramStatus" class="status">JRA公式データの状態を確認中…</div></section>
-<section class="card"><h2>Ver.15.9.1 現在できること</h2><div class="note">・JRA公式同期データの取得<br>・開催場、全レース表示<br>・出馬表表示<br>・単勝オッズ・人気評価（オッズ未取得時は人気を代理指標として使用）<br>・斤量・馬体重・馬体重増減・性齢・枠順評価<br>・脚質・ペース補正（データが存在する場合のみ）<br>・Monte Carlo 10,000回<br>・1着/2着/3着確率<br>・3着内率<br>・単勝期待値（オッズ取得時のみ）<br>・3連複/3連単候補<br>・個別バックテスト<br>・最終人気との比較<br>・バックテスト結果からのオンライン学習（同一レースは1回のみ）</div><h3>今後の強化</h3><div class="note">・過去走データの時系列取得<br>・コース適性<br>・騎手成績<br>・馬場適性<br>・4角位置の事前推定<br>・開催単位のトラックバイアス<br>・複数開催・複数日の時系列学習精度検証<br>・複勝/馬連/ワイド/三連系の期待値評価<br>・複数開催・複数日での長期バックテスト</div></section>
-<footer>Ver.15.9.1 / ルールベース＋バックテスト学習モデル。存在しないデータを推測して補完しません。</footer>
+<section class="card"><h2>Ver.15.10 現在できること</h2><div class="note">・JRA公式同期データの取得<br>・開催場、全レース表示<br>・出馬表表示<br>・単勝オッズ・人気評価（オッズ未取得時は人気を代理指標として使用）<br>・斤量・馬体重・馬体重増減・性齢・枠順評価<br>・脚質・ペース補正（データが存在する場合のみ）<br>・Monte Carlo 10,000回<br>・1着/2着/3着確率<br>・3着内率<br>・単勝期待値（オッズ取得時のみ）<br>・3連複/3連単候補<br>・個別バックテスト<br>・最終人気との比較<br>・バックテスト結果からのオンライン学習（同一レースは1回のみ）</div><h3>今後の強化</h3><div class="note">・過去走データの時系列取得<br>・コース適性<br>・騎手成績<br>・馬場適性<br>・4角位置の事前推定<br>・開催単位のトラックバイアス<br>・複数開催・複数日の時系列学習精度検証<br>・複勝/馬連/ワイド/三連系の期待値評価<br>・複数開催・複数日での長期バックテスト</div></section>
+<footer>Ver.15.10 / ルールベース＋バックテスト学習モデル。存在しないデータを推測して補完しません。</footer>
 </main>
 <script src="./app.js?v=15.9"></script>
 </body>
