@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.12.5
+   競馬シミュレーター Ver.15.5
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 36レース比較
    ---------------------------------------------------------
@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.4";
+const MODEL_VERSION = "15.5";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -60,6 +60,12 @@ function num(v){
   return Number.isFinite(n) ? n : null;
 }
 
+function historyDateKey(date){
+  const s=String(date||"");
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[1]}${m[2]}${m[3]}` : s.replace(/[^0-9]/g, "");
+}
+
 function today(){
   return new Intl.DateTimeFormat("ja-JP",{
     timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"
@@ -91,9 +97,10 @@ async function getHistory(){
 
 async function getHistoryIndex(date){
   try{
-    return await getJSON(`./data/history/${date}/index.json`);
+    return await getJSON(`./data/history/${historyDateKey(date)}/index.json`);
   }catch(_e){
-    const h=await getJSON(`./data/history/${date}.json`);
+    const key=historyDateKey(date);
+    const h=await getJSON(`./data/history/${key}.json`);
     return {
       date:h.date||date,
       updated_at:h.updated_at||"",
@@ -115,14 +122,15 @@ async function getHistoryIndex(date){
 
 async function getHistoryRace(date,venue,no){
   const code=VENUES[venue]||String(venue||"");
+  const key=historyDateKey(date);
   const padded=String(no).padStart(2,"0");
   for(const path of [
-    `./data/history/${date}/${code}_${padded}.json`,
-    `./data/history/${date}/${venue}_${padded}.json`
+    `./data/history/${key}/${code}_${padded}.json`,
+    `./data/history/${key}/${venue}_${padded}.json`
   ]){
     try{return await getJSON(path);}catch(_e){}
   }
-  const h=await getJSON(`./data/history/${date}.json`);
+  const h=await getJSON(`./data/history/${historyDateKey(date)}.json`);
   const r=(h.races||[]).find(x=>
     (x.venue||codeToVenue(x.venue_code))===venue &&
     Number(x.no??x.race_number)===Number(no)
