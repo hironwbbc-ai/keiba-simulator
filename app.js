@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.10
+   競馬シミュレーター Ver.15.11
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 学習反映
    ---------------------------------------------------------
@@ -15,7 +15,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.10";
+const MODEL_VERSION = "15.12";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -756,6 +756,7 @@ async function runIndividualBacktest(race){
       <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前データだけで予測を確定し、その後に実着順を使って学習します。着順・4角位置などの結果情報は予測には使用していません。</div>
       <div class="note ${learningResult.trained?'':'warning'}">${learningResult.trained?'このバックテスト結果を学習し、次回以降の予測係数に反映しました。':'このレースは既に学習済みのため、重複学習はしていません。'}<br>学習済みレース数：<b>${learningResult.learning?.trainedRaces??getLearning().trainedRaces}</b></div>
       ${(()=>{const ls=learningSummary(learningResult.learning||getLearning()); const pct=x=>x==null?'—':`${(x*100).toFixed(1)}%`; return `<div class="note"><b>学習状況</b>：本命1着率 ${pct(ls.top1)} ／ 上位3頭率 ${pct(ls.top3)} ／ 上位5頭率 ${pct(ls.top5)} ／ 勝ち馬平均順位 ${ls.avgRank==null?'—':ls.avgRank.toFixed(2)}位</div>`;})()}
+      ${(()=>{const l=learningResult.learning||getLearning(); const hasOdds=result.ranking.some(h=>Number(h.odds)>0); const rows=LEARNING_FEATURES.map(f=>{const base=f==='market'?(hasOdds?.72:1):BASE_COEFFICIENTS[f]; const delta=Number(l.delta?.[f]||0); const cur=learningCoefficient(f,hasOdds,l); return `<tr><td>${esc(f)}</td><td>${Number(base).toFixed(3)}</td><td>${delta>=0?'+':''}${delta.toFixed(3)}</td><td>${cur.toFixed(3)}</td></tr>`;}).join(''); return `<h3>学習係数</h3><div class="small">基準係数にバックテスト学習の差分を加えています。差分は${esc(LEARNING_STORAGE_KEY)}に保存されます。</div><div class="table-wrap"><table><thead><tr><th>特徴量</th><th>基準</th><th>学習差分</th><th>現在値</th></tr></thead><tbody>${rows}</tbody></table></div>`;})()}
       <div class="compare-grid">
         <div class="metric-card"><b>本命1着</b><strong>${result.top1?'○':'—'}</strong><small>モデル1位</small></div>
         <div class="metric-card"><b>上位3頭</b><strong>${result.top3?'○':'—'}</strong><small>モデル3位以内</small></div>
@@ -772,6 +773,31 @@ async function runIndividualBacktest(race){
       <div class="table-wrap"><table><thead><tr><th>開催</th><th>R</th><th>レース名</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead><tbody>
         <tr><td>${esc(venue)}</td><td>${no}R</td><td>${esc(hr.name||race.name||'')}</td><td>${horseLabel(winner.name,winner.no)}</td><td>${winner.popularity??'—'}</td><td>${modelRank}</td><td>${result.top1?'○':'—'}</td><td>${result.top3?'○':'—'}</td><td>${result.top5?'○':'—'}</td></tr>
       </tbody></table></div>
+      ${(()=>{
+        const all=result.ranking.slice().sort((a,b)=>Number(a.historicalFinish??999)-Number(b.historicalFinish??999));
+        const popSorted=all.filter(h=>Number(h.popularity)>0).slice().sort((a,b)=>Number(a.popularity)-Number(b.popularity));
+        const popRank=new Map(popSorted.map((h,i)=>[h.no,i+1]));
+        const modelRankMap=new Map(result.ranking.map((h,i)=>[h.no,i+1]));
+        const evalMark=(finish,mr)=>{
+          if(!Number.isFinite(finish)||!Number.isFinite(mr)) return '—';
+          if(finish<=5 && mr<=5) return '★★★★★';
+          if(finish<=5 && mr<=10) return '★★★★';
+          if(finish<=5 && mr<=15) return '★★★';
+          if(finish<=5) return '★★';
+          if(mr<=5) return '★';
+          return '—';
+        };
+        const rows=all.map(h=>{
+          const finish=Number(h.historicalFinish);
+          const mr=Number(modelRankMap.get(h.no));
+          const pr=Number(popRank.get(h.no));
+          const gap=Number.isFinite(finish)&&Number.isFinite(mr)?mr-finish:null;
+          const marketGap=Number.isFinite(pr)&&Number.isFinite(mr)?pr-mr:null;
+          const cls=Number.isFinite(finish)&&finish<=5?' class="top5-row"':'';
+          return `<tr${cls}><td>${Number.isFinite(finish)?finish+'着':'—'}</td><td>${horseLabel(h.name,h.no)}</td><td>${Number.isFinite(pr)?pr+'番人気':(h.popularity??'—')}</td><td><b>${Number.isFinite(mr)?mr+'位':'—'}</b></td><td>${Number(h.prob)>0?(Number(h.prob)*100).toFixed(1)+'%':'—'}</td><td>${gap==null?'—':(gap>0?'+':'')+gap}</td><td>${marketGap==null?'—':(marketGap>0?'+':'')+marketGap}</td><td>${evalMark(finish,mr)}</td></tr>`;
+        }).join('');
+        return `<h3>全頭：実着順 × モデル順位</h3><div class="small">実着順1〜5着を重点表示。モデル順位は発走前データだけで算出した順位です。「人気差」は最終人気順位−モデル順位で、プラスほどモデルが人気以上に評価しています。</div><div class="table-wrap"><table><thead><tr><th>実着順</th><th>馬</th><th>最終人気</th><th>モデル順位</th><th>1着確率</th><th>実着順との差</th><th>人気差</th><th>評価</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      })()}
     `;
   }catch(e){out.innerHTML=`<div class="status err">${esc(e.message)}</div>`;}
 }
