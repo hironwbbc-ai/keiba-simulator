@@ -1,4 +1,4 @@
-name: JRA Sync - Historical Selected Race v15.3
+name: JRA Sync - Historical Selected Race v15.7
 
 on:
   workflow_dispatch:
@@ -57,7 +57,7 @@ jobs:
           from pathlib import Path
           from zoneinfo import ZoneInfo
           
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.3)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.6)"
           BASE = "https://www.jra.go.jp"
           ACCESS_S = BASE + "/JRADB/accessS.html"
           JST = ZoneInfo("Asia/Tokyo")
@@ -474,9 +474,20 @@ jobs:
                       continue
                   if line.startswith(("天候", "本賞金", "コース：", "コース:")):
                       continue
+                  # JRA結果ページでは馬場状態が「芝良」「ダート重」のように
+                  # 1行で抽出される。空白入り表記も含め、レース名と誤認しない。
+                  if re.fullmatch(r"(?:芝|ダート)\s*(?:不良|稍重|重|良)", line):
+                      continue
+                  # レース名として明らかに不自然な単独の馬場状態表記も除外。
+                  if re.fullmatch(r"(?:良|稍重|重|不良)", line):
+                      continue
                   if re.search(r"(?:\d+レース|Image:)", line):
                       continue
-                  if len(line) <= 100:
+                  if re.fullmatch(r"(?:芝|ダート)\s*(?:不良|稍重|重|良)", line):
+                      continue
+                  if re.fullmatch(r"(?:良|稍重|重|不良)", line):
+                      continue
+                  if len(line) <= 100 and len(line) >= 2:
                       meta["name"] = line
                       break
           
@@ -578,7 +589,7 @@ jobs:
               key=lambda item: (item.get("venue_code", ""), item.get("no", 0)),
           )
           index["race_count"] = len(index["races"])
-          index["parser_version"] = "15.3-selected-race"
+          index["parser_version"] = "15.6-selected-race"
           index_file.write_text(
               json.dumps(index, ensure_ascii=False, indent=2),
               encoding="utf-8",
