@@ -1,4 +1,4 @@
-name: JRA Sync - Historical Selected Race v15.7
+name: JRA Sync - Historical Selected Race v15.13
 
 on:
   workflow_dispatch:
@@ -57,7 +57,7 @@ jobs:
           from pathlib import Path
           from zoneinfo import ZoneInfo
           
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.6)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13)"
           BASE = "https://www.jra.go.jp"
           ACCESS_S = BASE + "/JRADB/accessS.html"
           JST = ZoneInfo("Asia/Tokyo")
@@ -584,12 +584,34 @@ jobs:
                   },
               )
           
+          # ------------------------------------------------------------
+          # 5a. Update only the selected race name.
+          #     Do NOT fetch result pages for every race just to hydrate
+          #     the lightweight index. This keeps the selected-race design:
+          #     detailed JRA pages are fetched only when the user requests
+          #     that race. The selected page was already fetched above, so
+          #     its official race name is available in `meta`.
+          # ------------------------------------------------------------
+          selected_key = f"{selected_venue_code}-{selected_race}"
+          selected_entry = by_key.setdefault(
+              selected_key,
+              {
+                  "venue": selected_venue_name,
+                  "venue_code": selected_venue_code,
+                  "no": selected_race,
+                  "date": target_date_iso,
+              },
+          )
+          selected_name = str(meta.get("name") or "").strip()
+          if selected_name and selected_name not in ("レース", "本文へ移動する"):
+              selected_entry["name"] = selected_name
+
           index["races"] = sorted(
               by_key.values(),
               key=lambda item: (item.get("venue_code", ""), item.get("no", 0)),
           )
           index["race_count"] = len(index["races"])
-          index["parser_version"] = "15.6-selected-race"
+          index["parser_version"] = "15.13-selected-race"
           index_file.write_text(
               json.dumps(index, ensure_ascii=False, indent=2),
               encoding="utf-8",
