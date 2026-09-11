@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.1";
+const MODEL_VERSION = "15.4";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -137,7 +137,7 @@ function normalizeHorse(h, extra={}){
   return {
     no:Number(h.no ?? h.number ?? h.horse_no ?? 0),
     name:h.name ?? h.horse_name ?? h.horseName ?? "",
-    odds:num(h.odds),
+    odds:num(h.odds ?? h.winOdds ?? h.tanshoOdds ?? h.singleOdds),
     popularity:num(h.popularity ?? h.odds_rank ?? h.rank),
     bodyWeight:num(h.bodyWeight ?? h.body_weight ?? h.weight),
     bodyWeightDiff:num(h.bodyWeightDiff ?? h.body_weight_diff),
@@ -337,13 +337,14 @@ function styleFactor(style, pace){
 }
 
 function inferPace(horses){
-  const styles=horses.map(h=>h.style).filter(x=>x && x!=="不明");
-  const escapers=styles.filter(x=>String(x).includes("逃げ")).length;
-  const front=styles.filter(x=>String(x).includes("先行")).length;
-  if(escapers>=4) return {label:"ハイ",escapers,front};
-  if(escapers>=3) return {label:"ややハイ",escapers,front};
-  if(escapers<=1 && front<=3) return {label:"スロー",escapers,front};
-  return {label:"標準",escapers,front};
+  const styles=horses.map(h=>String(h.style||"")).filter(x=>x && x!=="不明");
+  const escapers=styles.filter(x=>x.includes("逃げ")).length;
+  const front=styles.filter(x=>x.includes("先行")).length;
+  if(!styles.length) return {label:"判定不能",escapers:0,front:0,known:0,total:horses.length};
+  if(escapers>=4) return {label:"ハイ",escapers,front,known:styles.length,total:horses.length};
+  if(escapers>=3) return {label:"ややハイ",escapers,front,known:styles.length,total:horses.length};
+  if(escapers<=1 && front<=3) return {label:"スロー",escapers,front,known:styles.length,total:horses.length};
+  return {label:"標準",escapers,front,known:styles.length,total:horses.length};
 }
 
 function rankScore(v, reverse=false){
@@ -363,31 +364,26 @@ function buildModel(rawHorses){
   const pace=inferPace(horses);
 
   const odds=horses.map(h=>h.odds).filter(x=>x>0);
-  const minOdds=Math.min(...odds);
-  const maxOdds=Math.max(...odds);
   const popVals=horses.map(h=>h.popularity).filter(x=>x>0);
   const medWeight=median(horses.map(h=>h.carriedWeight).filter(x=>x!=null));
   const medBody=median(horses.map(h=>h.bodyWeight).filter(x=>x!=null));
+  const hasOdds=odds.length>0;
 
   const rows=horses.map(h=>{
-    // 市場：オッズがある場合は逆数。バックテストでも「最終オッズ」である点を明示。
-    const marketRaw=h.odds>0 ? 1/h.odds : 0;
-    const market=marketRaw;
-
-    const pop=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
+    const marketRaw=hasOdds && h.odds>0 ? 1/h.odds : 0;
+    const popularityRaw=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
+    const marketBase=hasOdds ? marketRaw : popularityRaw;
     const style=styleFactor(h.style,pace.label);
 
     let weightFactor=1;
     if(h.carriedWeight!=null && medWeight!=null){
       weightFactor=1 + Math.max(-0.04,Math.min(0.04,(medWeight-h.carriedWeight)*0.012));
     }
-
     let bodyFactor=1;
     if(h.bodyWeight!=null && medBody!=null){
       const d=Math.abs(h.bodyWeight-medBody);
       bodyFactor=1-Math.min(.025,d/10000);
     }
-
     const age=parseAge(h.sexAge);
     let ageFactor=1;
     if(age!=null){
@@ -395,11 +391,8 @@ function buildModel(rawHorses){
       else if(age===4) ageFactor=1.01;
       else if(age>=7) ageFactor=.985;
     }
-
     const frameFactor=h.frame==null?1:1+((4-h.frame)/100);
-    const popularityFactor=pop>0 ? Math.pow(pop,.12) : 1;
-
-    // 独立補正は弱く、オッズへの過剰依存を避ける
+    const popularityFactor=popularityRaw>0 ? Math.pow(popularityRaw,.12) : 1;
     const independent=
       Math.pow(style,.22)*
       Math.pow(weightFactor,.16)*
@@ -407,35 +400,13 @@ function buildModel(rawHorses){
       Math.pow(ageFactor,.08)*
       Math.pow(frameFactor,.08)*
       Math.pow(popularityFactor,.08);
-
-    const raw=Math.pow(Math.max(market,1e-9),.72)*independent;
-    return {
-      ...h,
-      score:raw,
-      marketScore:market,
-      independentScore:independent,
-      components:{
-        market:market,
-        style,
-        carriedWeight:weightFactor,
-        bodyWeight:bodyFactor,
-        sexAge:ageFactor,
-        frame:frameFactor,
-        popularity:popularityFactor
-      }
-    };
+    const raw=Math.pow(Math.max(marketBase,1e-12), hasOdds?.72:1.0)*independent;
+    return {...h,score:raw,marketScore:marketBase,independentScore:independent,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
   });
-
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
-
-  return {
-    horses:rows.sort((a,b)=>b.prob-a.prob),
-    pace,
-    dataCoverage:coverage(rows)
-  };
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds};
 }
-
 function median(a){
   if(!a.length) return null;
   const x=[...a].sort((a,b)=>a-b);
@@ -444,10 +415,10 @@ function median(a){
 }
 
 function coverage(horses){
-  const fields=["odds","popularity","bodyWeight","bodyWeightDiff","sexAge","carriedWeight","jockey"];
+  const fields=["odds","popularity","bodyWeight","bodyWeightDiff","sexAge","carriedWeight","jockey","style"];
   let have=0,total=horses.length*fields.length;
   for(const h of horses) for(const f of fields){
-    if(h[f]!==null && h[f]!==undefined && h[f]!=="") have++;
+    if(h[f]!==null && h[f]!==undefined && h[f]!=="" && h[f]!=="不明") have++;
   }
   return total?have/total:0;
 }
@@ -514,7 +485,7 @@ function simulate(){
     const p2=(mc.two.get(h.no)||0)/mc.n;
     const p3=(mc.three.get(h.no)||0)/mc.n;
     const pTop3=(mc.top3.get(h.no)||0)/mc.n;
-    const ev=h.odds ? p1*h.odds : null;
+    const ev=h.odds>0 ? p1*h.odds : null;
     return {...h,p1,p2,p3,pTop3,ev};
   }).sort((a,b)=>b.p1-a.p1);
 
@@ -532,14 +503,14 @@ function simulate(){
 
     <div class="stats">
       <div><b>想定ペース</b><strong>${esc(model.pace.label)}</strong></div>
-      <div><b>逃げ候補</b><strong>${model.pace.escapers}頭</strong></div>
+      <div><b>逃げ候補</b><strong>${model.pace.known===0?"判定不能":model.pace.escapers+"頭"}</strong></div>
       <div><b>データ充足率</b><strong>${(model.dataCoverage*100).toFixed(1)}%</strong></div>
     </div>
 
     <div class="note warning">
-      現在のJRA同期JSONでは近走・コース適性・騎手成績・4角位置等が
-      十分に取得できないため、それらを勝手に補完していません。
-      そのため現行モデルは市場情報を中心とした検証版です。
+      単勝オッズが取得できる場合はオッズを市場評価に使用します。
+      オッズ未取得の場合は最終人気を市場評価の代理として使用します。
+      近走・コース適性・騎手成績・4角位置など存在しないデータは推測・補完していません。
     </div>
 
     <h3>予測順位</h3>
@@ -577,8 +548,9 @@ function simulate(){
 
     <h3>モデル構成</h3>
     <div class="small">
-      市場情報を中心に、脚質・ペース・斤量・馬体重・性齢・枠順を
-      利用可能な範囲で補正しています。存在しない近走・適性データは推測していません。
+      単勝オッズがあれば市場評価として使用し、未取得なら人気順位を代理指標として使用します。
+      さらに脚質・ペース・斤量・馬体重・性齢・枠順を利用可能な範囲で補正します。
+      存在しない近走・適性・騎手成績・4角位置等は推測していません。
     </div>
   `;
 }
