@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.7
+   競馬シミュレーター Ver.15.8
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 36レース比較
    ---------------------------------------------------------
@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.7";
+const MODEL_VERSION = "15.8";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -30,7 +30,6 @@ const state = {
   horses:[],
   selected:null,
   analysis:null,
-  selectedBacktests:new Set()
 };
 
 /* -------------------- utility -------------------- */
@@ -223,47 +222,40 @@ function renderRaces(){
   const historical=list.some(r=>r.historical);
   if(historical){
     box.innerHTML=`
-      <div class="note">過去日バックテストは<strong>選択したレースだけ</strong>を対象にします。全36レースの詳細データは毎回取得しません。</div>
-      <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
-        <button id="selectAllBacktest" class="secondary">表示中を全選択</button>
-        <button id="clearBacktest" class="secondary">選択解除</button>
-        <button id="runSelectedBacktest">選択レースをバックテスト</button>
-      </div>
-      <div id="selectedBacktestStatus" class="small" style="margin-bottom:8px"></div>
+      <div class="note">過去日バックテストは<strong>1レースずつ</strong>実行します。レース一覧の「バックテスト」を押すと、そのレースの詳細データだけを取得して評価します。</div>
     `+list.map(r=>{
-      const key=`${r.venue}-${r.no}`;
-      const checked=state.selectedBacktests.has(key)?"checked":"";
-      const title=r.name&&!["レース","本文へ移動する","検索ウィンドウ"].includes(r.name)?esc(r.name):"（選択後にJRA公式データを取得）";
-      return `<label class="race-select-row">
-        <input type="checkbox" data-backtest="${esc(key)}" ${checked}>
-        <span><b>${esc(r.venue)} ${r.no}R</b><span>${title}</span><span class="small">${esc(r.time||"")}</span></span>
-      </label>`;
-    }).join("");
-    const status=$("selectedBacktestStatus");
-    const update=()=>{if(status)status.textContent=`選択中：${state.selectedBacktests.size}レース`;};
-    box.querySelectorAll("input[data-backtest]").forEach(cb=>{
-      cb.onchange=()=>{
-        const k=cb.dataset.backtest;
-        cb.checked?state.selectedBacktests.add(k):state.selectedBacktests.delete(k);
-        update();
+      const title=r.name&&!['レース','本文へ移動する','検索ウィンドウ'].includes(r.name)?esc(r.name):'（レース名は公式データ取得後に表示）';
+      const key=`${r.venue}|${r.no}`;
+      return `<div class="race-row">
+        <div><b>${esc(r.venue)} ${r.no}R</b><span>${title}</span><div class="small">${esc(r.time||'')}</div></div>
+        <div class="actions">
+          <button data-race="${esc(key)}">出馬表</button>
+          <button class="secondary" data-individual-backtest="${esc(key)}">バックテスト</button>
+        </div>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('button[data-race]').forEach(b=>{
+      b.onclick=()=>{
+        const [v,n]=b.dataset.race.split('|');
+        const r=state.races.find(x=>x.venue===v&&Number(x.no)===Number(n));
+        if(r)selectRace(r);
       };
     });
-    $("selectAllBacktest")?.addEventListener("click",()=>{
-      list.forEach(r=>state.selectedBacktests.add(`${r.venue}-${r.no}`)); renderRaces();
+    box.querySelectorAll('button[data-individual-backtest]').forEach(b=>{
+      b.onclick=()=>{
+        const [v,n]=b.dataset.backtest.split('|');
+        const r=state.races.find(x=>x.venue===v&&Number(x.no)===Number(n));
+        if(r)runIndividualBacktest(r);
+      };
     });
-    $("clearBacktest")?.addEventListener("click",()=>{
-      list.forEach(r=>state.selectedBacktests.delete(`${r.venue}-${r.no}`)); renderRaces();
-    });
-    $("runSelectedBacktest")?.addEventListener("click",runSelectedBacktest);
-    update();
     return;
   }
   box.innerHTML=list.map(r=>`
-    <div class="race-row"><div><b>${esc(r.venue)} ${r.no}R</b><span>${esc(r.name||"レース")}</span><div class="small">${esc(r.time||"")}</div></div>
-    <button data-race="${esc(r.venue)}|${r.no}">出馬表</button></div>`).join("");
-  box.querySelectorAll("button[data-race]").forEach(b=>{
+    <div class="race-row"><div><b>${esc(r.venue)} ${r.no}R</b><span>${esc(r.name||'レース')}</span><div class="small">${esc(r.time||'')}</div></div>
+    <button data-race="${esc(r.venue)}|${r.no}">出馬表</button></div>`).join('');
+  box.querySelectorAll('button[data-race]').forEach(b=>{
     b.onclick=()=>{
-      const [v,n]=b.dataset.race.split("|");
+      const [v,n]=b.dataset.race.split('|');
       const r=state.races.find(x=>x.venue===v&&Number(x.no)===Number(n));
       if(r)selectRace(r);
     };
@@ -614,45 +606,42 @@ function backtestOne(histRace){
   };
 }
 
-async function runSelectedBacktest(){
-  const out=$("selectedBacktestResult"); if(!out)return;
-  const keys=[...state.selectedBacktests];
-  if(!keys.length){out.innerHTML='<div class="status warn">バックテストするレースを1つ以上選択してください。</div>';return;}
-  out.innerHTML='<div class="status"><span class="spinner"></span> 選択レースだけを評価中…</div>';
+async function runIndividualBacktest(race){
+  const out=$("individualBacktestResult"); if(!out)return;
+  const date=$("date")?.value||today();
+  const venue=race?.venue||"";
+  const no=Number(race?.no);
+  if(!venue||!Number.isFinite(no)){
+    out.innerHTML='<div class="status err">バックテスト対象のレース情報が不正です。</div>';
+    return;
+  }
+  out.innerHTML=`<div class="status"><span class="spinner"></span> ${esc(venue)} ${no}R のバックテストを実行中…</div>`;
   try{
-    const date=$("date")?.value||today(),results=[],missing=[];
-    for(const key of keys){
-      const [venue,noStr]=key.split("-"),no=Number(noStr);
-      try{
-        const hr=await getHistoryRace(date,venue,no),r=backtestOne(hr);
-        if(r)results.push({...r,venue,no,date:hr.date||date,name:hr.name||""});
-      }catch(_e){missing.push(`${venue} ${no}R`);}
-    }
-    if(!results.length)throw new Error("選択したレースのバックテストデータを取得できませんでした。");
-    const n=results.length;
-    const mTop1=results.filter(r=>r.top1).length,mTop3=results.filter(r=>r.top3).length,mTop5=results.filter(r=>r.top5).length;
-    const fTop1=results.filter(r=>r.favorite1).length,fTop3=results.filter(r=>r.favorite3).length,fTop5=results.filter(r=>r.favorite5).length;
-    const avgRank=results.reduce((s,r)=>s+r.winnerRank,0)/n;
+    const hr=await getHistoryRace(date,venue,no);
+    const result=backtestOne(hr);
+    if(!result)throw new Error("指定したレースのバックテストデータを評価できませんでした。");
+    const modelRank=result.winnerRank;
+    const winner=result.winner;
     out.innerHTML=`
-      <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 選択レース・バックテスト</b><span>${n}レース</span></div>
-      <div class="note">対象日：<b>${esc(date)}</b>。選択したレースのみを評価しています。着順・4角位置などの結果情報は評価専用です。</div>
-      ${missing.length?`<div class="status warn">データ未取得：${missing.map(esc).join("、")}</div>`:""}
+      <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b><span>${esc(venue)} ${no}R</span></div>
+      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。着順・4角位置などの結果情報は評価専用です。</div>
       <div class="compare-grid">
-        <div class="metric-card"><b>本命1着</b><strong>${pct(mTop1/n)}</strong><small>${mTop1}/${n}</small></div>
-        <div class="metric-card"><b>上位3頭</b><strong>${pct(mTop3/n)}</strong><small>${mTop3}/${n}</small></div>
-        <div class="metric-card"><b>上位5頭</b><strong>${pct(mTop5/n)}</strong><small>${mTop5}/${n}</small></div>
-        <div class="metric-card"><b>勝ち馬平均順位</b><strong>${avgRank.toFixed(2)}位</strong><small>モデル順位</small></div>
+        <div class="metric-card"><b>本命1着</b><strong>${result.top1?'○':'—'}</strong><small>モデル1位</small></div>
+        <div class="metric-card"><b>上位3頭</b><strong>${result.top3?'○':'—'}</strong><small>モデル3位以内</small></div>
+        <div class="metric-card"><b>上位5頭</b><strong>${result.top5?'○':'—'}</strong><small>モデル5位以内</small></div>
+        <div class="metric-card"><b>勝ち馬順位</b><strong>${modelRank}位</strong><small>モデル順位</small></div>
       </div>
-      <h3>最終人気 vs Ver.${MODEL_VERSION}</h3>
-      <div class="table-wrap"><table><thead><tr><th>評価</th><th>最終人気</th><th>モデル</th><th>差</th></tr></thead><tbody>
-        <tr><td>本命1着率</td><td>${pct(fTop1/n)}</td><td>${pct(mTop1/n)}</td><td>${pct(mTop1/n-fTop1/n)}</td></tr>
-        <tr><td>上位3頭</td><td>${pct(fTop3/n)}</td><td>${pct(mTop3/n)}</td><td>${pct(mTop3/n-fTop3/n)}</td></tr>
-        <tr><td>上位5頭</td><td>${pct(fTop5/n)}</td><td>${pct(mTop5/n)}</td><td>${pct(mTop5/n-fTop5/n)}</td></tr>
+      <h3>最終人気との比較</h3>
+      <div class="table-wrap"><table><thead><tr><th>評価</th><th>最終人気</th><th>モデル</th><th>判定</th></tr></thead><tbody>
+        <tr><td>本命1着</td><td>${result.favorite1?'○':'—'}</td><td>${result.top1?'○':'—'}</td><td>${result.top1===result.favorite1?'一致':'差あり'}</td></tr>
+        <tr><td>上位3頭</td><td>${result.favorite3?'○':'—'}</td><td>${result.top3?'○':'—'}</td><td>${result.top3===result.favorite3?'一致':'差あり'}</td></tr>
+        <tr><td>上位5頭</td><td>${result.favorite5?'○':'—'}</td><td>${result.top5?'○':'—'}</td><td>${result.top5===result.favorite5?'一致':'差あり'}</td></tr>
       </tbody></table></div>
-      <h3>レース別結果</h3>
+      <h3>結果</h3>
       <div class="table-wrap"><table><thead><tr><th>開催</th><th>R</th><th>レース名</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead><tbody>
-      ${results.map(r=>`<tr><td>${esc(r.venue)}</td><td>${r.no}R</td><td>${esc(r.name)}</td><td>${horseLabel(r.winner.name,r.winner.no)}</td><td>${r.winner.popularity??"—"}</td><td>${r.winnerRank}</td><td>${r.top1?"○":"—"}</td><td>${r.top3?"○":"—"}</td><td>${r.top5?"○":"—"}</td></tr>`).join("")}
-      </tbody></table></div>`;
+        <tr><td>${esc(venue)}</td><td>${no}R</td><td>${esc(hr.name||race.name||'')}</td><td>${horseLabel(winner.name,winner.no)}</td><td>${winner.popularity??'—'}</td><td>${modelRank}</td><td>${result.top1?'○':'—'}</td><td>${result.top3?'○':'—'}</td><td>${result.top5?'○':'—'}</td></tr>
+      </tbody></table></div>
+    `;
   }catch(e){out.innerHTML=`<div class="status err">${esc(e.message)}</div>`;}
 }
 
@@ -662,15 +651,14 @@ async function runSelectedBacktest(){
 async function loadRaces(){
   const date=$("date")?.value||today(); msg("JRA公式データを読み込み中…");
   try{
-    state.selectedBacktests=new Set();
     if(date<today()){
       const idx=await getHistoryIndex(date);
       state.historyIndex=idx;
       state.races=(idx.races||[]).map(r=>({...r,date:r.date||date,venue:r.venue||codeToVenue(r.venue_code),no:Number(r.no),historical:true})).filter(r=>r.venue&&Number.isFinite(r.no));
       const venues=[...new Set(state.races.map(r=>r.venue))];
       const sel=$("venue"); if(sel)sel.innerHTML='<option value="">全開催</option>'+venues.map(v=>`<option>${esc(v)}</option>`).join("");
-      $("officialProgramStatus").innerHTML=`過去レース索引：${esc(idx.updated_at||"取得済み")}<br>レース一覧：${state.races.length}件<br><span class="small">選択したレースだけ詳細データを取得します。</span>`;
-      msg(`${date}：過去レース一覧 ${state.races.length}件。バックテスト対象を選択してください。`,"ok");
+      $("officialProgramStatus").innerHTML=`過去レース索引：${esc(idx.updated_at||"取得済み")}<br>レース一覧：${state.races.length}件<br><span class="small">指定したレースだけ詳細データを取得します。</span>`;
+      msg(`${date}：過去レース一覧 ${state.races.length}件。レース一覧から「バックテスト」を押してください。`,"ok");
       renderRaces();
       return;
     }
@@ -699,7 +687,7 @@ window.KeibaSimulator={
   buildModel,
   runMonteCarlo,
   backtestOne,
-  runSelectedBacktest,
+  runIndividualBacktest,
   simulate
 };
 
