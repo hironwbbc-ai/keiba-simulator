@@ -15,7 +15,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.12";
+const MODEL_VERSION = "15.13.1";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -225,7 +225,7 @@ function renderRaces(){
     box.innerHTML=`
       <div class="note">過去日バックテストは<strong>1レースずつ</strong>実行します。レース一覧の「バックテスト」を押すと、そのレースの詳細データだけを取得して評価します。</div>
     `+list.map(r=>{
-      const title=r.name&&!['レース','本文へ移動する','検索ウィンドウ'].includes(r.name)?esc(r.name):'（レース名は公式データ取得後に表示）';
+      const title=r.name&&!['レース','本文へ移動する','検索ウィンドウ','レース'].includes(String(r.name).trim())?esc(r.name):'（レース名未取得）';
       const key=`${r.venue}|${r.no}`;
       return `<div class="race-row">
         <div><b>${esc(r.venue)} ${r.no}R</b><span>${title}</span><div class="small">${esc(r.time||'')}</div></div>
