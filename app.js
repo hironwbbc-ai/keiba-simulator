@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.5
+   競馬シミュレーター Ver.15.7
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 36レース比較
    ---------------------------------------------------------
@@ -14,7 +14,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.5";
+const MODEL_VERSION = "15.7";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -372,15 +372,20 @@ function buildModel(rawHorses){
   const pace=inferPace(horses);
 
   const odds=horses.map(h=>h.odds).filter(x=>x>0);
-  const popVals=horses.map(h=>h.popularity).filter(x=>x>0);
   const medWeight=median(horses.map(h=>h.carriedWeight).filter(x=>x!=null));
   const medBody=median(horses.map(h=>h.bodyWeight).filter(x=>x!=null));
   const hasOdds=odds.length>0;
+  const oddsMarketMean=hasOdds ? odds.reduce((a,x)=>a+(1/x),0)/odds.length : null;
+  const popRawVals=horses.map(h=>h.popularity>0 ? 1/Math.sqrt(h.popularity) : null).filter(x=>x!=null);
+  const popRawMean=popRawVals.length ? popRawVals.reduce((a,x)=>a+x,0)/popRawVals.length : null;
+  // オッズが一部だけ欠けている場合も、欠損馬を0点にしない。
+  // 混在時は人気代理値をオッズ逆数の平均スケールへ合わせる。
+  const popularityScale=(hasOdds && oddsMarketMean!=null && popRawMean!=null) ? oddsMarketMean/popRawMean : 1;
 
   const rows=horses.map(h=>{
-    const marketRaw=hasOdds && h.odds>0 ? 1/h.odds : 0;
+    const oddsRaw=h.odds>0 ? 1/h.odds : 0;
     const popularityRaw=h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
-    const marketBase=hasOdds ? marketRaw : popularityRaw;
+    const marketBase=h.odds>0 ? oddsRaw : (hasOdds ? popularityRaw*popularityScale : popularityRaw);
     const style=styleFactor(h.style,pace.label);
 
     let weightFactor=1;
@@ -409,7 +414,8 @@ function buildModel(rawHorses){
       Math.pow(frameFactor,.08)*
       Math.pow(popularityFactor,.08);
     const raw=Math.pow(Math.max(marketBase,1e-12), hasOdds?.72:1.0)*independent;
-    return {...h,score:raw,marketScore:marketBase,independentScore:independent,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
+    const marketSource=h.odds>0 ? "odds" : (h.popularity>0 ? "popularity_proxy" : "none");
+    return {...h,score:raw,marketScore:marketBase,marketSource,independentScore:independent,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
   });
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
