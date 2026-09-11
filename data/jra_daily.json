@@ -1,6 +1,6 @@
 {
   "date": "2026-09-12",
-  "updated_at": "2026-09-12T03:22:45.289013+09:00",
+  "updated_at": "2026-09-12T08:12:12.833409+09:00",
   "calendar_url": "https://www.jra.go.jp/JRADB/",
   "target_ymd": "20260912",
   "official_race_links": [
@@ -49,7 +49,7 @@
         {
           "number": 1,
           "name": "ゼラニウム",
-          "odds": 12.1,
+          "odds": 12.9,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -60,7 +60,7 @@
         {
           "number": 2,
           "name": "ソラニワラエバ",
-          "odds": 3.2,
+          "odds": 2.9,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -71,8 +71,8 @@
         {
           "number": 3,
           "name": "ハイトラクション",
-          "odds": 11.4,
-          "popularity": 6,
+          "odds": 12.5,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/鹿",
@@ -82,7 +82,7 @@
         {
           "number": 4,
           "name": "シャイニーヒーロー",
-          "odds": 45.9,
+          "odds": 49.6,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -93,7 +93,7 @@
         {
           "number": 5,
           "name": "ハチキンキリシマ",
-          "odds": 38.1,
+          "odds": 42.3,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -104,8 +104,8 @@
         {
           "number": 6,
           "name": "ナムラダックス",
-          "odds": 19.1,
-          "popularity": 8,
+          "odds": 21.6,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/鹿",
@@ -115,8 +115,8 @@
         {
           "number": 7,
           "name": "グラスクラージュ",
-          "odds": 9.5,
-          "popularity": 5,
+          "odds": 12.7,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -137,7 +137,7 @@
         {
           "number": 9,
           "name": "サクセスボーイ",
-          "odds": 5.9,
+          "odds": 6.0,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -148,7 +148,7 @@
         {
           "number": 10,
           "name": "マジックファイト",
-          "odds": 71.6,
+          "odds": 68.3,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -159,7 +159,7 @@
         {
           "number": 11,
           "name": "イキフン",
-          "odds": 4.8,
+          "odds": 4.5,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -170,8 +170,8 @@
         {
           "number": 12,
           "name": "ニシノマキロイ",
-          "odds": 24.3,
-          "popularity": 9,
+          "odds": 19.8,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -199,8 +199,8 @@
         {
           "number": 1,
           "name": "プレママドンナ",
-          "odds": 8.6,
-          "popularity": 6,
+          "odds": 6.9,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -221,7 +221,7 @@
         {
           "number": 3,
           "name": "コスモデュアリズム",
-          "odds": 88.4,
+          "odds": 86.8,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -232,7 +232,7 @@
         {
           "number": 4,
           "name": "モーモーゼロ",
-          "odds": 13.7,
+          "odds": 17.9,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -243,7 +243,7 @@
         {
           "number": 5,
           "name": "ヒズストーリー",
-          "odds": 83.1,
+          "odds": 78.3,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -254,8 +254,8 @@
         {
           "number": 6,
           "name": "マーズワース",
-          "odds": 7.2,
-          "popularity": 4,
+          "odds": 8.6,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/栗",
@@ -265,7 +265,7 @@
         {
           "number": 7,
           "name": "コスモティタノ",
-          "odds": 17.9,
+          "odds": 22.3,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -276,8 +276,8 @@
         {
           "number": 8,
           "name": "アミノショコラ",
-          "odds": 45.0,
-          "popularity": 10,
+          "odds": 41.7,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -287,7 +287,7 @@
         {
           "number": 9,
           "name": "ヨドノプレミアム",
-          "odds": 4.5,
+          "odds": 4.1,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -309,8 +309,8 @@
         {
           "number": 11,
           "name": "スピカテソーロ",
-          "odds": 7.2,
-          "popularity": 4,
+          "odds": 7.1,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -320,8 +320,8 @@
         {
           "number": 12,
           "name": "ビシット",
-          "odds": 38.1,
-          "popularity": 9,
+          "odds": 55.9,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/栗",
@@ -349,8 +349,8 @@
         {
           "number": 1,
           "name": "ミクロスギガース",
-          "odds": 26.4,
-          "popularity": 12,
+          "odds": 27.3,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -360,7 +360,7 @@
         {
           "number": 2,
           "name": "セイウンヤオヨロズ",
-          "odds": 7.2,
+          "odds": 7.5,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -371,8 +371,8 @@
         {
           "number": 3,
           "name": "ジャメビュ",
-          "odds": 15.0,
-          "popularity": 7,
+          "odds": 17.0,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -382,8 +382,8 @@
         {
           "number": 4,
           "name": "フレンチブラッサム",
-          "odds": 10.2,
-          "popularity": 6,
+          "odds": 10.5,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/芦",
@@ -393,7 +393,7 @@
         {
           "number": 5,
           "name": "ツクバヴァンガード",
-          "odds": 9.6,
+          "odds": 9.2,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -404,8 +404,8 @@
         {
           "number": 6,
           "name": "スマートレイナ",
-          "odds": 16.0,
-          "popularity": 8,
+          "odds": 18.4,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -415,7 +415,7 @@
         {
           "number": 7,
           "name": "チェストー",
-          "odds": 60.8,
+          "odds": 62.2,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -426,7 +426,7 @@
         {
           "number": 8,
           "name": "ハングローズ",
-          "odds": 4.0,
+          "odds": 3.9,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -437,8 +437,8 @@
         {
           "number": 9,
           "name": "エリースノー",
-          "odds": 17.1,
-          "popularity": 9,
+          "odds": 12.0,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -448,7 +448,7 @@
         {
           "number": 10,
           "name": "ジーティーニッツァ",
-          "odds": 19.2,
+          "odds": 22.0,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -459,7 +459,7 @@
         {
           "number": 11,
           "name": "トリエンナーレ",
-          "odds": 45.8,
+          "odds": 50.0,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -470,7 +470,7 @@
         {
           "number": 12,
           "name": "サワエ",
-          "odds": 107.8,
+          "odds": 103.0,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -481,8 +481,8 @@
         {
           "number": 13,
           "name": "エンジェルサン",
-          "odds": 10.0,
-          "popularity": 5,
+          "odds": 12.7,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -492,8 +492,8 @@
         {
           "number": 14,
           "name": "ブルーダイヤシチー",
-          "odds": 25.3,
-          "popularity": 11,
+          "odds": 28.7,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -503,7 +503,7 @@
         {
           "number": 15,
           "name": "ミッキーサウザンド",
-          "odds": 5.8,
+          "odds": 4.9,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -514,7 +514,7 @@
         {
           "number": 16,
           "name": "ポンテヴェッキオ",
-          "odds": 33.0,
+          "odds": 39.9,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -543,7 +543,7 @@
         {
           "number": 1,
           "name": "クールチェンジ",
-          "odds": 41.1,
+          "odds": 35.6,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -554,7 +554,7 @@
         {
           "number": 2,
           "name": "ミナヅキ",
-          "odds": 4.0,
+          "odds": 3.7,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -565,8 +565,8 @@
         {
           "number": 3,
           "name": "シルバープレミア",
-          "odds": 26.2,
-          "popularity": 13,
+          "odds": 22.6,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/青鹿",
@@ -576,7 +576,7 @@
         {
           "number": 4,
           "name": "カーヴドヴァン",
-          "odds": 57.7,
+          "odds": 47.9,
           "popularity": 17,
           "body_weight": null,
           "body_weight_diff": null,
@@ -587,8 +587,8 @@
         {
           "number": 5,
           "name": "モントーヤ",
-          "odds": 32.5,
-          "popularity": 14,
+          "odds": 36.1,
+          "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/黒鹿",
@@ -598,7 +598,7 @@
         {
           "number": 6,
           "name": "グランフルス",
-          "odds": 21.8,
+          "odds": 20.8,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -609,8 +609,8 @@
         {
           "number": 7,
           "name": "アンヴデット",
-          "odds": 14.4,
-          "popularity": 8,
+          "odds": 18.4,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -620,8 +620,8 @@
         {
           "number": 8,
           "name": "ヤマニンリンキング",
-          "odds": 13.9,
-          "popularity": 7,
+          "odds": 14.7,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/芦",
@@ -631,7 +631,7 @@
         {
           "number": 9,
           "name": "タイキヴィグルーズ",
-          "odds": 69.9,
+          "odds": 81.2,
           "popularity": 18,
           "body_weight": null,
           "body_weight_diff": null,
@@ -642,8 +642,8 @@
         {
           "number": 10,
           "name": "ジェイエルグリーン",
-          "odds": 23.2,
-          "popularity": 11,
+          "odds": 24.3,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -653,7 +653,7 @@
         {
           "number": 11,
           "name": "エリュグレイス",
-          "odds": 8.6,
+          "odds": 8.4,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -664,7 +664,7 @@
         {
           "number": 12,
           "name": "ナイトバード",
-          "odds": 9.9,
+          "odds": 9.1,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -676,7 +676,7 @@
           "number": 13,
           "name": "コスモアルペジオ",
           "odds": 16.3,
-          "popularity": 9,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/芦",
@@ -686,8 +686,8 @@
         {
           "number": 14,
           "name": "ウインスターリング",
-          "odds": 13.0,
-          "popularity": 6,
+          "odds": 13.7,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/黒鹿",
@@ -697,8 +697,8 @@
         {
           "number": 15,
           "name": "イーガービーバー",
-          "odds": 25.2,
-          "popularity": 12,
+          "odds": 32.5,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -708,7 +708,7 @@
         {
           "number": 16,
           "name": "ヒシナスキロ",
-          "odds": 6.7,
+          "odds": 6.2,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -719,8 +719,8 @@
         {
           "number": 17,
           "name": "シェンロン",
-          "odds": 12.0,
-          "popularity": 5,
+          "odds": 17.8,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/青鹿",
@@ -730,8 +730,8 @@
         {
           "number": 18,
           "name": "ベルバード",
-          "odds": 44.4,
-          "popularity": 16,
+          "odds": 29.6,
+          "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -759,7 +759,7 @@
         {
           "number": 1,
           "name": "サムワンユーラヴド",
-          "odds": 18.4,
+          "odds": 16.4,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -770,7 +770,7 @@
         {
           "number": 2,
           "name": "リオンパリス",
-          "odds": 59.8,
+          "odds": 36.8,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -781,8 +781,8 @@
         {
           "number": 3,
           "name": "アテナプロマコス",
-          "odds": 15.5,
-          "popularity": 7,
+          "odds": 13.4,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/栗",
@@ -792,7 +792,7 @@
         {
           "number": 4,
           "name": "ブルードロップ",
-          "odds": 6.0,
+          "odds": 5.8,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -803,7 +803,7 @@
         {
           "number": 5,
           "name": "グリマルキン",
-          "odds": 14.6,
+          "odds": 13.2,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -814,8 +814,8 @@
         {
           "number": 6,
           "name": "ラインディアーナ",
-          "odds": 15.2,
-          "popularity": 6,
+          "odds": 14.5,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -825,7 +825,7 @@
         {
           "number": 7,
           "name": "メイプルルビー",
-          "odds": 10.3,
+          "odds": 9.6,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -836,7 +836,7 @@
         {
           "number": 8,
           "name": "サトノハクマイ",
-          "odds": 1.8,
+          "odds": 2.1,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -847,7 +847,7 @@
         {
           "number": 9,
           "name": "ワンモアタイム",
-          "odds": 8.2,
+          "odds": 8.0,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -858,7 +858,7 @@
         {
           "number": 10,
           "name": "オラパ",
-          "odds": 19.4,
+          "odds": 17.3,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -869,7 +869,7 @@
         {
           "number": 11,
           "name": "アルレーヴ",
-          "odds": 65.9,
+          "odds": 61.4,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -898,7 +898,7 @@
         {
           "number": 1,
           "name": "レーヴデリオン",
-          "odds": 1.5,
+          "odds": 1.6,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -909,8 +909,8 @@
         {
           "number": 2,
           "name": "アーバーバイティ",
-          "odds": 20.1,
-          "popularity": 7,
+          "odds": 15.8,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -920,8 +920,8 @@
         {
           "number": 3,
           "name": "ジェミニディウ",
-          "odds": 15.6,
-          "popularity": 4,
+          "odds": 18.1,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/栗",
@@ -931,7 +931,7 @@
         {
           "number": 4,
           "name": "トパーズヘッド",
-          "odds": 89.5,
+          "odds": 57.8,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -942,7 +942,7 @@
         {
           "number": 5,
           "name": "クリアマインド",
-          "odds": 51.8,
+          "odds": 45.8,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -953,8 +953,8 @@
         {
           "number": 6,
           "name": "ミコウェイ",
-          "odds": 23.6,
-          "popularity": 10,
+          "odds": 15.4,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -964,8 +964,8 @@
         {
           "number": 7,
           "name": "ソットマツモト",
-          "odds": 9.8,
-          "popularity": 3,
+          "odds": 9.7,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -975,8 +975,8 @@
         {
           "number": 8,
           "name": "ファイアリーボルト",
-          "odds": 21.5,
-          "popularity": 8,
+          "odds": 22.8,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -986,7 +986,7 @@
         {
           "number": 9,
           "name": "ロンドンコーリング",
-          "odds": 22.9,
+          "odds": 18.6,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -997,7 +997,7 @@
         {
           "number": 10,
           "name": "ゲンロクコイモヨウ",
-          "odds": 18.4,
+          "odds": 16.5,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1008,8 +1008,8 @@
         {
           "number": 11,
           "name": "ナイトパイロット",
-          "odds": 8.7,
-          "popularity": 2,
+          "odds": 10.9,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -1019,8 +1019,8 @@
         {
           "number": 12,
           "name": "ノーブルパラス",
-          "odds": 15.6,
-          "popularity": 4,
+          "odds": 17.7,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -1048,7 +1048,7 @@
         {
           "number": 1,
           "name": "パワポケグッド",
-          "odds": 54.6,
+          "odds": 62.6,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1059,8 +1059,8 @@
         {
           "number": 2,
           "name": "プロミスライン",
-          "odds": 7.6,
-          "popularity": 4,
+          "odds": 8.5,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -1070,7 +1070,7 @@
         {
           "number": 3,
           "name": "ゴールドプレイヤー",
-          "odds": 6.6,
+          "odds": 7.1,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1081,8 +1081,8 @@
         {
           "number": 4,
           "name": "イントゥザウインド",
-          "odds": 8.1,
-          "popularity": 5,
+          "odds": 7.1,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -1092,7 +1092,7 @@
         {
           "number": 5,
           "name": "ワンダーバリエンス",
-          "odds": 118.7,
+          "odds": 67.1,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1103,8 +1103,8 @@
         {
           "number": 6,
           "name": "マイネルトレマーズ",
-          "odds": 19.3,
-          "popularity": 11,
+          "odds": 12.9,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -1114,8 +1114,8 @@
         {
           "number": 7,
           "name": "イーサンミラー",
-          "odds": 23.2,
-          "popularity": 12,
+          "odds": 14.8,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/青鹿",
@@ -1125,8 +1125,8 @@
         {
           "number": 8,
           "name": "ユイノサダハル",
-          "odds": 15.1,
-          "popularity": 9,
+          "odds": 13.7,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/黒鹿",
@@ -1136,8 +1136,8 @@
         {
           "number": 9,
           "name": "サングラント",
-          "odds": 7.3,
-          "popularity": 3,
+          "odds": 8.1,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -1147,8 +1147,8 @@
         {
           "number": 10,
           "name": "カノープス",
-          "odds": 34.7,
-          "popularity": 13,
+          "odds": 44.6,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -1158,8 +1158,8 @@
         {
           "number": 11,
           "name": "タカラエイティ",
-          "odds": 40.2,
-          "popularity": 14,
+          "odds": 41.6,
+          "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -1169,7 +1169,7 @@
         {
           "number": 12,
           "name": "ゼンノスタニング",
-          "odds": 11.0,
+          "odds": 12.2,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1180,8 +1180,8 @@
         {
           "number": 13,
           "name": "レッドジェルブロワ",
-          "odds": 14.7,
-          "popularity": 8,
+          "odds": 16.8,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/黒鹿",
@@ -1191,7 +1191,7 @@
         {
           "number": 14,
           "name": "カシマライフウ",
-          "odds": 6.0,
+          "odds": 5.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1202,8 +1202,8 @@
         {
           "number": 15,
           "name": "テンカラットレター",
-          "odds": 15.2,
-          "popularity": 10,
+          "odds": 21.3,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/栗",
@@ -1213,8 +1213,8 @@
         {
           "number": 16,
           "name": "カーボフリオ",
-          "odds": 12.4,
-          "popularity": 7,
+          "odds": 15.2,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/黒鹿",
@@ -1242,7 +1242,7 @@
         {
           "number": 1,
           "name": "ヴァルカンテソーロ",
-          "odds": 4.1,
+          "odds": 4.2,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1253,7 +1253,7 @@
         {
           "number": 2,
           "name": "スノーディーヴァ",
-          "odds": 38.4,
+          "odds": 25.4,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1264,7 +1264,7 @@
         {
           "number": 3,
           "name": "チャームドウイング",
-          "odds": 12.8,
+          "odds": 15.7,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1275,8 +1275,8 @@
         {
           "number": 4,
           "name": "ペネトレイトゴー",
-          "odds": 8.3,
-          "popularity": 5,
+          "odds": 10.0,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん6/芦",
@@ -1286,8 +1286,8 @@
         {
           "number": 5,
           "name": "ヤマニンヘルシェ",
-          "odds": 7.9,
-          "popularity": 4,
+          "odds": 6.4,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/芦",
@@ -1297,7 +1297,7 @@
         {
           "number": 6,
           "name": "パーリーブラック",
-          "odds": 46.5,
+          "odds": 48.9,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1308,8 +1308,8 @@
         {
           "number": 7,
           "name": "ウインターブレス",
-          "odds": 10.8,
-          "popularity": 6,
+          "odds": 12.7,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/栗",
@@ -1319,8 +1319,8 @@
         {
           "number": 8,
           "name": "マイネルアウルム",
-          "odds": 5.8,
-          "popularity": 2,
+          "odds": 6.7,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/栗",
@@ -1330,7 +1330,7 @@
         {
           "number": 9,
           "name": "タイセイネクサス",
-          "odds": 103.6,
+          "odds": 67.5,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1341,7 +1341,7 @@
         {
           "number": 10,
           "name": "ホウライブラック",
-          "odds": 108.0,
+          "odds": 75.3,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1352,8 +1352,8 @@
         {
           "number": 11,
           "name": "マーゴットドライ",
-          "odds": 11.3,
-          "popularity": 8,
+          "odds": 11.9,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん3/栗",
@@ -1363,8 +1363,8 @@
         {
           "number": 12,
           "name": "コスモナエマ",
-          "odds": 11.2,
-          "popularity": 7,
+          "odds": 6.8,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/黒鹿",
@@ -1374,8 +1374,8 @@
         {
           "number": 13,
           "name": "ベルトラッキ",
-          "odds": 7.7,
-          "popularity": 3,
+          "odds": 9.2,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -1385,7 +1385,7 @@
         {
           "number": 14,
           "name": "フォンドルレール",
-          "odds": 18.3,
+          "odds": 22.7,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1414,7 +1414,7 @@
         {
           "number": 1,
           "name": "ホウオウシンデレラ",
-          "odds": 10.1,
+          "odds": 9.5,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1425,7 +1425,7 @@
         {
           "number": 2,
           "name": "ロケベンドラ",
-          "odds": 4.3,
+          "odds": 4.9,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1436,7 +1436,7 @@
         {
           "number": 3,
           "name": "ベルビースタローン",
-          "odds": 25.0,
+          "odds": 21.5,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1447,8 +1447,8 @@
         {
           "number": 4,
           "name": "エリム",
-          "odds": 80.0,
-          "popularity": 13,
+          "odds": 112.1,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝6/黒鹿",
@@ -1458,8 +1458,8 @@
         {
           "number": 5,
           "name": "オーロラアーク",
-          "odds": 81.1,
-          "popularity": 14,
+          "odds": 82.8,
+          "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝7/芦",
@@ -1469,8 +1469,8 @@
         {
           "number": 6,
           "name": "マルカオペラ",
-          "odds": 13.7,
-          "popularity": 7,
+          "odds": 17.5,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝5/栗",
@@ -1480,8 +1480,8 @@
         {
           "number": 7,
           "name": "レイユール",
-          "odds": 14.0,
-          "popularity": 8,
+          "odds": 15.4,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝4/黒鹿",
@@ -1491,7 +1491,7 @@
         {
           "number": 8,
           "name": "ミーントゥビー",
-          "odds": 19.3,
+          "odds": 19.1,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1502,7 +1502,7 @@
         {
           "number": 9,
           "name": "イブニングタイド",
-          "odds": 25.7,
+          "odds": 33.5,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1513,7 +1513,7 @@
         {
           "number": 10,
           "name": "ルナルーチェット",
-          "odds": 8.7,
+          "odds": 6.4,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1524,7 +1524,7 @@
         {
           "number": 11,
           "name": "ミラーダカリエンテ",
-          "odds": 30.9,
+          "odds": 35.8,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1535,7 +1535,7 @@
         {
           "number": 12,
           "name": "シャンソンドール",
-          "odds": 3.2,
+          "odds": 2.9,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1546,7 +1546,7 @@
         {
           "number": 13,
           "name": "キスアンドクライ",
-          "odds": 12.1,
+          "odds": 13.4,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1557,7 +1557,7 @@
         {
           "number": 14,
           "name": "ギフテッド",
-          "odds": 11.6,
+          "odds": 12.4,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1586,7 +1586,7 @@
         {
           "number": 1,
           "name": "デルアヴァー",
-          "odds": 5.0,
+          "odds": 4.6,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1597,7 +1597,7 @@
         {
           "number": 2,
           "name": "マイネルブリックス",
-          "odds": 14.4,
+          "odds": 12.1,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1608,7 +1608,7 @@
         {
           "number": 3,
           "name": "ルールーリマ",
-          "odds": 3.4,
+          "odds": 4.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1619,7 +1619,7 @@
         {
           "number": 4,
           "name": "マイネルフーガ",
-          "odds": 11.6,
+          "odds": 10.7,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1630,7 +1630,7 @@
         {
           "number": 5,
           "name": "アマイ",
-          "odds": 21.7,
+          "odds": 15.1,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1641,8 +1641,8 @@
         {
           "number": 6,
           "name": "トーアライデン",
-          "odds": 35.3,
-          "popularity": 11,
+          "odds": 23.5,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/栗",
@@ -1652,8 +1652,8 @@
         {
           "number": 7,
           "name": "キントリヒ",
-          "odds": 26.7,
-          "popularity": 9,
+          "odds": 25.7,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡7/芦",
@@ -1663,8 +1663,8 @@
         {
           "number": 8,
           "name": "ショウナンサムデイ",
-          "odds": 7.1,
-          "popularity": 4,
+          "odds": 7.8,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝4/青鹿",
@@ -1674,8 +1674,8 @@
         {
           "number": 9,
           "name": "ダノンジャイアン",
-          "odds": 5.4,
-          "popularity": 3,
+          "odds": 6.8,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -1685,8 +1685,8 @@
         {
           "number": 10,
           "name": "ダンツファイター",
-          "odds": 7.1,
-          "popularity": 4,
+          "odds": 5.8,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/栗",
@@ -1696,8 +1696,8 @@
         {
           "number": 11,
           "name": "キーパフォーマー",
-          "odds": 29.9,
-          "popularity": 10,
+          "odds": 22.4,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝5/黒鹿",
@@ -1725,8 +1725,8 @@
         {
           "number": 1,
           "name": "オーブルクール",
-          "odds": 12.4,
-          "popularity": 5,
+          "odds": 13.3,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝5/鹿",
@@ -1736,7 +1736,7 @@
         {
           "number": 2,
           "name": "プレゼンティーア",
-          "odds": 18.8,
+          "odds": 19.0,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1747,7 +1747,7 @@
         {
           "number": 3,
           "name": "イスラアネーロ",
-          "odds": 118.4,
+          "odds": 72.0,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1759,7 +1759,7 @@
           "number": 4,
           "name": "モンドプリューム",
           "odds": 13.0,
-          "popularity": 8,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/鹿",
@@ -1769,8 +1769,8 @@
         {
           "number": 5,
           "name": "ジョーローリット",
-          "odds": 7.2,
-          "popularity": 3,
+          "odds": 8.1,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝5/芦",
@@ -1780,8 +1780,8 @@
         {
           "number": 6,
           "name": "ムーヴ",
-          "odds": 12.9,
-          "popularity": 7,
+          "odds": 15.4,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡7/鹿",
@@ -1791,8 +1791,8 @@
         {
           "number": 7,
           "name": "バグラダス",
-          "odds": 26.0,
-          "popularity": 14,
+          "odds": 18.7,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/鹿",
@@ -1803,7 +1803,7 @@
           "number": 8,
           "name": "ヒルノドゴール",
           "odds": 25.3,
-          "popularity": 13,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/栗",
@@ -1813,7 +1813,7 @@
         {
           "number": 9,
           "name": "ブレーザー",
-          "odds": 5.4,
+          "odds": 5.8,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1824,8 +1824,8 @@
         {
           "number": 10,
           "name": "ゲイルライダー",
-          "odds": 8.4,
-          "popularity": 4,
+          "odds": 7.1,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/黒鹿",
@@ -1835,7 +1835,7 @@
         {
           "number": 11,
           "name": "ブラウンラチェット",
-          "odds": 16.1,
+          "odds": 17.3,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1846,7 +1846,7 @@
         {
           "number": 12,
           "name": "ゲッティヴィラ",
-          "odds": 44.2,
+          "odds": 41.8,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1857,8 +1857,8 @@
         {
           "number": 13,
           "name": "ショウナンアビアス",
-          "odds": 17.1,
-          "popularity": 11,
+          "odds": 19.1,
+          "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/黒鹿",
@@ -1868,8 +1868,8 @@
         {
           "number": 14,
           "name": "ポールセン",
-          "odds": 12.7,
-          "popularity": 6,
+          "odds": 8.1,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -1879,8 +1879,8 @@
         {
           "number": 15,
           "name": "ユキマル",
-          "odds": 6.8,
-          "popularity": 2,
+          "odds": 8.0,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/鹿",
@@ -1890,7 +1890,7 @@
         {
           "number": 16,
           "name": "ロードフロンティア",
-          "odds": 14.8,
+          "odds": 16.6,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1919,8 +1919,8 @@
         {
           "number": 1,
           "name": "タイセツナヒ",
-          "odds": 33.7,
-          "popularity": 9,
+          "odds": 25.3,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -1930,8 +1930,8 @@
         {
           "number": 2,
           "name": "アバレリュウ",
-          "odds": 33.4,
-          "popularity": 8,
+          "odds": 28.2,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/栗",
@@ -1941,7 +1941,7 @@
         {
           "number": 3,
           "name": "ナリノシャーウッド",
-          "odds": 8.1,
+          "odds": 6.8,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1952,7 +1952,7 @@
         {
           "number": 4,
           "name": "スノースコール",
-          "odds": 21.2,
+          "odds": 19.0,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1963,8 +1963,8 @@
         {
           "number": 5,
           "name": "ターフクリスタル",
-          "odds": 38.6,
-          "popularity": 12,
+          "odds": 38.0,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/黒鹿",
@@ -1974,7 +1974,7 @@
         {
           "number": 6,
           "name": "ボールドタワー",
-          "odds": 60.0,
+          "odds": 63.0,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1985,7 +1985,7 @@
         {
           "number": 7,
           "name": "タリスマン",
-          "odds": 46.4,
+          "odds": 43.1,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -1996,7 +1996,7 @@
         {
           "number": 8,
           "name": "インナーパッション",
-          "odds": 9.4,
+          "odds": 8.0,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2007,8 +2007,8 @@
         {
           "number": 9,
           "name": "ロードフロリゼル",
-          "odds": 36.8,
-          "popularity": 11,
+          "odds": 34.4,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -2018,7 +2018,7 @@
         {
           "number": 10,
           "name": "スカイダンスタイム",
-          "odds": 143.7,
+          "odds": 143.0,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2029,7 +2029,7 @@
         {
           "number": 11,
           "name": "ホノボノ",
-          "odds": 28.8,
+          "odds": 24.6,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2040,7 +2040,7 @@
         {
           "number": 12,
           "name": "ユアフェリシティ",
-          "odds": 2.1,
+          "odds": 2.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2051,7 +2051,7 @@
         {
           "number": 13,
           "name": "ジェネラスキング",
-          "odds": 15.6,
+          "odds": 12.4,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2062,7 +2062,7 @@
         {
           "number": 14,
           "name": "ヨドノタイヨウ",
-          "odds": 4.5,
+          "odds": 5.2,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2073,7 +2073,7 @@
         {
           "number": 15,
           "name": "カーマンライン",
-          "odds": 69.4,
+          "odds": 72.8,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2084,8 +2084,8 @@
         {
           "number": 16,
           "name": "スーパーホース",
-          "odds": 35.9,
-          "popularity": 10,
+          "odds": 41.8,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん4/栗",
@@ -2106,14 +2106,14 @@
       "distance": null,
       "surface": "",
       "course": "",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030120260912%2F29",
       "token": "pw01dde0109202604030120260912/29",
       "horses": [
         {
           "number": 1,
           "name": "メイショウトム",
-          "odds": 2.5,
+          "odds": 2.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2124,7 +2124,7 @@
         {
           "number": 2,
           "name": "ホルトバージ",
-          "odds": 5.3,
+          "odds": 5.7,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2135,7 +2135,7 @@
         {
           "number": 3,
           "name": "シュエットアムール",
-          "odds": 18.1,
+          "odds": 21.8,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2146,8 +2146,8 @@
         {
           "number": 4,
           "name": "インターステラ",
-          "odds": 9.6,
-          "popularity": 5,
+          "odds": 10.5,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/黒鹿",
@@ -2157,7 +2157,7 @@
         {
           "number": 5,
           "name": "クリアクォーツ",
-          "odds": 26.2,
+          "odds": 24.4,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2168,7 +2168,7 @@
         {
           "number": 6,
           "name": "ガストン",
-          "odds": 3.4,
+          "odds": 3.1,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2179,8 +2179,8 @@
         {
           "number": 7,
           "name": "ツーエムクロノス",
-          "odds": 12.6,
-          "popularity": 6,
+          "odds": 11.7,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/栗",
@@ -2190,8 +2190,8 @@
         {
           "number": 8,
           "name": "バトラーズワーフ",
-          "odds": 9.2,
-          "popularity": 4,
+          "odds": 12.0,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん4/黒鹿",
@@ -2212,15 +2212,15 @@
       "distance": 2000,
       "surface": "芝",
       "course": "右",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030220260912%2FDE",
       "token": "pw01dde0109202604030220260912/DE",
       "horses": [
         {
           "number": 1,
           "name": "ケイアイトリノ",
-          "odds": 8.6,
-          "popularity": 3,
+          "odds": 10.0,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -2230,7 +2230,7 @@
         {
           "number": 2,
           "name": "ハルカカナタ",
-          "odds": 5.8,
+          "odds": 6.1,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2241,7 +2241,7 @@
         {
           "number": 3,
           "name": "シャプシュ",
-          "odds": 34.7,
+          "odds": 50.3,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2252,7 +2252,7 @@
         {
           "number": 4,
           "name": "オーロラトレイル",
-          "odds": 31.0,
+          "odds": 49.3,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2263,7 +2263,7 @@
         {
           "number": 5,
           "name": "ショウナンバトレニ",
-          "odds": 1.4,
+          "odds": 1.3,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2274,7 +2274,7 @@
         {
           "number": 6,
           "name": "メイショウジェード",
-          "odds": 8.6,
+          "odds": 9.3,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2285,7 +2285,7 @@
         {
           "number": 7,
           "name": "マスリュウオー",
-          "odds": 12.0,
+          "odds": 13.7,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2314,8 +2314,8 @@
         {
           "number": 1,
           "name": "ナポリ",
-          "odds": 7.7,
-          "popularity": 4,
+          "odds": 9.6,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/黒鹿",
@@ -2325,7 +2325,7 @@
         {
           "number": 2,
           "name": "ジュンヴァグネル",
-          "odds": 3.3,
+          "odds": 3.8,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2336,8 +2336,8 @@
         {
           "number": 3,
           "name": "ゴールドシューター",
-          "odds": 5.9,
-          "popularity": 3,
+          "odds": 6.4,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -2347,8 +2347,8 @@
         {
           "number": 4,
           "name": "フランベリー",
-          "odds": 27.8,
-          "popularity": 7,
+          "odds": 19.0,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -2358,8 +2358,8 @@
         {
           "number": 5,
           "name": "ベルメサージュ",
-          "odds": 22.1,
-          "popularity": 6,
+          "odds": 22.5,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/鹿",
@@ -2369,8 +2369,8 @@
         {
           "number": 6,
           "name": "アワジシマ",
-          "odds": 7.8,
-          "popularity": 5,
+          "odds": 5.3,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -2402,15 +2402,15 @@
       "distance": 1800,
       "surface": "芝",
       "course": "右 外",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030420260912%2F48",
       "token": "pw01dde0109202604030420260912/48",
       "horses": [
         {
           "number": 1,
           "name": "ランスオブラヴ",
-          "odds": 16.4,
-          "popularity": 8,
+          "odds": 24.4,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -2420,7 +2420,7 @@
         {
           "number": 2,
           "name": "テンダーワーズ",
-          "odds": 6.5,
+          "odds": 5.0,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2431,7 +2431,7 @@
         {
           "number": 3,
           "name": "ウインリーブル",
-          "odds": 30.2,
+          "odds": 28.2,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2442,7 +2442,7 @@
         {
           "number": 4,
           "name": "アイルドゥレーヴェ",
-          "odds": 17.5,
+          "odds": 20.8,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2453,7 +2453,7 @@
         {
           "number": 5,
           "name": "ラッキーストーン",
-          "odds": 26.6,
+          "odds": 27.2,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2464,7 +2464,7 @@
         {
           "number": 6,
           "name": "コスモフィレンツェ",
-          "odds": 4.5,
+          "odds": 4.6,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2475,7 +2475,7 @@
         {
           "number": 7,
           "name": "ダリアフレイバー",
-          "odds": 53.3,
+          "odds": 60.3,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2486,8 +2486,8 @@
         {
           "number": 8,
           "name": "バックドラフト",
-          "odds": 15.2,
-          "popularity": 7,
+          "odds": 13.2,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2497,8 +2497,8 @@
         {
           "number": 9,
           "name": "ファランギーナ",
-          "odds": 7.5,
-          "popularity": 4,
+          "odds": 6.9,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2508,8 +2508,8 @@
         {
           "number": 10,
           "name": "メイショウプレマ",
-          "odds": 21.1,
-          "popularity": 10,
+          "odds": 16.1,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -2519,7 +2519,7 @@
         {
           "number": 11,
           "name": "ダノンケリー",
-          "odds": 32.4,
+          "odds": 34.1,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2530,7 +2530,7 @@
         {
           "number": 12,
           "name": "ポニーテール",
-          "odds": 38.4,
+          "odds": 48.5,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2541,8 +2541,8 @@
         {
           "number": 13,
           "name": "イルミナジーティー",
-          "odds": 14.5,
-          "popularity": 6,
+          "odds": 17.1,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -2552,7 +2552,7 @@
         {
           "number": 14,
           "name": "レイアン",
-          "odds": 90.2,
+          "odds": 98.3,
           "popularity": 17,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2563,8 +2563,8 @@
         {
           "number": 15,
           "name": "ビロングトゥミー",
-          "odds": 26.1,
-          "popularity": 11,
+          "odds": 23.8,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -2574,7 +2574,7 @@
         {
           "number": 16,
           "name": "ペガサスジルシ",
-          "odds": 10.4,
+          "odds": 9.9,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2585,8 +2585,8 @@
         {
           "number": 17,
           "name": "アステルディーヴァ",
-          "odds": 6.8,
-          "popularity": 3,
+          "odds": 8.9,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/青",
@@ -2596,7 +2596,7 @@
         {
           "number": 18,
           "name": "シンゼンイセ",
-          "odds": 108.3,
+          "odds": 125.4,
           "popularity": 18,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2618,14 +2618,14 @@
       "distance": 1600,
       "surface": "芝",
       "course": "右 外",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030520260912%2FFD",
       "token": "pw01dde0109202604030520260912/FD",
       "horses": [
         {
           "number": 1,
           "name": "ブラッドバローズ",
-          "odds": 9.4,
+          "odds": 7.2,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2636,8 +2636,8 @@
         {
           "number": 2,
           "name": "スエヒロビリーブ",
-          "odds": 19.6,
-          "popularity": 7,
+          "odds": 10.4,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -2647,8 +2647,8 @@
         {
           "number": 3,
           "name": "キシゲヒーロー",
-          "odds": 33.0,
-          "popularity": 8,
+          "odds": 34.9,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/鹿",
@@ -2658,7 +2658,7 @@
         {
           "number": 4,
           "name": "アリアニコ",
-          "odds": 7.6,
+          "odds": 7.0,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2669,8 +2669,8 @@
         {
           "number": 5,
           "name": "クラルテロワ",
-          "odds": 12.3,
-          "popularity": 6,
+          "odds": 13.0,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -2680,8 +2680,8 @@
         {
           "number": 6,
           "name": "クリスティーナ",
-          "odds": 49.0,
-          "popularity": 10,
+          "odds": 32.7,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝2/黒鹿",
@@ -2691,7 +2691,7 @@
         {
           "number": 7,
           "name": "ルパドゥクール",
-          "odds": 8.1,
+          "odds": 7.1,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2702,8 +2702,8 @@
         {
           "number": 8,
           "name": "ベルセルク",
-          "odds": 42.3,
-          "popularity": 9,
+          "odds": 42.4,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -2713,7 +2713,7 @@
         {
           "number": 9,
           "name": "ルーメンルーナエ",
-          "odds": 1.7,
+          "odds": 2.1,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2724,7 +2724,7 @@
         {
           "number": 10,
           "name": "アヤノ",
-          "odds": 9.6,
+          "odds": 8.6,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2753,7 +2753,7 @@
         {
           "number": 1,
           "name": "ボーオーブ",
-          "odds": 9.1,
+          "odds": 4.6,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2764,7 +2764,7 @@
         {
           "number": 2,
           "name": "ベルウッドワタル",
-          "odds": 14.4,
+          "odds": 12.1,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2775,7 +2775,7 @@
         {
           "number": 3,
           "name": "エピドゥブレ",
-          "odds": 4.0,
+          "odds": 3.7,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2786,7 +2786,7 @@
         {
           "number": 4,
           "name": "プッシュバーン",
-          "odds": 13.9,
+          "odds": 10.0,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2797,7 +2797,7 @@
         {
           "number": 5,
           "name": "コロラート",
-          "odds": 76.2,
+          "odds": 59.6,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2808,8 +2808,8 @@
         {
           "number": 6,
           "name": "ミンコフスキー",
-          "odds": 18.0,
-          "popularity": 6,
+          "odds": 15.5,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/黒鹿",
@@ -2819,7 +2819,7 @@
         {
           "number": 7,
           "name": "キフクマル",
-          "odds": 1.5,
+          "odds": 2.2,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2830,8 +2830,8 @@
         {
           "number": 8,
           "name": "パルパル",
-          "odds": 18.7,
-          "popularity": 7,
+          "odds": 14.8,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡2/栗",
@@ -2859,8 +2859,8 @@
         {
           "number": 1,
           "name": "キャスケード",
-          "odds": 21.4,
-          "popularity": 12,
+          "odds": 19.8,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -2870,8 +2870,8 @@
         {
           "number": 2,
           "name": "ファイナルコマンド",
-          "odds": 12.3,
-          "popularity": 6,
+          "odds": 17.5,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2881,7 +2881,7 @@
         {
           "number": 3,
           "name": "メイショウヒタカミ",
-          "odds": 23.9,
+          "odds": 26.1,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2892,8 +2892,8 @@
         {
           "number": 4,
           "name": "ナムラロダン",
-          "odds": 10.4,
-          "popularity": 5,
+          "odds": 10.8,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/栗",
@@ -2903,7 +2903,7 @@
         {
           "number": 5,
           "name": "スノーガーネット",
-          "odds": 49.5,
+          "odds": 66.8,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -2914,8 +2914,8 @@
         {
           "number": 6,
           "name": "マイベスティー",
-          "odds": 31.0,
-          "popularity": 15,
+          "odds": 27.9,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2925,8 +2925,8 @@
         {
           "number": 7,
           "name": "シャインゴーツ",
-          "odds": 18.4,
-          "popularity": 11,
+          "odds": 16.1,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2936,8 +2936,8 @@
         {
           "number": 8,
           "name": "タフクッキー",
-          "odds": 8.3,
-          "popularity": 3,
+          "odds": 9.4,
+          "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/黒鹿",
@@ -2947,8 +2947,8 @@
         {
           "number": 9,
           "name": "イッタレイッタレ",
-          "odds": 8.3,
-          "popularity": 3,
+          "odds": 6.1,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん3/鹿",
@@ -2958,8 +2958,8 @@
         {
           "number": 10,
           "name": "アスクハッピーマン",
-          "odds": 15.0,
-          "popularity": 8,
+          "odds": 11.5,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/栗",
@@ -2969,8 +2969,8 @@
         {
           "number": 11,
           "name": "バルフルール",
-          "odds": 12.3,
-          "popularity": 6,
+          "odds": 7.2,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -2980,8 +2980,8 @@
         {
           "number": 12,
           "name": "ビーアイジーニー",
-          "odds": 27.0,
-          "popularity": 14,
+          "odds": 32.5,
+          "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -2991,8 +2991,8 @@
         {
           "number": 13,
           "name": "ユウトザイシン",
-          "odds": 8.0,
-          "popularity": 2,
+          "odds": 10.3,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/鹿",
@@ -3002,8 +3002,8 @@
         {
           "number": 14,
           "name": "ローレルアイビー",
-          "odds": 18.1,
-          "popularity": 10,
+          "odds": 22.5,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -3013,7 +3013,7 @@
         {
           "number": 15,
           "name": "プペアンビスキュイ",
-          "odds": 4.7,
+          "odds": 5.6,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3024,8 +3024,8 @@
         {
           "number": 16,
           "name": "ハピネスサンライズ",
-          "odds": 15.0,
-          "popularity": 8,
+          "odds": 17.3,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -3046,14 +3046,14 @@
       "distance": 1800,
       "surface": "芝",
       "course": "右 外",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030820260912%2F1C",
       "token": "pw01dde0109202604030820260912/1C",
       "horses": [
         {
           "number": 1,
           "name": "マイリトルヒーロー",
-          "odds": 14.2,
+          "odds": 14.1,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3064,8 +3064,8 @@
         {
           "number": 2,
           "name": "オーシンエス",
-          "odds": 49.4,
-          "popularity": 11,
+          "odds": 50.1,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3075,7 +3075,7 @@
         {
           "number": 3,
           "name": "バークシャーシチー",
-          "odds": 15.8,
+          "odds": 14.4,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3086,7 +3086,7 @@
         {
           "number": 4,
           "name": "アクセス",
-          "odds": 3.3,
+          "odds": 3.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3097,7 +3097,7 @@
         {
           "number": 5,
           "name": "サイモンノーブル",
-          "odds": 151.8,
+          "odds": 110.2,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3108,7 +3108,7 @@
         {
           "number": 6,
           "name": "コレオシークエンス",
-          "odds": 4.5,
+          "odds": 5.0,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3130,7 +3130,7 @@
         {
           "number": 8,
           "name": "スウィートリワード",
-          "odds": 67.5,
+          "odds": 72.8,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3141,8 +3141,8 @@
         {
           "number": 9,
           "name": "ウィテカービート",
-          "odds": 41.2,
-          "popularity": 10,
+          "odds": 53.0,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/黒鹿",
@@ -3152,7 +3152,7 @@
         {
           "number": 10,
           "name": "ピエタンツァ",
-          "odds": 11.8,
+          "odds": 12.7,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3163,7 +3163,7 @@
         {
           "number": 11,
           "name": "ダノンテムズ",
-          "odds": 9.1,
+          "odds": 6.9,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3174,7 +3174,7 @@
         {
           "number": 12,
           "name": "エンジェルボイス",
-          "odds": 24.1,
+          "odds": 25.7,
           "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3185,7 +3185,7 @@
         {
           "number": 13,
           "name": "ダノンブギ",
-          "odds": 34.0,
+          "odds": 31.2,
           "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3196,7 +3196,7 @@
         {
           "number": 14,
           "name": "デリュージョン",
-          "odds": 65.9,
+          "odds": 70.4,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3218,15 +3218,15 @@
       "distance": 1400,
       "surface": "芝",
       "course": "右",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604030920260912%2FD1",
       "token": "pw01dde0109202604030920260912/D1",
       "horses": [
         {
           "number": 1,
           "name": "カウンティフェア",
-          "odds": 31.7,
-          "popularity": 8,
+          "odds": 33.3,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝4/栗",
@@ -3236,7 +3236,7 @@
         {
           "number": 2,
           "name": "ライラ",
-          "odds": 5.1,
+          "odds": 4.6,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3247,8 +3247,8 @@
         {
           "number": 3,
           "name": "リアライズ",
-          "odds": 39.8,
-          "popularity": 11,
+          "odds": 34.9,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/鹿",
@@ -3258,7 +3258,7 @@
         {
           "number": 4,
           "name": "ダガーリング",
-          "odds": 8.9,
+          "odds": 7.9,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3269,8 +3269,8 @@
         {
           "number": 5,
           "name": "プレセピオ",
-          "odds": 33.5,
-          "popularity": 9,
+          "odds": 22.5,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/黒鹿",
@@ -3280,7 +3280,7 @@
         {
           "number": 6,
           "name": "アムールリーベ",
-          "odds": 2.3,
+          "odds": 3.4,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3291,8 +3291,8 @@
         {
           "number": 7,
           "name": "ネッタイヤライ",
-          "odds": 39.8,
-          "popularity": 11,
+          "odds": 30.5,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/芦",
@@ -3302,7 +3302,7 @@
         {
           "number": 8,
           "name": "ワンコールアウェイ",
-          "odds": 14.4,
+          "odds": 8.8,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3313,7 +3313,7 @@
         {
           "number": 9,
           "name": "ジッピーレーサー",
-          "odds": 142.6,
+          "odds": 134.4,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3324,7 +3324,7 @@
         {
           "number": 10,
           "name": "キングケープ",
-          "odds": 37.6,
+          "odds": 31.0,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3335,7 +3335,7 @@
         {
           "number": 11,
           "name": "アジュマン",
-          "odds": 7.8,
+          "odds": 7.4,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3346,7 +3346,7 @@
         {
           "number": 12,
           "name": "ロンドボス",
-          "odds": 7.2,
+          "odds": 6.8,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3357,7 +3357,7 @@
         {
           "number": 13,
           "name": "キャッスルレイク",
-          "odds": 22.0,
+          "odds": 19.4,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3386,8 +3386,8 @@
         {
           "number": 1,
           "name": "クロニクル",
-          "odds": 57.0,
-          "popularity": 13,
+          "odds": 58.9,
+          "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "せん7/鹿",
@@ -3397,8 +3397,8 @@
         {
           "number": 2,
           "name": "ペンナヴェローチェ",
-          "odds": 5.6,
-          "popularity": 2,
+          "odds": 6.4,
+          "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/鹿",
@@ -3408,7 +3408,7 @@
         {
           "number": 3,
           "name": "インザモーメント",
-          "odds": 19.1,
+          "odds": 17.9,
           "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3419,8 +3419,8 @@
         {
           "number": 4,
           "name": "スズカダブル",
-          "odds": 26.0,
-          "popularity": 8,
+          "odds": 22.4,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/栗",
@@ -3430,8 +3430,8 @@
         {
           "number": 5,
           "name": "パシアンジャン",
-          "odds": 6.9,
-          "popularity": 3,
+          "odds": 5.5,
+          "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/栗",
@@ -3441,8 +3441,8 @@
         {
           "number": 6,
           "name": "プルートマスター",
-          "odds": 37.4,
-          "popularity": 9,
+          "odds": 23.7,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡7/青鹿",
@@ -3452,7 +3452,7 @@
         {
           "number": 7,
           "name": "マテンロウブレイブ",
-          "odds": 2.3,
+          "odds": 3.1,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3463,8 +3463,8 @@
         {
           "number": 8,
           "name": "プリンセッサ",
-          "odds": 59.7,
-          "popularity": 14,
+          "odds": 43.0,
+          "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝4/鹿",
@@ -3474,8 +3474,8 @@
         {
           "number": 9,
           "name": "タイセイアディクト",
-          "odds": 52.6,
-          "popularity": 12,
+          "odds": 35.9,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/青鹿",
@@ -3485,8 +3485,8 @@
         {
           "number": 10,
           "name": "レヴァンテシチー",
-          "odds": 14.2,
-          "popularity": 6,
+          "odds": 10.9,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3496,8 +3496,8 @@
         {
           "number": 11,
           "name": "ノーランサンライズ",
-          "odds": 43.3,
-          "popularity": 10,
+          "odds": 35.9,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝4/鹿",
@@ -3507,8 +3507,8 @@
         {
           "number": 12,
           "name": "ポルポラジール",
-          "odds": 48.1,
-          "popularity": 11,
+          "odds": 21.5,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/黒鹿",
@@ -3518,8 +3518,8 @@
         {
           "number": 13,
           "name": "タガノマカシヤ",
-          "odds": 12.0,
-          "popularity": 5,
+          "odds": 11.3,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3529,8 +3529,8 @@
         {
           "number": 14,
           "name": "ブルーワール",
-          "odds": 61.2,
-          "popularity": 15,
+          "odds": 58.6,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/青",
@@ -3540,7 +3540,7 @@
         {
           "number": 15,
           "name": "ルクスフレンジー",
-          "odds": 8.9,
+          "odds": 9.0,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3562,14 +3562,14 @@
       "distance": 2000,
       "surface": "芝",
       "course": "右",
-      "going": "重",
+      "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0109202604031120260912%2F7B",
       "token": "pw01dde0109202604031120260912/7B",
       "horses": [
         {
           "number": 1,
           "name": "フィーリウス",
-          "odds": 46.8,
+          "odds": 41.6,
           "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3580,7 +3580,7 @@
         {
           "number": 2,
           "name": "ジーティーダーリン",
-          "odds": 10.8,
+          "odds": 10.0,
           "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3591,7 +3591,7 @@
         {
           "number": 3,
           "name": "センツブラッド",
-          "odds": 38.6,
+          "odds": 39.6,
           "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3602,7 +3602,7 @@
         {
           "number": 4,
           "name": "ガイアメンテ",
-          "odds": 12.5,
+          "odds": 12.2,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3613,7 +3613,7 @@
         {
           "number": 5,
           "name": "ピースワンデュック",
-          "odds": 30.2,
+          "odds": 28.3,
           "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3624,7 +3624,7 @@
         {
           "number": 6,
           "name": "カネフラ",
-          "odds": 100.0,
+          "odds": 107.1,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3635,8 +3635,8 @@
         {
           "number": 7,
           "name": "ジーティーアダマン",
-          "odds": 13.5,
-          "popularity": 7,
+          "odds": 12.2,
+          "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/黒鹿",
@@ -3646,8 +3646,8 @@
         {
           "number": 8,
           "name": "カラマティアノス",
-          "odds": 22.1,
-          "popularity": 9,
+          "odds": 16.3,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3657,7 +3657,7 @@
         {
           "number": 9,
           "name": "マテンロウゲイル",
-          "odds": 3.7,
+          "odds": 4.0,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3668,7 +3668,7 @@
         {
           "number": 10,
           "name": "タガノデュード",
-          "odds": 8.1,
+          "odds": 8.9,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3679,7 +3679,7 @@
         {
           "number": 11,
           "name": "マリアイリダータ",
-          "odds": 4.7,
+          "odds": 4.6,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3690,7 +3690,7 @@
         {
           "number": 12,
           "name": "レーゼドラマ",
-          "odds": 42.7,
+          "odds": 40.2,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3701,8 +3701,8 @@
         {
           "number": 13,
           "name": "グランヴィノス",
-          "odds": 17.7,
-          "popularity": 8,
+          "odds": 18.6,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡6/青鹿",
@@ -3712,7 +3712,7 @@
         {
           "number": 14,
           "name": "ミッキーゴールド",
-          "odds": 36.3,
+          "odds": 34.4,
           "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3723,7 +3723,7 @@
         {
           "number": 15,
           "name": "ジョバンニ",
-          "odds": 6.4,
+          "odds": 7.1,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3734,7 +3734,7 @@
         {
           "number": 16,
           "name": "マテンロウスカイ",
-          "odds": 97.8,
+          "odds": 95.8,
           "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3763,7 +3763,7 @@
         {
           "number": 1,
           "name": "タイセイブロウ",
-          "odds": 29.7,
+          "odds": 41.8,
           "popularity": 13,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3774,8 +3774,8 @@
         {
           "number": 2,
           "name": "ゼットスパンキー",
-          "odds": 63.6,
-          "popularity": 15,
+          "odds": 47.2,
+          "popularity": 14,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡5/黒鹿",
@@ -3785,8 +3785,8 @@
         {
           "number": 3,
           "name": "ステライヴ",
-          "odds": 10.8,
-          "popularity": 5,
+          "odds": 15.1,
+          "popularity": 7,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/栗",
@@ -3796,8 +3796,8 @@
         {
           "number": 4,
           "name": "サンライズブレイク",
-          "odds": 51.5,
-          "popularity": 14,
+          "odds": 72.1,
+          "popularity": 15,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3807,8 +3807,8 @@
         {
           "number": 5,
           "name": "ビーグラッド",
-          "odds": 21.3,
-          "popularity": 11,
+          "odds": 19.9,
+          "popularity": 8,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝5/青鹿",
@@ -3818,8 +3818,8 @@
         {
           "number": 6,
           "name": "サトノロザリー",
-          "odds": 17.4,
-          "popularity": 8,
+          "odds": 20.2,
+          "popularity": 9,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -3829,8 +3829,8 @@
         {
           "number": 7,
           "name": "オプティモ",
-          "odds": 18.9,
-          "popularity": 9,
+          "odds": 22.5,
+          "popularity": 12,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡3/栗",
@@ -3840,7 +3840,7 @@
         {
           "number": 8,
           "name": "アームズレジェンド",
-          "odds": 10.7,
+          "odds": 11.0,
           "popularity": 4,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3851,7 +3851,7 @@
         {
           "number": 9,
           "name": "スレッドザニードル",
-          "odds": 85.4,
+          "odds": 80.8,
           "popularity": 16,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3862,7 +3862,7 @@
         {
           "number": 10,
           "name": "ゴールドアーチ",
-          "odds": 8.4,
+          "odds": 6.8,
           "popularity": 3,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3873,8 +3873,8 @@
         {
           "number": 11,
           "name": "ミヤラティーニ",
-          "odds": 20.6,
-          "popularity": 10,
+          "odds": 21.8,
+          "popularity": 11,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -3884,8 +3884,8 @@
         {
           "number": 12,
           "name": "ケイアイマウンガ",
-          "odds": 23.8,
-          "popularity": 12,
+          "odds": 21.5,
+          "popularity": 10,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牡4/鹿",
@@ -3895,7 +3895,7 @@
         {
           "number": 13,
           "name": "ヒルノプーリア",
-          "odds": 3.0,
+          "odds": 3.7,
           "popularity": 1,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3906,8 +3906,8 @@
         {
           "number": 14,
           "name": "スターフュージョン",
-          "odds": 17.0,
-          "popularity": 7,
+          "odds": 11.2,
+          "popularity": 5,
           "body_weight": null,
           "body_weight_diff": null,
           "sex_age": "牝3/鹿",
@@ -3917,7 +3917,7 @@
         {
           "number": 15,
           "name": "ガビーズブラザー",
-          "odds": 12.9,
+          "odds": 12.8,
           "popularity": 6,
           "body_weight": null,
           "body_weight_diff": null,
@@ -3928,7 +3928,7 @@
         {
           "number": 16,
           "name": "ビスケットアソート",
-          "odds": 6.3,
+          "odds": 4.7,
           "popularity": 2,
           "body_weight": null,
           "body_weight_diff": null,
