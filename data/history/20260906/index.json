@@ -213,7 +213,8 @@
       "venue": "阪神",
       "venue_code": "09",
       "no": 11,
-      "date": "2026-09-06"
+      "date": "2026-09-06",
+      "name": "第40回産経賞セントウルステークス"
     },
     {
       "venue": "阪神",
@@ -223,5 +224,5 @@
     }
   ],
   "race_count": 36,
-  "parser_version": "15.6-selected-race"
+  "parser_version": "15.13-selected-race"
 }
