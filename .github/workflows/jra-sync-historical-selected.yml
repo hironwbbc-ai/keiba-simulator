@@ -1,4 +1,4 @@
-name: JRA Sync - Historical Selected Race v15.13
+name: JRA Sync - Historical Selected Race v15.13.2
 
 on:
   workflow_dispatch:
@@ -57,7 +57,7 @@ jobs:
           from pathlib import Path
           from zoneinfo import ZoneInfo
           
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.2)"
           BASE = "https://www.jra.go.jp"
           ACCESS_S = BASE + "/JRADB/accessS.html"
           JST = ZoneInfo("Asia/Tokyo")
@@ -548,6 +548,65 @@ jobs:
               encoding="utf-8",
           )
           
+          # Lightweight metadata is maintained separately from race-detail cache.
+          # Seed it from already archived local data when available; this does NOT
+          # fetch any additional JRA result pages.
+          meta_file = out_dir / "meta.json"
+          meta = {
+              "date": target_date_iso,
+              "updated_at": now.isoformat(),
+              "target_ymd": target_ymd,
+              "source": "JRA公式 過去レース・軽量メタデータ",
+              "mode": "historical_metadata",
+              "races": [],
+          }
+          if meta_file.exists():
+              try:
+                  meta = json.loads(meta_file.read_text(encoding="utf-8"))
+              except Exception:
+                  pass
+
+          meta_by_key = {
+              f"{item.get('venue_code')}-{item.get('no')}": item
+              for item in meta.get("races", [])
+          }
+
+          # Compatibility seed: if an older full archive exists locally, copy
+          # metadata only. No network request and no horse rows are written to meta.json.
+          legacy_archive = Path(f"data/history/{target_ymd}.json")
+          if legacy_archive.exists():
+              try:
+                  legacy = json.loads(legacy_archive.read_text(encoding="utf-8"))
+                  for item in legacy.get("races", []):
+                      vcode = item.get("venue_code") or VENUE_CODES.get(item.get("venue", ""), "")
+                      key = f"{vcode}-{item.get('no')}"
+                      meta_by_key.setdefault(key, {
+                          k: item.get(k) for k in (
+                              "venue", "venue_code", "meet", "meet_day", "no", "date",
+                              "time", "name", "distance", "surface", "course", "going", "url", "token"
+                          ) if item.get(k) is not None
+                      })
+              except Exception:
+                  pass
+
+          # If a daily archive already exists, it is also a local metadata source.
+          daily_archive = Path(f"data/daily/{target_ymd}.json")
+          if daily_archive.exists():
+              try:
+                  daily = json.loads(daily_archive.read_text(encoding="utf-8"))
+                  for item in daily.get("races", []):
+                      vcode = item.get("venue_code") or VENUE_CODES.get(item.get("venue", ""), "")
+                      key = f"{vcode}-{item.get('no')}"
+                      if item.get("name") not in (None, "", "レース", "レース情報"):
+                          meta_by_key[key] = {
+                              k: item.get(k) for k in (
+                                  "venue", "venue_code", "meet", "meet_day", "no", "date",
+                                  "time", "name", "distance", "surface", "course", "going", "url", "token"
+                              ) if item.get(k) is not None
+                          }
+              except Exception:
+                  pass
+
           index_file = out_dir / "index.json"
           index = {
               "date": target_date_iso,
@@ -606,12 +665,42 @@ jobs:
           if selected_name and selected_name not in ("レース", "本文へ移動する"):
               selected_entry["name"] = selected_name
 
+          # Update the separate lightweight metadata cache for the selected race.
+          selected_meta = {
+              "venue": selected_venue_name,
+              "venue_code": selected_venue_code,
+              "meet": meta.get("meet", ""),
+              "meet_day": meta.get("meet_day"),
+              "no": selected_race,
+              "date": meta.get("date", target_date_iso),
+              "time": meta.get("time", ""),
+              "name": selected_name or selected_entry.get("name", ""),
+              "distance": meta.get("distance"),
+              "surface": meta.get("surface", ""),
+              "course": meta.get("course", ""),
+              "going": meta.get("going", ""),
+              "url": selected_url,
+              "token": selected_token,
+          }
+          meta_by_key[selected_key] = selected_meta
+          meta["races"] = sorted(
+              meta_by_key.values(),
+              key=lambda item: (item.get("venue_code", ""), item.get("no", 0)),
+          )
+          meta["race_count"] = len(meta["races"])
+          meta["updated_at"] = now.isoformat()
+          meta["parser_version"] = "15.13.2-lightweight-metadata"
+          meta_file.write_text(
+              json.dumps(meta, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+
           index["races"] = sorted(
               by_key.values(),
               key=lambda item: (item.get("venue_code", ""), item.get("no", 0)),
           )
           index["race_count"] = len(index["races"])
-          index["parser_version"] = "15.13-selected-race"
+          index["parser_version"] = "15.13.2-selected-race"
           index_file.write_text(
               json.dumps(index, ensure_ascii=False, indent=2),
               encoding="utf-8",
