@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.13.1
+   競馬シミュレーター Ver.15.11
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 学習反映
    ---------------------------------------------------------
@@ -15,7 +15,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.13.1";
+const MODEL_VERSION = "15.13.2";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -97,64 +97,41 @@ async function getHistory(){
 
 async function getHistoryIndex(date){
   const key=historyDateKey(date);
-  let index=null;
 
-  // Prefer the lightweight per-date index. This keeps the normal path from
-  // downloading any race-result pages.
+  // Primary source: lightweight per-date index. It never contains horse rows.
   try{
-    index=await getJSON(`./data/history/${key}/index.json`);
-  }catch(_e){
-    index=null;
-  }
-
-  // Older selected-race workflow versions wrote only venue/R/no/date to the
-  // index. If race names are missing, hydrate metadata from the already-saved
-  // date archive in ONE request. We copy metadata only; horse/result data is
-  // never loaded here, so the one-race-at-a-time design remains intact.
-  if(index && Array.isArray(index.races)){
-    const missingName=index.races.some(r=>!r.name || r.name==="レース" || r.name==="本文へ移動する");
-    if(missingName){
+    const idx=await getJSON(`./data/history/${key}/index.json`);
+    if(Array.isArray(idx?.races)){
+      // Metadata may have been created before all names were hydrated.
+      // Fill missing metadata from meta.json only; never load a full result archive here.
       try{
-        const archive=await getJSON(`./data/history/${key}.json`);
-        const metaMap=new Map((archive.races||[]).map(r=>[
-          `${r.venue||codeToVenue(r.venue_code)}-${Number(r.no??r.race_number)}`,r
+        const meta=await getJSON(`./data/history/${key}/meta.json`);
+        const metaMap=new Map((meta?.races||[]).map(r=>[
+          `${r.venue_code||VENUES[r.venue]||r.venue}-${Number(r.no)}`,
+          r
         ]));
-        index={
-          ...index,
-          races:index.races.map(r=>{
-            const m=metaMap.get(`${r.venue||codeToVenue(r.venue_code)}-${Number(r.no??r.race_number)}`);
-            return {
-              ...r,
-              venue:r.venue||codeToVenue(r.venue_code),
-              venue_code:r.venue_code||m?.venue_code||"",
-              no:Number(r.no??r.race_number),
-              date:r.date||m?.date||date,
-              name:(r.name && !["レース","本文へ移動する"].includes(String(r.name).trim())) ? r.name : (m?.name||""),
-              time:r.time||m?.time||"",
-              distance:r.distance??m?.distance??null,
-              surface:r.surface||m?.surface||"",
-              course:r.course||m?.course||"",
-              going:r.going||m?.going||""
-            };
-          })
-        };
-      }catch(_e){}
+        idx.races=idx.races.map(r=>{
+          const m=metaMap.get(`${r.venue_code||VENUES[r.venue]||r.venue}-${Number(r.no)}`)||{};
+          return {...m,...r,name:isUsableRaceName(r.name)?r.name:(m.name||"")};
+        });
+      }catch(_e){ /* meta.json is optional for older archives */ }
+      return idx;
     }
-    return index;
-  }
+  }catch(_e){}
 
-  // Compatibility fallback for dates that predate the per-race index.
+  // Legacy compatibility: read only metadata from the old archive.
+  // This path is retained for old dates already archived before v15.13.2.
   const h=await getJSON(`./data/history/${key}.json`);
   return {
     date:h.date||date,
     updated_at:h.updated_at||"",
     source:h.source||"JRA公式",
+    mode:"historical_index_legacy_metadata",
     races:(h.races||[]).map(r=>({
       venue:r.venue||codeToVenue(r.venue_code),
       venue_code:r.venue_code||"",
       no:Number(r.no),
-      date:r.date||date,
-      name:r.name||"",
+      name:isUsableRaceName(r.name)?r.name:"",
       time:r.time||"",
       distance:r.distance??null,
       surface:r.surface||"",
@@ -164,23 +141,23 @@ async function getHistoryIndex(date){
   };
 }
 
+function isUsableRaceName(name){
+  const s=String(name??"").trim();
+  return !!s && !["レース","レース情報","本文へ移動する","検索ウィンドウ"].includes(s);
+}
+
 async function getHistoryRace(date,venue,no){
   const code=VENUES[venue]||String(venue||"");
   const key=historyDateKey(date);
   const padded=String(no).padStart(2,"0");
+  // Strict v15.13.2 cache rule: only the requested race file is valid.
   for(const path of [
     `./data/history/${key}/${code}_${padded}.json`,
     `./data/history/${key}/${venue}_${padded}.json`
   ]){
     try{return await getJSON(path);}catch(_e){}
   }
-  const h=await getJSON(`./data/history/${historyDateKey(date)}.json`);
-  const r=(h.races||[]).find(x=>
-    (x.venue||codeToVenue(x.venue_code))===venue &&
-    Number(x.no??x.race_number)===Number(no)
-  );
-  if(!r) throw new Error(`${date} ${venue} ${no}R の過去レースデータがありません。`);
-  return r;
+  throw new Error(`${date} ${venue} ${no}R の詳細データが未取得です。GitHub Actionsの「JRA Sync - Historical Selected Race v15.13.2」でこの1レースだけを取得してください。`);
 }
 
 /* -------------------- data normalization -------------------- */
@@ -191,8 +168,6 @@ function normalizeHorse(h, extra={}){
     name:h.name ?? h.horse_name ?? h.horseName ?? "",
     odds:num(h.odds ?? h.winOdds ?? h.tanshoOdds ?? h.singleOdds),
     popularity:num(h.popularity ?? h.odds_rank ?? h.rank),
-    finalPopularity:num(extra.finalPopularity ?? h.popularity ?? h.odds_rank ?? h.rank),
-    finalOdds:num(extra.finalOdds ?? h.odds ?? h.winOdds ?? h.tanshoOdds ?? h.singleOdds),
     bodyWeight:num(h.bodyWeight ?? h.body_weight ?? h.weight),
     bodyWeightDiff:num(h.bodyWeightDiff ?? h.body_weight_diff),
     sexAge:h.sexAge ?? h.sex_age ?? "",
@@ -406,8 +381,9 @@ function rankScore(v, reverse=false){
   return m;
 }
 
-const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_13_prerace_v1"; // 発走前入力ルール変更のため旧学習とは分離
+const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_13_2_pre_race";
 const LEARNING_FEATURES = ["market","style","carriedWeight","bodyWeight","sexAge","frame","popularity"];
+const BACKTEST_LEARNING_FEATURES = ["style","carriedWeight","bodyWeight","sexAge","frame"];
 const BASE_COEFFICIENTS = {
   market: null, style:.22, carriedWeight:.16, bodyWeight:.10,
   sexAge:.08, frame:.08, popularity:.08
@@ -469,7 +445,7 @@ function trainFromBacktest(histRace,result){
   // Softmaxの正解（実着順1着）に対する勾配。予測完成後にだけ実行する。
   const lr=.035;
   const reg=.002;
-  for(const feature of LEARNING_FEATURES){
+  for(const feature of BACKTEST_LEARNING_FEATURES){
     const wf=Number(winner.learningFeatures?.[feature]||0);
     let expected=0;
     for(const h of rows){
@@ -513,25 +489,25 @@ function learningSummary(learning=getLearning()){
 }
 
 function buildModel(rawHorses, options={}){
+  const useMarket=options.useMarket!==false;
   const horses=rawHorses.map(normalizeHorse);
-  const useMarketData=options.useMarketData!==false;
   const pace=inferPace(horses);
 
-  const odds=useMarketData ? horses.map(h=>h.odds).filter(x=>x>0) : [];
+  const odds=useMarket ? horses.map(h=>h.odds).filter(x=>x>0) : [];
   const medWeight=median(horses.map(h=>h.carriedWeight).filter(x=>x!=null));
   const medBody=median(horses.map(h=>h.bodyWeight).filter(x=>x!=null));
   const hasOdds=odds.length>0;
   const oddsMarketMean=hasOdds ? odds.reduce((a,x)=>a+(1/x),0)/odds.length : null;
-  const popRawVals=useMarketData ? horses.map(h=>h.popularity>0 ? 1/Math.sqrt(h.popularity) : null).filter(x=>x!=null) : [];
+  const popRawVals=useMarket ? horses.map(h=>h.popularity>0 ? 1/Math.sqrt(h.popularity) : null).filter(x=>x!=null) : [];
   const popRawMean=popRawVals.length ? popRawVals.reduce((a,x)=>a+x,0)/popRawVals.length : null;
   // オッズが一部だけ欠けている場合も、欠損馬を0点にしない。
   // 混在時は人気代理値をオッズ逆数の平均スケールへ合わせる。
   const popularityScale=(hasOdds && oddsMarketMean!=null && popRawMean!=null) ? oddsMarketMean/popRawMean : 1;
 
   const rows=horses.map(h=>{
-    const oddsRaw=useMarketData && h.odds>0 ? 1/h.odds : 0;
-    const popularityRaw=useMarketData && h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
-    const marketBase=!useMarketData ? 1 : (h.odds>0 ? oddsRaw : (hasOdds ? popularityRaw*popularityScale : popularityRaw));
+    const oddsRaw=useMarket && h.odds>0 ? 1/h.odds : 0;
+    const popularityRaw=useMarket && h.popularity>0 ? 1/Math.sqrt(h.popularity) : 0;
+    const marketBase=useMarket ? (h.odds>0 ? oddsRaw : (hasOdds ? popularityRaw*popularityScale : popularityRaw)) : 1;
     const style=styleFactor(h.style,pace.label);
 
     let weightFactor=1;
@@ -551,25 +527,25 @@ function buildModel(rawHorses, options={}){
       else if(age>=7) ageFactor=.985;
     }
     const frameFactor=h.frame==null?1:1+((4-h.frame)/100);
-    const popularityFactor=useMarketData && popularityRaw>0 ? Math.pow(popularityRaw,.12) : 1;
+    const popularityFactor=popularityRaw>0 ? Math.pow(popularityRaw,.12) : 1;
     const learning=getLearning();
     const coeff={
-      market:learningCoefficient("market",hasOdds,learning),
+      market:useMarket ? learningCoefficient("market",hasOdds,learning) : 0,
       style:learningCoefficient("style",hasOdds,learning),
       carriedWeight:learningCoefficient("carriedWeight",hasOdds,learning),
       bodyWeight:learningCoefficient("bodyWeight",hasOdds,learning),
       sexAge:learningCoefficient("sexAge",hasOdds,learning),
       frame:learningCoefficient("frame",hasOdds,learning),
-      popularity:learningCoefficient("popularity",hasOdds,learning)
+      popularity:useMarket ? learningCoefficient("popularity",hasOdds,learning) : 0
     };
     const features={
-      market:Math.log(Math.max(marketBase,1e-12)),
+      market:useMarket ? Math.log(Math.max(marketBase,1e-12)) : 0,
       style:Math.log(Math.max(style,1e-12)),
       carriedWeight:Math.log(Math.max(weightFactor,1e-12)),
       bodyWeight:Math.log(Math.max(bodyFactor,1e-12)),
       sexAge:Math.log(Math.max(ageFactor,1e-12)),
       frame:Math.log(Math.max(frameFactor,1e-12)),
-      popularity:Math.log(Math.max(popularityFactor,1e-12))
+      popularity:useMarket ? Math.log(Math.max(popularityFactor,1e-12)) : 0
     };
     const raw=Math.exp(
       coeff.market*features.market +
@@ -580,13 +556,13 @@ function buildModel(rawHorses, options={}){
       coeff.frame*features.frame +
       coeff.popularity*features.popularity
     );
-    const marketSource=!useMarketData ? "disabled" : (h.odds>0 ? "odds" : (h.popularity>0 ? "popularity_proxy" : "none"));
+    const marketSource=!useMarket ? "excluded_from_backtest" : (h.odds>0 ? "odds" : (h.popularity>0 ? "popularity_proxy" : "none"));
     return {...h,score:raw,marketScore:marketBase,marketSource,independentScore:raw/Math.pow(Math.max(marketBase,1e-12),coeff.market),learningFeatures:features,learningCoefficients:coeff,components:{market:marketBase,style,carriedWeight:weightFactor,bodyWeight:bodyFactor,sexAge:ageFactor,frame:frameFactor,popularity:popularityFactor}};
   });
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
   const learning=getLearning();
-  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,marketUsed:useMarketData,learning,learningSummary:learningSummary(learning)};
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,useMarket,learning,learningSummary:learningSummary(learning)};
 }
 function median(a){
   if(!a.length) return null;
@@ -689,8 +665,8 @@ function simulate(){
     </div>
 
     <div class="note warning">
-      単勝オッズが取得できる場合はオッズを市場評価に使用します。
-      オッズ未取得の場合は最終人気を市場評価の代理として使用します。
+      通常予測では、取得できた発走前オッズ・人気を市場評価として使用します。
+      過去バックテストでは最終人気・結果オッズをモデル入力から除外します。
       近走・コース適性・騎手成績・4角位置など存在しないデータは推測・補完していません。
     </div>
 
@@ -729,7 +705,7 @@ function simulate(){
 
     <h3>モデル構成</h3>
     <div class="small">
-      単勝オッズがあれば市場評価として使用し、未取得なら人気順位を代理指標として使用します。
+      通常予測では発走前に取得できた市場情報を使用し、過去バックテストでは市場情報を除外します。
       さらに脚質・ペース・斤量・馬体重・性齢・枠順を利用可能な範囲で補正します。
       存在しない近走・適性・騎手成績・4角位置等は推測していません。
     </div>
@@ -746,36 +722,36 @@ function horseName(no,rows){
 /* -------------------- historical backtest -------------------- */
 
 function makeBacktestRace(histRace){
-  // バックテストはJRA公式の過去レース結果を母集団とする。
-  // 着順・4角位置は評価専用として保持し、モデル入力には渡さない。
-  // さらに、結果ページの「最終人気」は発走後に確定した情報なので、
-  // バックテスト予測の特徴量には絶対に使用しない。比較表示専用として保持する。
+  // Result-page fields are split into:
+  //   1) pre-race-available inputs (frame, body weight, sex/age, carried weight, jockey)
+  //   2) post-race evaluation only (finish, corner positions, final popularity)
+  // Final popularity/odds are deliberately removed from the model input.
   const source=histRace?.horses||[];
-  return source.map(h=>{
-    const row=normalizeHorse(h,{
-      frame:num(h.frame), // 枠順は発走前に確定するため利用可能
-      finalOdds:num(h.odds),
-      finalPopularity:num(h.popularity),
-      finish:null,
-      corner4:null,
-      historicalFinish:num(h.finish)
-    });
-    // 結果ページの人気・オッズは評価表示には使うが、予測入力から除外する。
-    row.odds=null;
-    row.popularity=null;
-    return row;
-  });
+  return source.map(h=>normalizeHorse(h,{
+    frame:num(h.frame),
+    odds:null,
+    popularity:null,
+    finish:null,
+    corner4:null,
+    historicalFinish:num(h.finish),
+    resultPopularity:num(h.popularity)
+  }));
 }
 
 function backtestOne(histRace){
   const horses=makeBacktestRace(histRace);
   if(horses.length<2) return null;
-  const model=buildModel(horses,{useMarketData:false});
+  const model=buildModel(horses,{useMarket:false});
   const ranking=model.horses;
   const winner=horses.find(h=>Number(h.historicalFinish)===1);
   if(!winner) return null;
 
   const pos=ranking.findIndex(h=>h.no===winner.no)+1;
+  const marketSorted=horses.slice().sort((a,b)=>{
+    const ap=Number(a.resultPopularity), bp=Number(b.resultPopularity);
+    return (Number.isFinite(ap)?ap:999)-(Number.isFinite(bp)?bp:999);
+  });
+  const marketRanks=new Map(marketSorted.map((h,i)=>[h.no,i+1]));
   return {
     winner,
     ranking,
@@ -783,9 +759,11 @@ function backtestOne(histRace){
     top1:ranking[0]?.no===winner.no,
     top3:ranking.slice(0,3).some(h=>h.no===winner.no),
     top5:ranking.slice(0,5).some(h=>h.no===winner.no),
-    favorite1:(horses.slice().sort((a,b)=>(a.finalPopularity||999)-(b.finalPopularity||999))[0]?.no===winner.no),
-    favorite3:(horses.slice().sort((a,b)=>(a.finalPopularity||999)-(b.finalPopularity||999)).slice(0,3).some(h=>h.no===winner.no)),
-    favorite5:(horses.slice().sort((a,b)=>(a.finalPopularity||999)-(b.finalPopularity||999)).slice(0,5).some(h=>h.no===winner.no))
+    favorite1:marketRanks.get(winner.no)===1,
+    favorite3:(marketRanks.get(winner.no)||999)<=3,
+    favorite5:(marketRanks.get(winner.no)||999)<=5,
+    marketRanks,
+    predictionSource:"pre_race_only"
   };
 }
 
@@ -808,10 +786,10 @@ async function runIndividualBacktest(race){
     const winner=result.winner;
     out.innerHTML=`
       <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b><span>${esc(venue)} ${no}R</span></div>
-      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前に確定する枠順・斤量・馬体重・性齢などだけで予測を確定し、その後に実着順を使って評価・学習します。結果ページの最終人気・最終オッズ・着順・4角位置は予測には使用していません。</div>
+      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前に確定している情報だけで予測を確定し、その後に実着順を使って学習します。最終人気・結果オッズ・着順・4角位置は予測入力から除外しています。</div>
       <div class="note ${learningResult.trained?'':'warning'}">${learningResult.trained?'このバックテスト結果を学習し、次回以降の予測係数に反映しました。':'このレースは既に学習済みのため、重複学習はしていません。'}<br>学習済みレース数：<b>${learningResult.learning?.trainedRaces??getLearning().trainedRaces}</b></div>
       ${(()=>{const ls=learningSummary(learningResult.learning||getLearning()); const pct=x=>x==null?'—':`${(x*100).toFixed(1)}%`; return `<div class="note"><b>学習状況</b>：本命1着率 ${pct(ls.top1)} ／ 上位3頭率 ${pct(ls.top3)} ／ 上位5頭率 ${pct(ls.top5)} ／ 勝ち馬平均順位 ${ls.avgRank==null?'—':ls.avgRank.toFixed(2)}位</div>`;})()}
-      ${(()=>{const l=learningResult.learning||getLearning(); const hasOdds=result.ranking.some(h=>Number(h.odds)>0); const rows=LEARNING_FEATURES.map(f=>{const base=f==='market'?(hasOdds?.72:1):BASE_COEFFICIENTS[f]; const delta=Number(l.delta?.[f]||0); const cur=learningCoefficient(f,hasOdds,l); return `<tr><td>${esc(f)}</td><td>${Number(base).toFixed(3)}</td><td>${delta>=0?'+':''}${delta.toFixed(3)}</td><td>${cur.toFixed(3)}</td></tr>`;}).join(''); return `<h3>学習係数</h3><div class="small">基準係数にバックテスト学習の差分を加えています。差分は${esc(LEARNING_STORAGE_KEY)}に保存されます。今回のバックテストでは最終人気・最終オッズを予測特徴量から除外しています。</div><div class="table-wrap"><table><thead><tr><th>特徴量</th><th>基準</th><th>学習差分</th><th>現在値</th></tr></thead><tbody>${rows}</tbody></table></div>`;})()}
+      ${(()=>{const l=learningResult.learning||getLearning(); const hasOdds=false; const rows=BACKTEST_LEARNING_FEATURES.map(f=>{const base=BASE_COEFFICIENTS[f]; const delta=Number(l.delta?.[f]||0); const cur=learningCoefficient(f,false,l); return `<tr><td>${esc(f)}</td><td>${Number(base).toFixed(3)}</td><td>${delta>=0?'+':''}${delta.toFixed(3)}</td><td>${cur.toFixed(3)}</td></tr>`;}).join(''); return `<h3>学習係数</h3><div class="small">基準係数にバックテスト学習の差分を加えています。差分は${esc(LEARNING_STORAGE_KEY)}に保存されます。</div><div class="table-wrap"><table><thead><tr><th>特徴量</th><th>基準</th><th>学習差分</th><th>現在値</th></tr></thead><tbody>${rows}</tbody></table></div>`;})()}
       <div class="compare-grid">
         <div class="metric-card"><b>本命1着</b><strong>${result.top1?'○':'—'}</strong><small>モデル1位</small></div>
         <div class="metric-card"><b>上位3頭</b><strong>${result.top3?'○':'—'}</strong><small>モデル3位以内</small></div>
@@ -826,11 +804,11 @@ async function runIndividualBacktest(race){
       </tbody></table></div>
       <h3>結果</h3>
       <div class="table-wrap"><table><thead><tr><th>開催</th><th>R</th><th>レース名</th><th>勝ち馬</th><th>人気</th><th>モデル順位</th><th>本命</th><th>上位3</th><th>上位5</th></tr></thead><tbody>
-        <tr><td>${esc(venue)}</td><td>${no}R</td><td>${esc(hr.name||race.name||'')}</td><td>${horseLabel(winner.name,winner.no)}</td><td>${winner.finalPopularity??'—'}</td><td>${modelRank}</td><td>${result.top1?'○':'—'}</td><td>${result.top3?'○':'—'}</td><td>${result.top5?'○':'—'}</td></tr>
+        <tr><td>${esc(venue)}</td><td>${no}R</td><td>${esc(hr.name||race.name||'')}</td><td>${horseLabel(winner.name,winner.no)}</td><td>${winner.resultPopularity??'—'}</td><td>${modelRank}</td><td>${result.top1?'○':'—'}</td><td>${result.top3?'○':'—'}</td><td>${result.top5?'○':'—'}</td></tr>
       </tbody></table></div>
       ${(()=>{
         const all=result.ranking.slice().sort((a,b)=>Number(a.historicalFinish??999)-Number(b.historicalFinish??999));
-        const popSorted=all.filter(h=>Number(h.finalPopularity)>0).slice().sort((a,b)=>Number(a.finalPopularity)-Number(b.finalPopularity));
+        const popSorted=all.filter(h=>Number(h.resultPopularity)>0).slice().sort((a,b)=>Number(a.resultPopularity)-Number(b.resultPopularity));
         const popRank=new Map(popSorted.map((h,i)=>[h.no,i+1]));
         const modelRankMap=new Map(result.ranking.map((h,i)=>[h.no,i+1]));
         const evalMark=(finish,mr)=>{
@@ -849,9 +827,9 @@ async function runIndividualBacktest(race){
           const gap=Number.isFinite(finish)&&Number.isFinite(mr)?mr-finish:null;
           const marketGap=Number.isFinite(pr)&&Number.isFinite(mr)?pr-mr:null;
           const cls=Number.isFinite(finish)&&finish<=5?' class="top5-row"':'';
-          return `<tr${cls}><td>${Number.isFinite(finish)?finish+'着':'—'}</td><td>${horseLabel(h.name,h.no)}</td><td>${Number.isFinite(pr)?pr+'番人気':(h.finalPopularity??'—')}</td><td><b>${Number.isFinite(mr)?mr+'位':'—'}</b></td><td>${Number(h.prob)>0?(Number(h.prob)*100).toFixed(1)+'%':'—'}</td><td>${gap==null?'—':(gap>0?'+':'')+gap}</td><td>${marketGap==null?'—':(marketGap>0?'+':'')+marketGap}</td><td>${evalMark(finish,mr)}</td></tr>`;
+          return `<tr${cls}><td>${Number.isFinite(finish)?finish+'着':'—'}</td><td>${horseLabel(h.name,h.no)}</td><td>${Number.isFinite(pr)?pr+'番人気':(h.resultPopularity??'—')}</td><td><b>${Number.isFinite(mr)?mr+'位':'—'}</b></td><td>${Number(h.prob)>0?(Number(h.prob)*100).toFixed(1)+'%':'—'}</td><td>${gap==null?'—':(gap>0?'+':'')+gap}</td><td>${marketGap==null?'—':(marketGap>0?'+':'')+marketGap}</td><td>${evalMark(finish,mr)}</td></tr>`;
         }).join('');
-        return `<h3>全頭：実着順 × モデル順位</h3><div class="small">実着順1〜5着を重点表示。モデル順位は発走前データだけで算出した順位です。「人気差」は最終人気順位−モデル順位で、プラスほどモデルが人気以上に評価しています。</div><div class="table-wrap"><table><thead><tr><th>実着順</th><th>馬</th><th>最終人気</th><th>モデル順位</th><th>1着確率</th><th>実着順との差</th><th>人気差</th><th>評価</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        return `<h3>全頭：実着順 × モデル順位</h3><div class="small">実着順1〜5着を重点表示。モデル順位は発走前データだけで算出した順位です。「人気差」は最終人気順位−モデル順位で、プラスほどモデルが人気以上に評価しています。最終人気は比較専用です。</div><div class="table-wrap"><table><thead><tr><th>実着順</th><th>馬</th><th>最終人気</th><th>モデル順位</th><th>1着確率</th><th>実着順との差</th><th>人気差</th><th>評価</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       })()}
     `;
   }catch(e){out.innerHTML=`<div class="status err">${esc(e.message)}</div>`;}
@@ -869,7 +847,7 @@ async function loadRaces(){
       state.races=(idx.races||[]).map(r=>({...r,date:r.date||date,venue:r.venue||codeToVenue(r.venue_code),no:Number(r.no),historical:true})).filter(r=>r.venue&&Number.isFinite(r.no));
       const venues=[...new Set(state.races.map(r=>r.venue))];
       const sel=$("venue"); if(sel)sel.innerHTML='<option value="">全開催</option>'+venues.map(v=>`<option>${esc(v)}</option>`).join("");
-      $("officialProgramStatus").innerHTML=`過去レース索引：${esc(idx.updated_at||"取得済み")}<br>レース一覧：${state.races.length}件<br><span class="small">指定したレースだけ詳細データを取得します。</span>`;
+      $("officialProgramStatus").innerHTML=`過去レース索引：${esc(idx.updated_at||"取得済み")}<br>レース一覧：${state.races.length}件<br><span class="small">一覧は軽量メタデータのみ。詳細データはバックテスト対象の1レースだけ取得します。</span>`;
       msg(`${date}：過去レース一覧 ${state.races.length}件。レース一覧から「バックテスト」を押してください。`,"ok");
       renderRaces();
       return;
