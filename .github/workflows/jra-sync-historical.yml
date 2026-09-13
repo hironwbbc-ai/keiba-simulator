@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v15.13.7
+name: JRA Sync + Pages Deploy - Historical v15.13.8
 
 on:
   schedule:
@@ -60,7 +60,7 @@ jobs:
           import os
           import sys
 
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.7)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.8)"
           BASE = "https://www.jra.go.jp"
           ACCESS = BASE + "/JRADB/accessD.html"
           cal_url = BASE + "/JRADB/"
@@ -725,41 +725,118 @@ jobs:
                       body_start = idx
                       break
 
-              body_lines = lines[body_start:] if body_start else lines
+              # 「ここから本文です」自体は本文の開始マーカーであり、
+              # レース名候補ではない。マーカーを含めたまま探索すると、
+              # JRAのHTML構造変更時にこれをレース名として保存してしまう。
+              body_lines = lines[body_start + 1:] if body_start else lines
               weather_idx = next((i for i, line in enumerate(body_lines)
                                   if line.startswith("天候")), None)
 
               # Track condition: take the first 芝/ダート line immediately
               # after the weather line. The condition is the suffix.
               if weather_idx is not None:
-                  for line in body_lines[weather_idx + 1:weather_idx + 5]:
+                  for line in body_lines[weather_idx + 1:weather_idx + 6]:
                       m = re.search(r"^(?:芝|ダート).*?(不良|稍重|重|良)\s*$", line)
                       if m:
                           meta["going"] = m.group(1)
                           break
 
-              # Race title: after the weather/track lines, the first meaningful
-              # line before 本賞金 is the official race title.
-              meta["name"] = "レース"
-              title_start = weather_idx + 1 if weather_idx is not None else 0
-              for line in body_lines[title_start:title_start + 25]:
-                  if not line or line in ("レース映像", "検索ウィンドウ", "本文へ移動する"):
-                      continue
-                  # Skip weather/track/race-number/navigation lines.
-                  if line.startswith(("天候", "芝", "ダート", "本賞金", "コース：", "コース:")):
-                      continue
-                  if re.fullmatch(r"\d{1,2}レース", line) or line.startswith("Image:"):
-                      continue
-                  # The official title is the standalone race-name line,
-                  # e.g. 「第80回朝日杯セントライト記念」.
-                  if len(line) <= 100:
-                      meta["name"] = line
+              # ------------------------------------------------------------
+              # Race title: robust extraction
+              # ------------------------------------------------------------
+              META_LINE_EXACT = {
+                  "ここから本文です", "レース映像", "検索ウィンドウ", "本文へ移動する",
+                  "関連メニュー", "レース結果", "オッズ", "印刷用ページ", "馬柱の見方",
+              }
+
+              def is_bad_title_candidate(line):
+                  line = re.sub(r"\s+", " ", line).strip()
+                  if not line:
+                      return True
+                  if line in META_LINE_EXACT:
+                      return True
+                  if line.startswith(("Image:", "天候", "芝", "ダート", "本賞金",
+                                      "付加賞", "コース：", "コース:")):
+                      return True
+                  if re.fullmatch(r"\d{1,2}レース", line):
+                      return True
+                  if re.search(r"\d{4}年\s*\d{1,2}月\s*\d{1,2}日", line):
+                      return True
+                  if re.search(r"発走時刻[:：]?\s*\d{1,2}時\s*\d{2}分", line):
+                      return True
+                  if "メートル（" in line:
+                      return True
+                  # JRA places race-condition information between the title
+                  # and the course line, e.g. "3歳 オープン （国際）（指定） 馬齢".
+                  # Skip such condition lines without rejecting ordinary race
+                  # names such as "3歳未勝利" or "2歳新馬".
+                  if re.fullmatch(r"\d+歳", line):
+                      return True
+                  if (
+                      ("オープン" in line and re.search(r"(?:馬齢|定量|別定|ハンデ)", line))
+                      or re.search(r"^(?:\d+歳|\d+歳\s+).*?(?:馬齢|定量|別定|ハンデ)$", line)
+                  ):
+                      return True
+                  return len(line) > 100
+
+              # Identify the course line belonging to this race first. The
+              # official title is immediately before it on current JRA pages.
+              course_line_idx = next(
+                  (
+                      i for i, line in enumerate(body_lines)
+                      if re.search(
+                          r"コース[:：].*?メートル（"
+                          r"(?:芝|ダート)(?:→(?:芝|ダート))?(?:・[^）]+)?）",
+                          line,
+                      )
+                  ),
+                  None,
+              )
+
+              meta["name"] = ""
+              title_idx = None
+              if course_line_idx is not None:
+                  for idx in range(course_line_idx - 1, max(-1, course_line_idx - 8), -1):
+                      candidate = re.sub(r"\s+", " ", body_lines[idx]).strip()
+                      if is_bad_title_candidate(candidate):
+                          continue
+                      meta["name"] = candidate
+                      title_idx = idx
                       break
 
-              # Distance / surface / course: use the course line belonging to
-              # this race, not an unrelated distance string elsewhere.
-              course_line = next((line for line in body_lines[title_start:title_start + 30]
-                                  if re.search(r"コース[:：].*メートル（(?:芝|ダート)(?:→(?:芝|ダート))?(?:・[^）]+)?）", line)), None)
+              # Fallback if JRA temporarily omits/changes the course line.
+              if not meta["name"]:
+                  title_start = weather_idx + 1 if weather_idx is not None else 0
+                  for idx in range(title_start, min(len(body_lines), title_start + 30)):
+                      candidate = re.sub(r"\s+", " ", body_lines[idx]).strip()
+                      if is_bad_title_candidate(candidate):
+                          continue
+                      meta["name"] = candidate
+                      title_idx = idx
+                      break
+
+              # Never silently accept a navigation/placeholder string.
+              if not meta["name"] or is_bad_title_candidate(meta["name"]):
+                  raise RuntimeError("レース名を安全に抽出できませんでした")
+
+              title_start = title_idx if title_idx is not None else 0
+
+              # Distance / surface / course: use the race's own course line.
+              course_line = (
+                  body_lines[course_line_idx]
+                  if course_line_idx is not None
+                  else next(
+                      (
+                          line for line in body_lines[title_start:title_start + 30]
+                          if re.search(
+                              r"コース[:：].*?メートル（"
+                              r"(?:芝|ダート)(?:→(?:芝|ダート))?(?:・[^）]+)?）",
+                              line,
+                          )
+                      ),
+                      None,
+                  )
+              )
               if course_line:
                   # Normal races: 例「1,200メートル（芝・右）」
                   # Obstacle races: 例「2,880メートル（芝→ダート）」
@@ -768,9 +845,6 @@ jobs:
                       meta["distance"] = int(dist.group(1).replace(",", ""))
                       course_spec = dist.group(2).strip()
                       if "→" in course_spec:
-                          # JRA obstacle-course notation. Keep the official
-                          # surface transition as-is; there is no single
-                          # left/right course direction to store.
                           meta["surface"] = course_spec
                           meta["course"] = ""
                       elif "・" in course_spec:
@@ -894,7 +968,7 @@ jobs:
               "races": races,
               "venue_counts": venue_counts,
               "source": "JRA公式 accessD",
-              "parser_version": "15.13.7",
+              "parser_version": "15.13.8",
               "race_key_rule": "YYYYMMDD_venue_code_race_no",
           }
 
