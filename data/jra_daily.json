@@ -1,6 +1,6 @@
 {
   "date": "2026-09-13",
-  "updated_at": "2026-09-13T19:08:38.047655+09:00",
+  "updated_at": "2026-09-13T19:29:55.042704+09:00",
   "calendar_url": "https://www.jra.go.jp/JRADB/",
   "target_ymd": "20260913",
   "official_race_links": [
@@ -17,7 +17,7 @@
       "no": 11,
       "date": "2026-09-13",
       "time": "15:45",
-      "name": "ここから本文です",
+      "name": "馬齢",
       "distance": 2200,
       "surface": "芝",
       "course": "右 外",
@@ -228,7 +228,7 @@
       "no": 11,
       "date": "2026-09-13",
       "time": "15:30",
-      "name": "ここから本文です",
+      "name": "馬齢",
       "distance": 1800,
       "surface": "芝",
       "course": "右 外",
@@ -388,6 +388,6 @@
     "阪神": 1
   },
   "source": "JRA公式 accessD",
-  "parser_version": "15.13.7",
+  "parser_version": "15.13.8",
   "race_key_rule": "YYYYMMDD_venue_code_race_no"
 }
