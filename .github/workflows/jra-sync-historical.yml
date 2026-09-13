@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v15.13.6
+name: JRA Sync + Pages Deploy - Historical v15.13.7
 
 on:
   schedule:
@@ -60,7 +60,7 @@ jobs:
           import os
           import sys
 
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.6)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.7)"
           BASE = "https://www.jra.go.jp"
           ACCESS = BASE + "/JRADB/accessD.html"
           cal_url = BASE + "/JRADB/"
@@ -640,8 +640,14 @@ jobs:
               # Remove accidental leading marker symbols while preserving names.
               jockey = re.sub(r"\s+", " ", jockey).strip()
 
+              # JRAの枠番は出走頭数と馬番から一意に決まるため、
+              # HTMLの別表示領域に依存せず、ここで欠落を防止する。
+              # 1-2番=1枠、3-4番=2枠 ...、17-18番=8枠。
+              frame = min(8, (number + 1) // 2)
+
               return {
                   "number": number,
+                  "frame": frame,
                   "name": name,
                   "odds": odds,
                   "popularity": popularity,
@@ -888,7 +894,7 @@ jobs:
               "races": races,
               "venue_counts": venue_counts,
               "source": "JRA公式 accessD",
-              "parser_version": "15.13.6",
+              "parser_version": "15.13.7",
               "race_key_rule": "YYYYMMDD_venue_code_race_no",
           }
 
