@@ -137,7 +137,7 @@ jobs:
           # ------------------------------------------------------------
           # HISTORICAL RESULT MODE
           # ------------------------------------------------------------
-          # v15.13.2 policy: past dates are NOT bulk-downloaded here.
+          # v15.13.3 policy: past dates are NOT bulk-downloaded here.
           # The selected-race workflow is the only path that downloads a
           # historical result detail page. Existing legacy archives remain
           # readable, but this workflow no longer creates new 36-race result
@@ -171,7 +171,7 @@ jobs:
                       print("WROTE LIGHTWEIGHT METADATA:", out_dir / "meta.json", "RACES:", len(races))
                   except Exception as exc:
                       print("LEGACY METADATA SEED WARNING:", repr(exc))
-              print("Historical bulk result download is disabled in v15.13.2.")
+              print("Historical bulk result download is disabled in v15.13.3.")
               print("Use workflow: JRA Sync - Historical Selected Race v15.13.2")
               sys.exit(0)
 
@@ -196,10 +196,13 @@ jobs:
               re.I,
           )
 
+          # JRA race-token payload is 22 alphanumeric characters after
+          # the fixed ``pw01dde`` prefix. The stable identity layout is:
+          #   access-prefix(4) + prefix(2) + venue(2) + meet/day(4)
+          #   + race(2) + date(8) = 22 characters.
+          # The previous parser omitted the first 4 characters and therefore
+          # rejected every valid race token before the date filter.
           TOKEN_EXACT = re.compile(
-              # JRA accessD race token payload is 22 chars after pw01dde.
-              # The first 4 chars are an accessD-specific prefix; the stable
-              # race identity follows as prefix(2)+venue(2)+meet/day(4)+race(2)+date(8).
               r"^pw01dde"
               r"(?P<access_prefix>[0-9A-Za-z]{4})"
               r"(?P<prefix>[0-9A-Za-z]{2})"
