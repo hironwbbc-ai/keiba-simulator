@@ -1,4 +1,4 @@
-name: JRA Sync + Pages Deploy - Historical v15.13.4
+name: JRA Sync + Pages Deploy - Historical v15.13.6
 
 on:
   schedule:
@@ -60,7 +60,7 @@ jobs:
           import os
           import sys
 
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.4)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.6)"
           BASE = "https://www.jra.go.jp"
           ACCESS = BASE + "/JRADB/accessD.html"
           cal_url = BASE + "/JRADB/"
@@ -202,19 +202,21 @@ jobs:
               re.I,
           )
 
-          # Keep the complete 22-character accessD payload intact. Do not
-          # restrict venue/race to 01-10 / 01-12 at token-validation time:
-          # doing so was the reason the discovered 3 race tokens were all
-          # rejected even though RACE_TOKEN_RE had already matched them.
-          # Layout retained for downstream metadata:
-          #   access_prefix(4) + prefix(2) + venue(2) + meet/day(4)
-          #   + race(2) + date(8) = 22 characters.
+          # Current accessD race-token layout verified from the live JRA response:
+          #   prefix(2) + venue(2) + meeting-date(8) + race(2) + date(8)
+          # = 22 alphanumeric characters after the fixed ``pw01dde`` prefix.
+          # Example:
+          #   pw01dde0106202604041120260913/CD
+          #   -> prefix=01, venue=06 (中山), meeting-date=20260404,
+          #      race=11, date=20260913.
+          # IMPORTANT: do not split the first four digits as one access_prefix.
+          # That was the v15.13.4 bug which shifted venue=06 to venue=26
+          # and merged distinct venues into the same (venue, race) key.
           TOKEN_EXACT = re.compile(
               r"^pw01dde"
-              r"(?P<access_prefix>[0-9A-Za-z]{4})"
               r"(?P<prefix>[0-9A-Za-z]{2})"
               r"(?P<venue>[0-9]{2})"
-              r"(?P<meetday>[0-9]{4})"
+              r"(?P<meetday>[0-9]{8})"
               r"(?P<race>[0-9]{2})"
               r"(?P<date>[0-9]{8})"
               r"/(?P<hex>[0-9A-Fa-f]{2})$",
@@ -254,6 +256,16 @@ jobs:
           def is_target_race_token(t):
               m = TOKEN_EXACT.fullmatch(t)
               if not m:
+                  return False
+
+              venue_code = m.group("venue")
+              race_no = int(m.group("race"))
+              # Reject malformed identity fields only after parsing them at the
+              # verified offsets. This prevents navigation garbage from becoming
+              # a race while still accepting all current JRA central venues.
+              if venue_code not in {f"{i:02d}" for i in range(1, 11)}:
+                  return False
+              if not 1 <= race_no <= 12:
                   return False
 
               race_ymd = m.group("date")
@@ -519,6 +531,38 @@ jobs:
               mm = re.search(pattern, text, flags)
               return strip_tags(mm.group(1)) if mm else ""
 
+          class TextParser(HTMLParser):
+              """Small dependency-free HTML-to-text parser for JRA result pages."""
+
+              BLOCK_TAGS = {
+                  "address", "article", "aside", "blockquote", "br", "dd",
+                  "div", "dl", "dt", "footer", "h1", "h2", "h3", "h4",
+                  "h5", "h6", "header", "li", "main", "nav", "ol", "p",
+                  "pre", "section", "table", "td", "th", "tr", "ul",
+              }
+
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.parts = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() in self.BLOCK_TAGS:
+                      self.parts.append("\n")
+
+              def handle_startendtag(self, tag, attrs):
+                  if tag.lower() in self.BLOCK_TAGS:
+                      self.parts.append("\n")
+
+              def handle_endtag(self, tag):
+                  if tag.lower() in self.BLOCK_TAGS:
+                      self.parts.append("\n")
+
+              def handle_data(self, data):
+                  self.parts.append(data)
+
+              def text(self):
+                  return "".join(self.parts)
+
           def parse_horse_row(tr):
               # A real horse row has both horse and jockey cells.
               if not re.search(class_attr("horse"), tr, re.I):
@@ -658,7 +702,7 @@ jobs:
                   ),
                   "venue_text": meet.group(2).strip() if meet else "",
                   "meet_day": int(meet.group(3)) if meet else None,
-                  "no": int(rm.group(1)) if rm else race_no,
+                  "no": race_no if race_no else (int(rm.group(1)) if rm else 0),
                   "time": f"{int(tm.group(1)):02d}:{tm.group(2)}" if tm else "",
                   "distance": None,
                   "surface": "",
@@ -692,14 +736,16 @@ jobs:
               # line before 本賞金 is the official race title.
               meta["name"] = "レース"
               title_start = weather_idx + 1 if weather_idx is not None else 0
-              for line in body_lines[title_start:title_start + 20]:
+              for line in body_lines[title_start:title_start + 25]:
                   if not line or line in ("レース映像", "検索ウィンドウ", "本文へ移動する"):
                       continue
-                  if line.startswith(("天候", "本賞金", "コース：", "コース:")):
+                  # Skip weather/track/race-number/navigation lines.
+                  if line.startswith(("天候", "芝", "ダート", "本賞金", "コース：", "コース:")):
                       continue
-                  if re.search(r"(?:\d+レース|Image:)", line):
+                  if re.fullmatch(r"\d{1,2}レース", line) or line.startswith("Image:"):
                       continue
-                  # The official title is a short standalone line here.
+                  # The official title is the standalone race-name line,
+                  # e.g. 「第80回朝日杯セントライト記念」.
                   if len(line) <= 100:
                       meta["name"] = line
                       break
@@ -757,7 +803,17 @@ jobs:
                   if bad:
                       raise RuntimeError("品質チェックNG: " + ", ".join(bad[:8]))
 
+                  if meta["no"] != race_no:
+                      raise RuntimeError(
+                          f"レース番号不一致: token={race_no}, page={meta['no']}"
+                      )
+                  if meta["date"] != target_date_iso:
+                      raise RuntimeError(
+                          f"開催日不一致: token={target_date_iso}, page={meta['date']}"
+                      )
+
                   races.append({
+                      "race_key": f"{target_ymd}_{vcode}_{race_no:02d}",
                       "venue": venue_names.get(vcode, vcode),
                       "venue_code": vcode,
                       "meet": meta["venue_text"],
@@ -832,7 +888,8 @@ jobs:
               "races": races,
               "venue_counts": venue_counts,
               "source": "JRA公式 accessD",
-              "parser_version": "12.0",
+              "parser_version": "15.13.6",
+              "race_key_rule": "YYYYMMDD_venue_code_race_no",
           }
 
           archive_path = Path(f"data/daily/{target_ymd}.json")
@@ -881,7 +938,10 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/jra_daily.json data/jra_history.json data/daily data/history
+          git add data/jra_daily.json data/daily data/history
+          if [ -f data/jra_history.json ]; then
+            git add data/jra_history.json
+          fi
           if git diff --cached --quiet; then
             echo "No JRA data changes to commit."
           else
