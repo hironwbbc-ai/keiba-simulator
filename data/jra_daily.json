@@ -1,6 +1,6 @@
 {
   "date": "2026-09-13",
-  "updated_at": "2026-09-13T16:03:20.517605+09:00",
+  "updated_at": "2026-09-13T17:50:06.295800+09:00",
   "calendar_url": "https://www.jra.go.jp/JRADB/",
   "target_ymd": "20260913",
   "official_race_links": [
@@ -27,6 +27,7 @@
       "horses": [
         {
           "number": 1,
+          "frame": 1,
           "name": "ウェイクフィールド",
           "odds": 102.9,
           "popularity": 13,
@@ -38,6 +39,7 @@
         },
         {
           "number": 2,
+          "frame": 1,
           "name": "アウダーシア",
           "odds": 11.6,
           "popularity": 6,
@@ -49,6 +51,7 @@
         },
         {
           "number": 3,
+          "frame": 2,
           "name": "バドリナート",
           "odds": 40.5,
           "popularity": 10,
@@ -60,6 +63,7 @@
         },
         {
           "number": 4,
+          "frame": 2,
           "name": "リッツパーティー",
           "odds": 41.9,
           "popularity": 11,
@@ -71,6 +75,7 @@
         },
         {
           "number": 5,
+          "frame": 3,
           "name": "アスクエジンバラ",
           "odds": 5.0,
           "popularity": 3,
@@ -82,6 +87,7 @@
         },
         {
           "number": 6,
+          "frame": 3,
           "name": "サヴォアフェール",
           "odds": 4.7,
           "popularity": 2,
@@ -93,6 +99,7 @@
         },
         {
           "number": 7,
+          "frame": 4,
           "name": "ジャスティンシカゴ",
           "odds": 50.6,
           "popularity": 12,
@@ -104,6 +111,7 @@
         },
         {
           "number": 8,
+          "frame": 4,
           "name": "ゴーイントゥスカイ",
           "odds": 4.3,
           "popularity": 1,
@@ -115,6 +123,7 @@
         },
         {
           "number": 9,
+          "frame": 5,
           "name": "サノノグレーター",
           "odds": 7.5,
           "popularity": 5,
@@ -126,6 +135,7 @@
         },
         {
           "number": 10,
+          "frame": 5,
           "name": "バステール",
           "odds": 5.2,
           "popularity": 4,
@@ -137,6 +147,7 @@
         },
         {
           "number": 11,
+          "frame": 6,
           "name": "ミリオンクラウン",
           "odds": 117.1,
           "popularity": 14,
@@ -148,6 +159,7 @@
         },
         {
           "number": 12,
+          "frame": 6,
           "name": "ラージアンサンブル",
           "odds": 27.5,
           "popularity": 8,
@@ -159,6 +171,7 @@
         },
         {
           "number": 13,
+          "frame": 7,
           "name": "フウセン",
           "odds": 130.2,
           "popularity": 15,
@@ -170,6 +183,7 @@
         },
         {
           "number": 14,
+          "frame": 7,
           "name": "ティラーノ",
           "odds": 338.7,
           "popularity": 16,
@@ -181,6 +195,7 @@
         },
         {
           "number": 15,
+          "frame": 8,
           "name": "エリプティクカーブ",
           "odds": 32.7,
           "popularity": 9,
@@ -192,6 +207,7 @@
         },
         {
           "number": 16,
+          "frame": 8,
           "name": "ラディアントスター",
           "odds": 23.3,
           "popularity": 7,
@@ -222,6 +238,7 @@
       "horses": [
         {
           "number": 1,
+          "frame": 1,
           "name": "アンジュドジョワ",
           "odds": 11.9,
           "popularity": 5,
@@ -233,6 +250,7 @@
         },
         {
           "number": 2,
+          "frame": 1,
           "name": "エンネ",
           "odds": 5.9,
           "popularity": 3,
@@ -244,6 +262,7 @@
         },
         {
           "number": 3,
+          "frame": 2,
           "name": "スマートプリエール",
           "odds": 32.2,
           "popularity": 8,
@@ -255,6 +274,7 @@
         },
         {
           "number": 4,
+          "frame": 2,
           "name": "アンディムジーク",
           "odds": 252.5,
           "popularity": 12,
@@ -266,6 +286,7 @@
         },
         {
           "number": 5,
+          "frame": 3,
           "name": "ファストフォワード",
           "odds": 52.4,
           "popularity": 10,
@@ -277,6 +298,7 @@
         },
         {
           "number": 6,
+          "frame": 3,
           "name": "イクシード",
           "odds": 5.3,
           "popularity": 2,
@@ -288,6 +310,7 @@
         },
         {
           "number": 7,
+          "frame": 4,
           "name": "モンローウォーク",
           "odds": 1.9,
           "popularity": 1,
@@ -299,6 +322,7 @@
         },
         {
           "number": 8,
+          "frame": 4,
           "name": "ミリタリータトゥー",
           "odds": 58.9,
           "popularity": 11,
@@ -310,6 +334,7 @@
         },
         {
           "number": 9,
+          "frame": 5,
           "name": "ナムラコスモス",
           "odds": 44.0,
           "popularity": 9,
@@ -321,6 +346,7 @@
         },
         {
           "number": 10,
+          "frame": 5,
           "name": "スウィートハピネス",
           "odds": 20.0,
           "popularity": 6,
@@ -332,6 +358,7 @@
         },
         {
           "number": 11,
+          "frame": 6,
           "name": "レイクラシック",
           "odds": 24.4,
           "popularity": 7,
@@ -343,6 +370,7 @@
         },
         {
           "number": 12,
+          "frame": 6,
           "name": "タイセイボーグ",
           "odds": 9.2,
           "popularity": 4,
@@ -360,6 +388,6 @@
     "阪神": 1
   },
   "source": "JRA公式 accessD",
-  "parser_version": "15.13.6",
+  "parser_version": "15.13.7",
   "race_key_rule": "YYYYMMDD_venue_code_race_no"
 }
