@@ -15,7 +15,7 @@
 
 const $ = id => document.getElementById(id);
 
-const MODEL_VERSION = "15.13.2";
+const MODEL_VERSION = "15.13.3";
 const SIMULATIONS = 10000;
 
 const VENUES = {
@@ -88,6 +88,20 @@ async function getJSON(path){
 async function getDaily(){
   if(!state.daily) state.daily=await getJSON("./data/jra_daily.json");
   return state.daily;
+}
+
+function dataDateKey(date){
+  return historyDateKey(date);
+}
+
+function assertDailyDate(daily, requestedDate){
+  const actual=dataDateKey(daily?.date||"");
+  const requested=dataDateKey(requestedDate||"");
+  if(!requested || !actual || actual!==requested){
+    throw new Error(
+      `JRA同期データの日付が選択日と一致しません。選択日：${requestedDate||"不明"} ／ 同期データ：${daily?.date||"不明"}。最新のJRA公式同期データを取得してから再実行してください。`
+    );
+  }
 }
 
 async function getHistory(){
@@ -297,6 +311,7 @@ async function selectRace(r){
     if(r.historical) hr=await getHistoryRace(date,r.venue,Number(r.no));
     else{
       const daily=await getDaily();
+      assertDailyDate(daily,date);
       dr=(daily.races||[]).find(x=>(x.venue||codeToVenue(x.venue_code))===r.venue&&Number(x.no??x.race_number)===Number(r.no));
     }
     const source=dr?.horses?.length?dr.horses:(hr?.horses||[]);
@@ -362,7 +377,7 @@ function inferPace(horses){
   const styles=horses.map(h=>String(h.style||"")).filter(x=>x && x!=="不明");
   const escapers=styles.filter(x=>x.includes("逃げ")).length;
   const front=styles.filter(x=>x.includes("先行")).length;
-  if(!styles.length) return {label:"判定不能",escapers:0,front:0,known:0,total:horses.length};
+  if(!styles.length) return {label:"判定材料不足",escapers:0,front:0,known:0,total:horses.length};
   if(escapers>=4) return {label:"ハイ",escapers,front,known:styles.length,total:horses.length};
   if(escapers>=3) return {label:"ややハイ",escapers,front,known:styles.length,total:horses.length};
   if(escapers<=1 && front<=3) return {label:"スロー",escapers,front,known:styles.length,total:horses.length};
@@ -381,7 +396,7 @@ function rankScore(v, reverse=false){
   return m;
 }
 
-const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_13_2_pre_race";
+const LEARNING_STORAGE_KEY = "keiba_simulator_learning_v15_13_3_pre_race";
 const LEARNING_FEATURES = ["market","style","carriedWeight","bodyWeight","sexAge","frame","popularity"];
 const BACKTEST_LEARNING_FEATURES = ["style","carriedWeight","bodyWeight","sexAge","frame"];
 const BASE_COEFFICIENTS = {
@@ -528,7 +543,7 @@ function buildModel(rawHorses, options={}){
     }
     const frameFactor=h.frame==null?1:1+((4-h.frame)/100);
     const popularityFactor=popularityRaw>0 ? Math.pow(popularityRaw,.12) : 1;
-    const learning=getLearning();
+    const learning=options.learning || getLearning();
     const coeff={
       market:useMarket ? learningCoefficient("market",hasOdds,learning) : 0,
       style:learningCoefficient("style",hasOdds,learning),
@@ -561,7 +576,7 @@ function buildModel(rawHorses, options={}){
   });
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
-  const learning=getLearning();
+  const learning=options.learning || getLearning();
   const coverageInfo=coverage(rows);
   return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverageInfo.overall,coverageInfo,hasOdds,useMarket,learning,learningSummary:learningSummary(learning)};
 }
@@ -747,7 +762,10 @@ function makeBacktestRace(histRace){
 function backtestOne(histRace){
   const horses=makeBacktestRace(histRace);
   if(horses.length<2) return null;
-  const model=buildModel(horses,{useMarket:false});
+  // バックテスト予測は、ブラウザに保存された別レースの学習係数を持ち込まず、
+  // 基準係数から独立して確定する。実着順・最終人気・結果オッズ・4角位置は予測入力に使わない。
+  const backtestLearning=defaultLearning();
+  const model=buildModel(horses,{useMarket:false,learning:backtestLearning});
   const ranking=model.horses;
   const winner=horses.find(h=>Number(h.historicalFinish)===1);
   if(!winner) return null;
@@ -769,7 +787,9 @@ function backtestOne(histRace){
     favorite3:(marketRanks.get(winner.no)||999)<=3,
     favorite5:(marketRanks.get(winner.no)||999)<=5,
     marketRanks,
-    predictionSource:"pre_race_only"
+    predictionSource:"pre_race_only",
+    learningSource:"baseline_independent",
+    learningLeakageGuard:true
   };
 }
 
@@ -792,7 +812,7 @@ async function runIndividualBacktest(race){
     const winner=result.winner;
     out.innerHTML=`
       <div class="result-head"><b>📊 Ver.${MODEL_VERSION} 個別バックテスト</b><span>${esc(venue)} ${no}R</span></div>
-      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。まず発走前に確定している情報だけで予測を確定し、その後に実着順を使って学習します。最終人気・結果オッズ・着順・4角位置は予測入力から除外しています。</div>
+      <div class="note">対象日：<b>${esc(hr.date||date)}</b>。この1レースだけを評価しています。予測は基準係数で独立して確定し、ブラウザに保存された他レースの学習結果は予測へ持ち込みません。その後に実着順を使って次回以降の学習へ反映します。最終人気・結果オッズ・着順・4角位置は予測入力から除外しています。</div>
       <div class="note ${learningResult.trained?'':'warning'}">${learningResult.trained?'このバックテスト結果を学習し、次回以降の予測係数に反映しました。':'このレースは既に学習済みのため、重複学習はしていません。'}<br>学習済みレース数：<b>${learningResult.learning?.trainedRaces??getLearning().trainedRaces}</b></div>
       ${(()=>{const ls=learningSummary(learningResult.learning||getLearning()); const pct=x=>x==null?'—':`${(x*100).toFixed(1)}%`; return `<div class="note"><b>学習状況</b>：本命1着率 ${pct(ls.top1)} ／ 上位3頭率 ${pct(ls.top3)} ／ 上位5頭率 ${pct(ls.top5)} ／ 勝ち馬平均順位 ${ls.avgRank==null?'—':ls.avgRank.toFixed(2)}位</div>`;})()}
       ${(()=>{const l=learningResult.learning||getLearning(); const hasOdds=false; const rows=BACKTEST_LEARNING_FEATURES.map(f=>{const base=BASE_COEFFICIENTS[f]; const delta=Number(l.delta?.[f]||0); const cur=learningCoefficient(f,false,l); return `<tr><td>${esc(f)}</td><td>${Number(base).toFixed(3)}</td><td>${delta>=0?'+':''}${delta.toFixed(3)}</td><td>${cur.toFixed(3)}</td></tr>`;}).join(''); return `<h3>学習係数</h3><div class="small">基準係数にバックテスト学習の差分を加えています。差分は${esc(LEARNING_STORAGE_KEY)}に保存されます。</div><div class="table-wrap"><table><thead><tr><th>特徴量</th><th>基準</th><th>学習差分</th><th>現在値</th></tr></thead><tbody>${rows}</tbody></table></div>`;})()}
@@ -859,6 +879,7 @@ async function loadRaces(){
       return;
     }
     const daily=await getDaily();
+    assertDailyDate(daily,date);
     state.races=buildRaceList(daily,null);
     const venues=[...new Set(state.races.map(r=>r.venue).filter(Boolean))];
     const sel=$("venue"); if(sel)sel.innerHTML='<option value="">全開催</option>'+venues.map(v=>`<option>${esc(v)}</option>`).join("");

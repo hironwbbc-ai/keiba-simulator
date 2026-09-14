@@ -1,0 +1,17 @@
+Ver.15.13.3 verification PASS
+Source lines: 911
+Source bytes: 41023
+node --check: PASS
+version: PASS
+monte_carlo_10000: PASS
+learning_override_row: PASS
+learning_override_return: PASS
+baseline_backtest: PASS
+market_excluded: PASS
+leakage_guard: PASS
+date_guard: PASS
+pace_wording: PASS
+new_learning_key: PASS
+
+index.html: unchanged
+style.css: unchanged
