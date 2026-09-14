@@ -1,12 +1,20 @@
-競馬シミュレーター Ver.8.0
+競馬シミュレーター Ver.15.13.3 安全修正
 
-Ver.7.1の出馬表取得を強化。
-- URL入力不要
-- JRA公式URLの再試行
-- 既知URLから同開催のaccessDリンクを抽出して学習
-- JRA出馬表の現行テキスト構造に合わせた解析
+現在GitHubのVer.15.13.2 app.jsを壊さず、必要箇所だけ修正するパッチです。
 
-GitHub Pagesでは静的配信のため、JRA取得は外部取得経路（r.jina.ai）を利用しています。取得経路の仕様変更や一時的な制限で失敗する場合があります。
+変更:
+- MODEL_VERSION 15.13.3
+- buildModel が任意の learning state を受け取れるよう変更
+- 個別バックテストは localStorage の過去学習係数を予測に使わず、基準係数で独立評価
+- 予測確定後の trainFromBacktest は従来どおり実行
+- 脚質0頭時の表示を「判定材料不足」に統一
+- leakage guard 情報を結果へ追加
 
+index.html / style.css は変更不要です。
 
-Ver.8.2: GitHub Actions側でJRA公式accessDの出馬表ルートを巡回し、当日レースと馬データをdata/jra_daily.jsonへ同期。Pages側は同期JSONを利用。
+適用:
+python apply_patch.py app.js
+
+確認:
+node --check app.js
+node verify_v15_13_3.js
