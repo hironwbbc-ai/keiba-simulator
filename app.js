@@ -1,5 +1,5 @@
 /* =========================================================
-   競馬シミュレーター Ver.15.13.2
+   競馬シミュレーター Ver.15.11
    JRA公式同期JSON → 出馬表 → 予測 → Monte Carlo
    → 個別バックテスト → 学習反映
    ---------------------------------------------------------
@@ -49,7 +49,7 @@ function horseLabel(name, no=null){
   const blinker=/ブリンカー着用\s*$/.test(raw);
   const clean=raw.replace(/ブリンカー着用\s*$/,"").trim();
   const badge=blinker
-    ? ' <span style="display:inline-flex;align-items:center;justify-content:center;width:1.35em;height:1.35em;border:1px solid currentColor;border-radius:50%;font-size:.78em;font-weight:700;line-height:1;vertical-align:middle;margin-left:.25em" title="ブリンカー着用">B</span>'
+    ? ' <span class="badge-b" title="ブリンカー着用">B</span>'
     : "";
   return `${no==null?"":esc(no)+" "}${esc(clean)}${badge}`;
 }
@@ -427,7 +427,7 @@ function learningKey(histRace){
 }
 
 function learningCoefficient(feature,hasOdds,learning){
-  const base=feature==="market" ? (hasOdds?.72:1.0) : BASE_COEFFICIENTS[feature];
+  const base=feature==="market" ? (hasOdds ? .72 : 1.0) : BASE_COEFFICIENTS[feature];
   const delta=Number(learning?.delta?.[feature]||0);
   return Math.max(.01,Math.min(2.0,base+delta));
 }
@@ -562,7 +562,8 @@ function buildModel(rawHorses, options={}){
   const sum=rows.reduce((a,h)=>a+h.score,0)||1;
   rows.forEach(h=>h.prob=h.score/sum);
   const learning=getLearning();
-  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverage(rows),hasOdds,useMarket,learning,learningSummary:learningSummary(learning)};
+  const coverageInfo=coverage(rows);
+  return {horses:rows.sort((a,b)=>b.prob-a.prob),pace,dataCoverage:coverageInfo.overall,coverageInfo,hasOdds,useMarket,learning,learningSummary:learningSummary(learning)};
 }
 function median(a){
   if(!a.length) return null;
@@ -572,12 +573,16 @@ function median(a){
 }
 
 function coverage(horses){
-  const fields=["odds","popularity","bodyWeight","bodyWeightDiff","sexAge","carriedWeight","jockey","style"];
-  let have=0,total=horses.length*fields.length;
-  for(const h of horses) for(const f of fields){
-    if(h[f]!==null && h[f]!==undefined && h[f]!=="" && h[f]!=="不明") have++;
-  }
-  return total?have/total:0;
+  const all=["odds","popularity","bodyWeight","bodyWeightDiff","sexAge","carriedWeight","jockey","style"];
+  const basic=["odds","popularity","bodyWeight","bodyWeightDiff","sexAge","carriedWeight","jockey"];
+  const ratio=(fields)=>{
+    let have=0,total=horses.length*fields.length;
+    for(const h of horses) for(const f of fields){
+      if(h[f]!==null && h[f]!==undefined && h[f]!=="" && h[f]!=="不明") have++;
+    }
+    return total?have/total:0;
+  };
+  return {overall:ratio(all),basic:ratio(basic),style:ratio(["style"])};
 }
 
 /* -------------------- Monte Carlo -------------------- */
@@ -659,9 +664,10 @@ function simulate(){
     </div>
 
     <div class="stats">
-      <div><b>想定ペース</b><strong>${esc(model.pace.label)}</strong></div>
-      <div><b>逃げ候補</b><strong>${model.pace.known===0?"判定不能":model.pace.escapers+"頭"}</strong></div>
-      <div><b>データ充足率</b><strong>${(model.dataCoverage*100).toFixed(1)}%</strong></div>
+      <div><b>想定ペース</b><strong>${model.pace.known===0?"判定材料不足":esc(model.pace.label)}</strong><small>${model.pace.known}/${model.pace.total}頭の脚質データ</small></div>
+      <div><b>逃げ候補</b><strong>${model.pace.known===0?"—":model.pace.escapers+"頭"}</strong><small>${model.pace.known===0?"脚質データ未取得":"取得できた脚質から集計"}</small></div>
+      <div><b>基本データ</b><strong>${(model.coverageInfo.basic*100).toFixed(1)}%</strong><small>オッズ・斤量・馬体重等</small></div>
+      <div><b>脚質データ</b><strong>${(model.coverageInfo.style*100).toFixed(1)}%</strong><small>${model.coverageInfo.style===0?"未取得": "取得済み"}</small></div>
     </div>
 
     <div class="note warning">
@@ -706,7 +712,7 @@ function simulate(){
     <h3>モデル構成</h3>
     <div class="small">
       通常予測では発走前に取得できた市場情報を使用し、過去バックテストでは市場情報を除外します。
-      さらに脚質・ペース・斤量・馬体重・性齢・枠順を利用可能な範囲で補正します。
+      さらに脚質・ペース・斤量・馬体重・性齢・枠順を、データが存在する場合だけ補正します。
       存在しない近走・適性・騎手成績・4角位置等は推測していません。
     </div>
   `;
