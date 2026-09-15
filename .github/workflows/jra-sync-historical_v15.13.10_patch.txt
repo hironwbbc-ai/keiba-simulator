@@ -1,0 +1,74 @@
+# JRA Sync + Pages Deploy - Historical v15.13.10
+# 修正対象: .github/workflows/jra-sync-historical.yml
+#
+# 目的:
+# 1. JRAが9/19(土)の出馬表を9/17(木)に公開するため、
+#    木曜16:30 JSTにも自動同期を実行する。
+# 2. 出馬表公開前の TARGET TOKENS=0 を「コード故障」と誤認しにくい
+#    エラーにする。
+#
+# 現在のworkflowは v15.13.9。token解析部分は変更しない。
+
+--- A) schedule の変更 ---
+
+現在:
+  schedule:
+    # JST 08:00 every day. The script automatically selects the next JRA race day.
+    - cron: "0 23 * * *"
+
+変更後:
+  schedule:
+    # JST 08:00 every day. The script automatically selects the next JRA race day.
+    - cron: "0 23 * * *"
+    # JST 16:30 every Thursday: JRA's weekend race-card publication window.
+    - cron: "30 7 * * 4"
+
+--- B) target token 0件エラーの変更 ---
+
+現在（466行目付近）:
+          if len(unique) == 0:
+              raise RuntimeError(
+                  f"対象日 {target_ymd} のJRAレースtokenを1件も取得できませんでした。"
+              )
+
+変更後:
+          if len(unique) == 0:
+              if not auto_date:
+                  weekday = target_date.strftime("%A")
+                  raise RuntimeError(
+                      f"対象日 {target_ymd} のJRAレースtokenを1件も取得できませんでした。"
+                      f" 出馬表公開前の可能性があります。"
+                      f" JRA公式では通常、木曜16時過ぎに出馬表が公開され、"
+                      f"馬番号・枠番号付きの出馬表はレースによって前日10時過ぎ等に"
+                      f"公開されます。"
+                      f" 対象日={target_ymd} ({weekday})。"
+                      f" 木曜16:30以降に再実行してください。"
+                  )
+              raise RuntimeError(
+                  f"対象日 {target_ymd} のJRAレースtokenを1件も取得できませんでした。"
+              )
+
+--- C) workflow名を更新 ---
+
+現在:
+name: JRA Sync + Pages Deploy - Historical v15.13.9
+
+変更後:
+name: JRA Sync + Pages Deploy - Historical v15.13.10
+
+--- D) UA / parser version は同じ版に合わせる ---
+
+現在:
+UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.9)"
+
+変更後:
+UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.10)"
+
+現在:
+"parser_version": "15.13.9",
+
+変更後:
+"parser_version": "15.13.10",
+
+※ token discovery の RACE_TOKEN_RE / TOKEN_EXACT / BFS / max_pages=250 は変更しない。
+※ jra-sync-historical-selected.yml と jra-sync-horse-history.yml は変更しない。
