@@ -1,9 +1,11 @@
-name: JRA Sync + Pages Deploy - Historical v15.13.9
+name: JRA Sync + Pages Deploy - Historical v15.13.10
 
 on:
   schedule:
     # JST 08:00 every day. The script automatically selects the next JRA race day.
     - cron: "0 23 * * *"
+    # JST 16:30 every Thursday. JRA normally publishes the numbered race card after Thursday 16:00.
+    - cron: "30 7 * * 4"
   workflow_dispatch:
     inputs:
       race_date:
@@ -60,7 +62,7 @@ jobs:
           import os
           import sys
 
-          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.9)"
+          UA = "Mozilla/5.0 (compatible; keiba-simulator/jra-sync-15.13.10)"
           BASE = "https://www.jra.go.jp"
           ACCESS = BASE + "/JRADB/accessD.html"
           cal_url = BASE + "/JRADB/"
@@ -509,6 +511,13 @@ jobs:
               print(" ", key, token)
 
           if len(unique) == 0:
+              if not auto_date:
+                  raise RuntimeError(
+                      f"対象日 {target_ymd} のJRAレースtokenを1件も取得できませんでした。"
+                      f" 出馬表公開前の可能性があります。"
+                      f" JRA公式では通常、木曜16時過ぎに出馬表が公開されます。"
+                      f" 対象日={target_ymd}。木曜16:30以降に再実行してください。"
+                  )
               raise RuntimeError(
                   f"対象日 {target_ymd} のJRAレースtokenを1件も取得できませんでした。"
               )
@@ -1017,7 +1026,7 @@ jobs:
               "races": races,
               "venue_counts": venue_counts,
               "source": "JRA公式 accessD",
-              "parser_version": "15.13.9",
+              "parser_version": "15.13.10",
               "race_key_rule": "YYYYMMDD_venue_code_race_no",
           }
 
