@@ -1,4 +1,4 @@
-const CACHE_NAME = "keiba-v15-13-2";
+const CACHE_NAME = "keiba-v16";
 
 self.addEventListener("install", event => {
   event.waitUntil(self.skipWaiting());
