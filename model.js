@@ -23,6 +23,22 @@
     return null;
   }
 
+
+  // 直線の長さ・コーナーのきつさ・坂の有無（0=短い/急/平坦寄り, 1=長い/緩い/急坂寄り）
+  const COURSE = {
+    東京: { straight: .95, corner: .90, slope: .35 }, 中京: { straight: .70, corner: .55, slope: .80 },
+    新潟: { straight: .85, corner: .90, slope: .05 }, 京都: { straight: .55, corner: .60, slope: .30 },
+    阪神: { straight: .60, corner: .50, slope: .65 }, 中山: { straight: .30, corner: .25, slope: .90 },
+    小倉: { straight: .20, corner: .20, slope: .10 }, 福島: { straight: .20, corner: .25, slope: .15 },
+    札幌: { straight: .15, corner: .40, slope: .10 }, 函館: { straight: .15, corner: .30, slope: .15 },
+  };
+  function courseSim(a, b) {
+    if (!a || !b) return .6; if (a === b) return 1;
+    const A = COURSE[a], B = COURSE[b]; if (!A || !B) return .6;
+    const d = Math.sqrt(3 * (A.straight - B.straight) ** 2 + 2 * (A.corner - B.corner) ** 2 + 1 * (A.slope - B.slope) ** 2) / Math.sqrt(6);
+    return clamp(1 - d, .15, 1);
+  }
+
   function normRun(r) {
     const raw = String(r.distance_raw || "");
     const dist = r.distance || Number((raw.match(/\d{3,4}/) || [])[0]) || null;
@@ -30,7 +46,7 @@
     let cs = (r.corners && r.corners.length ? r.corners : [r.corner3, r.corner4]).filter(Number.isFinite);
     const fs = Number(r.field_size) || null;
     const bias = r.front3 && r.last3 ? r.last3 - r.front3 : null; // +なら前傾＝ハイペース
-    return { date: r.date, dist, surf, going: r.going || "", fs, raceName: r.race_name || r.raceName || null,
+    return { date: r.date, dist, surf, going: r.going || "", fs, raceName: r.race_name || r.raceName || null, venue: r.venue || null,
       early: cs.length && fs > 1 ? (cs[0] - 1) / (fs - 1) : null,
       score: Number(r.finish) && fs > 1 ? 1 - (Number(r.finish) - 1) / (fs - 1) : null,
       pace: paceCat(bias), kick: r.last3 && r.agari ? r.last3 - r.agari : null };
@@ -43,18 +59,23 @@
     runs.forEach((r, i) => { const lv = classLevel(r.raceName); if (lv != null) { clw += w[i]; clv += w[i] * lv; } });
     const avgClass = clw ? clv / clw : null, raceClass = classLevel(race.name);
     const classPenalty = (avgClass != null && raceClass != null) ? clamp(raceClass - avgClass, 0, 4) * .45 : 0;
-    const wmean = (f, pred, prior) => {
+    const wmean = (f, pred, prior, courseW) => {
       let sw = 0, sv = 0;
-      runs.forEach((r, i) => { const v = f(r); if (v != null && (!pred || pred(r))) { sw += w[i]; sv += w[i] * v; } });
+      runs.forEach((r, i) => {
+        const v = f(r); if (v == null || (pred && !pred(r))) return;
+        const cw = courseW ? courseW(r) : 1;
+        sw += w[i] * cw; sv += w[i] * cw * v;
+      });
       return { n: sw, mean: sw ? sv / sw : null, shrunk: (sv + K * prior) / (sw + K) };
     };
     const ability = wmean(r => r.score, null, .5).shrunk;
-    const delta = pred => wmean(r => r.score, pred, ability).shrunk - ability;
+    const delta = (pred, courseW) => wmean(r => r.score, pred, ability, courseW).shrunk - ability;
+    const courseWeight = race.surface === "芝" ? (r => courseSim(r.venue, race.venue)) : null;
     const em = wmean(r => r.early);
     const style = em.mean == null ? "不明" : em.mean < .2 ? "逃げ" : em.mean < .42 ? "先行" : em.mean < .7 ? "差し" : "追込";
     const kick = (() => { let sw = 0, sv = 0; runs.forEach((r, i) => { if (r.kick != null) { sw += w[i]; sv += w[i] * r.kick; } }); return sv / (sw + 1); })();
     const heavy = HEAVY.includes(race.going);
-    const dDist = race.distance ? delta(r => r.dist && r.surf === race.surface && Math.abs(r.dist - race.distance) <= 200) : 0;
+    const dDist = race.distance ? delta(r => r.dist && r.surf === race.surface && Math.abs(r.dist - race.distance) <= 200, courseWeight) : 0;
     const dGoing = race.going ? delta(r => r.surf === race.surface && r.going && HEAVY.includes(r.going) === heavy) : 0;
     const dSurf = delta(r => r.surf === race.surface);
     const paceDelta = {}; CATS.forEach(c => { paceDelta[c] = delta(r => r.pace === c); });

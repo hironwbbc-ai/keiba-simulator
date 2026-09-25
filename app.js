@@ -76,7 +76,7 @@ async function pickRace(k) {
 function run() {
   if (!cur?.hasHistory) return;
   const { race, entries, byNo, byName } = cur, M = KeibaModel;
-  const cond = { distance: race.distance, surface: race.surface, going: $("going").value, name: race.name };
+  const cond = { distance: race.distance, surface: race.surface, going: $("going").value, name: race.name, venue: race.venue };
   const hs = entries.map(e => ({ ...e, ...M.analyze(byNo.get(e.no) || byName.get(nn(e.name)) || [], cond) }));
   const fixed = $("pace").value || null;
   const res = M.simulate(hs, { n: 10000, fixedPace: fixed });
