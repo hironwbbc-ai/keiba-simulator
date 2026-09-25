@@ -13,6 +13,10 @@
 
   function paceCat(bias) { return bias == null ? null : bias >= 1 ? "ハイ" : bias <= -1 ? "スロー" : "平均"; }
 
+  const CLASS_RANK = [[/G ?1|GI(?!I)/, 7], [/G ?2|GII(?!I)/, 6], [/G ?3|GIII/, 5],
+    [/オープン|OP\b/, 4], [/3勝クラス|1000万/, 3], [/2勝クラス|500万/, 2], [/1勝クラス/, 1], [/未勝利|新馬/, 0]];
+  function classLevel(name) { const s = String(name || ""); for (const [re, lv] of CLASS_RANK) if (re.test(s)) return lv; return null; }
+
   function normRun(r) {
     const raw = String(r.distance_raw || "");
     const dist = r.distance || Number((raw.match(/\d{3,4}/) || [])[0]) || null;
@@ -20,7 +24,7 @@
     let cs = (r.corners && r.corners.length ? r.corners : [r.corner3, r.corner4]).filter(Number.isFinite);
     const fs = Number(r.field_size) || null;
     const bias = r.front3 && r.last3 ? r.last3 - r.front3 : null; // +なら前傾＝ハイペース
-    return { date: r.date, dist, surf, going: r.going || "", fs,
+    return { date: r.date, dist, surf, going: r.going || "", fs, raceName: r.race_name || r.raceName || null,
       early: cs.length && fs > 1 ? (cs[0] - 1) / (fs - 1) : null,
       score: Number(r.finish) && fs > 1 ? 1 - (Number(r.finish) - 1) / (fs - 1) : null,
       pace: paceCat(bias), kick: r.last3 && r.agari ? r.last3 - r.agari : null };
@@ -29,6 +33,10 @@
   function analyze(rawRuns, race) {
     const runs = (rawRuns || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).map(normRun);
     const w = runs.map((_, i) => Math.pow(.85, i));
+    let clw = 0, clv = 0;
+    runs.forEach((r, i) => { const lv = classLevel(r.raceName); if (lv != null) { clw += w[i]; clv += w[i] * lv; } });
+    const avgClass = clw ? clv / clw : null, raceClass = classLevel(race.name);
+    const classPenalty = (avgClass != null && raceClass != null) ? clamp(raceClass - avgClass, 0, 4) * .45 : 0;
     const wmean = (f, pred, prior) => {
       let sw = 0, sv = 0;
       runs.forEach((r, i) => { const v = f(r); if (v != null && (!pred || pred(r))) { sw += w[i]; sv += w[i] * v; } });
@@ -44,16 +52,17 @@
     const dGoing = race.going ? delta(r => r.surf === race.surface && r.going && HEAVY.includes(r.going) === heavy) : 0;
     const dSurf = delta(r => r.surf === race.surface);
     const paceDelta = {}; CATS.forEach(c => { paceDelta[c] = delta(r => r.pace === c); });
-    const base = 3 * (ability - .5) + 1.4 * dDist + dGoing + dSurf + .6 * clamp(kick, -1.5, 1.5);
-    return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, paceDelta, base, runs: runs.length };
+    const base = 3 * (ability - .5) + 1.4 * dDist + dGoing + dSurf + .6 * clamp(kick, -1.5, 1.5) - classPenalty;
+    return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, paceDelta, avgClass, raceClass, classPenalty, base, runs: runs.length };
   }
 
   function predictPace(hs) {
+    const N = hs.length || 1;
     const E = hs.filter(h => h.style === "逃げ").length, F = hs.filter(h => h.style === "先行").length;
-    const x = E + .4 * F;
-    let pS = clamp(.45 - .14 * (x - 1.5), .08, .7), pH = clamp(.10 + .13 * (x - 1), .06, .7);
-    let pM = 1 - pS - pH;
-    if (pM < .12) { const s = pS + pH; pS = pS / s * .88; pH = pH / s * .88; pM = .12; }
+    const share = (E + .5 * F) / N, delta = share - .25; // .25 ＝ 先行争いに絡む馬の標準的な割合
+    let pH = clamp(.15 + .9 * delta, .06, .55), pS = clamp(.45 - .9 * delta, .08, .6);
+    let pM = 1 - pH - pS;
+    if (pM < .1) { const s = pH + pS; pH = pH / s * .9; pS = pS / s * .9; pM = .1; }
     return { ハイ: pH, 平均: pM, スロー: pS, E, F };
   }
 

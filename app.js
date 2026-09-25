@@ -76,7 +76,7 @@ async function pickRace(k) {
 function run() {
   if (!cur?.hasHistory) return;
   const { race, entries, byNo, byName } = cur, M = KeibaModel;
-  const cond = { distance: race.distance, surface: race.surface, going: $("going").value };
+  const cond = { distance: race.distance, surface: race.surface, going: $("going").value, name: race.name };
   const hs = entries.map(e => ({ ...e, ...M.analyze(byNo.get(e.no) || byName.get(nn(e.name)) || [], cond) }));
   const fixed = $("pace").value || null;
   const res = M.simulate(hs, { n: 10000, fixedPace: fixed });
@@ -100,7 +100,8 @@ function run() {
       <div class="tags"><span class="tag">${h.style}</span>${ev ? `<span class="tag ${ev >= 1 ? "hot" : ""}">オッズ${h.odds} 期待値${ev.toFixed(2)}</span>` : ""}${h.finish ? `<span class="tag">実際${h.finish}着</span>` : ""}</div>
       <details><summary>根拠</summary><p>過去走 ${h.runs}走／平均の序盤位置 ${h.earlyMean == null ? "不明" : (h.earlyMean * 100).toFixed(0) + "%（0=先頭）"}／能力 ${(h.ability * 100).toFixed(0)}<br>
       距離適性 ${sg(h.dDist)}・馬場適性 ${sg(h.dGoing)}・上がり ${h.kick >= 0 ? "+" : ""}${h.kick.toFixed(2)}秒<br>
-      ペース別 ハイ${sg(h.paceDelta.ハイ)} 平均${sg(h.paceDelta.平均)} スロー${sg(h.paceDelta.スロー)}</p></details></article>`;
+      ペース別 ハイ${sg(h.paceDelta.ハイ)} 平均${sg(h.paceDelta.平均)} スロー${sg(h.paceDelta.スロー)}
+      ${h.classPenalty ? `<br>格上挑戦の割引 −${h.classPenalty.toFixed(2)}（過去の主戦クラス目安 ${h.avgClass?.toFixed(1)} → 今回 ${h.raceClass}）` : ""}</p></details></article>`;
   }).join("");
   $("out").hidden = false; $("out").scrollIntoView({ behavior: "smooth" });
 }
