@@ -79,7 +79,9 @@
     const dGoing = race.going ? delta(r => r.surf === race.surface && r.going && HEAVY.includes(r.going) === heavy) : 0;
     const dSurf = delta(r => r.surf === race.surface);
     const paceDelta = {}; CATS.forEach(c => { paceDelta[c] = delta(r => r.pace === c); });
-    const base = 3 * (ability - .5) + 1.4 * dDist + dGoing + dSurf + .6 * clamp(kick, -1.5, 1.5) - classPenalty;
+    // 逃げ馬は前半で脚を使うため「上がりの脚」の数値上は不利に出やすく、この指標を弱めに扱う
+    const kickW = style === "逃げ" ? .25 : .6;
+    const base = 3 * (ability - .5) + 1.4 * dDist + dGoing + dSurf + kickW * clamp(kick, -1.5, 1.5) - classPenalty;
     return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, paceDelta, avgClass, raceClass, classPenalty, base, runs: runs.length };
   }
 
