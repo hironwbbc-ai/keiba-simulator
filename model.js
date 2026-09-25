@@ -58,7 +58,7 @@
     let clw = 0, clv = 0;
     runs.forEach((r, i) => { const lv = classLevel(r.raceName); if (lv != null) { clw += w[i]; clv += w[i] * lv; } });
     const avgClass = clw ? clv / clw : null, raceClass = classLevel(race.name);
-    const classPenalty = (avgClass != null && raceClass != null) ? clamp(raceClass - avgClass, 0, 4) * .45 : 0;
+    const classPenalty = (avgClass != null && raceClass != null) ? clamp(raceClass - avgClass, 0, 4) * .12 : 0;
     const wmean = (f, pred, prior, courseW) => {
       let sw = 0, sv = 0;
       runs.forEach((r, i) => {
