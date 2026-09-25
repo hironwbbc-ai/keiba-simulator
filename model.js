@@ -15,7 +15,13 @@
 
   const CLASS_RANK = [[/G ?1|GI(?!I)/, 7], [/G ?2|GII(?!I)/, 6], [/G ?3|GIII/, 5],
     [/オープン|OP\b/, 4], [/3勝クラス|1000万/, 3], [/2勝クラス|500万/, 2], [/1勝クラス/, 1], [/未勝利|新馬/, 0]];
-  function classLevel(name) { const s = String(name || ""); for (const [re, lv] of CLASS_RANK) if (re.test(s)) return lv; return null; }
+  function classLevel(name) {
+    const s = String(name || "");
+    for (const [re, lv] of CLASS_RANK) if (re.test(s)) return lv;
+    // 条件戦の言い回しが無い固有名のレース（重賞・OP特別など）はオープン級以上とみなす
+    if (/[ぁ-んァ-ヶー一-龥]{3,}/.test(s) && !/未勝利|新馬|勝クラス|万下/.test(s)) return 4;
+    return null;
+  }
 
   function normRun(r) {
     const raw = String(r.distance_raw || "");
