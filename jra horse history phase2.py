@@ -3,16 +3,20 @@
 # v16: selected-race mode. Collects past runs (corners, agari, laps) for ONE race's horses.
 # IMPORTANT: all historical features are filtered to races strictly BEFORE target date.
 from __future__ import annotations
-import argparse, datetime as dt, html as htmlmod, json, re, sys, time, urllib.parse, urllib.request
+import argparse, datetime as dt, html as htmlmod, http.cookiejar, json, re, sys, time, urllib.parse, urllib.request
 from pathlib import Path
 
 BASE = "https://www.jra.go.jp"
+ACCESS_S = BASE + "/JRADB/accessS.html"
 UA = "keiba-simulator/15.0 (+https://github.com/hironwbbc-ai/keiba-simulator)"
 VENUES = {"01":"札幌","02":"函館","03":"福島","04":"新潟","05":"東京","06":"中山","07":"中京","08":"京都","09":"阪神","10":"小倉"}
 
+_cj = http.cookiejar.CookieJar()
+_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(_cj))
+
 def fetch(url, timeout=25):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ja,en;q=0.8"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with _opener.open(req, timeout=timeout) as r:
         raw = r.read()
     for enc in ("cp932", "shift_jis", "utf-8"):
         try:
@@ -22,6 +26,42 @@ def fetch(url, timeout=25):
         except UnicodeDecodeError:
             pass
     return raw.decode("cp932", "replace")
+
+def _decode_jra(raw):
+    for enc in ("cp932", "shift_jis", "utf-8"):
+        try:
+            text = raw.decode(enc)
+            if "<html" in text.lower() or "JRADB" in text:
+                return text
+        except UnicodeDecodeError:
+            pass
+    return raw.decode("cp932", "replace")
+
+def _post_s(token, referer=None):
+    data = urllib.parse.urlencode({"cname": token}).encode("ascii")
+    headers = {"User-Agent": UA, "Accept-Language": "ja,en;q=0.8", "Referer": referer or BASE}
+    req = urllib.request.Request(ACCESS_S, data=data, headers=headers, method="POST")
+    with _opener.open(req, timeout=25) as r:
+        return _decode_jra(r.read())
+
+def fetch_result_page(url, timeout=25):
+    """Fetch an accessS.html result page. A plain GET with CNAME in the query
+    string sometimes returns a パラメータエラー page without a prior POST /
+    session context, so POST first (matching the proven historical-selected
+    flow) and fall back to a normal GET if that still errors."""
+    parsed = urllib.parse.urlparse(url)
+    qs = urllib.parse.parse_qs(parsed.query)
+    token = qs.get("CNAME", [None])[0]
+    if token:
+        try:
+            raw = _post_s(urllib.parse.unquote(token), BASE)
+            title_match = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
+            title = strip_tags(title_match.group(1)) if title_match else ""
+            if "パラメータエラー" not in title and title != "エラー":
+                return raw
+        except Exception:
+            pass
+    return fetch(url, timeout=timeout)
 
 def strip_tags(s):
     s = re.sub(r"<br\s*/?>", "\n", s, flags=re.I)
@@ -128,15 +168,14 @@ def find_result_row(result_html, horse_token, horse_name=None):
             return tr
     # Fallback: the token format can differ between an entry/odds page and a
     # past result page (same horse, different context), so match by name too.
+    # This is intentionally lenient (plain-text containment, tags stripped)
+    # since we cannot verify the exact real-world markup from this environment.
     if horse_name:
         target = norm_name(horse_name)
         if target:
             for tr in re.findall(r"<tr\b[^>]*>.*?</tr>", result_html, re.I | re.S):
-                a = re.search(
-                    r'<a[^>]*href\s*=\s*["\'][^"\']*accessU\.html\?CNAME=[^"\']+["\'][^>]*>(.*?)</a>',
-                    tr, re.I | re.S,
-                )
-                if a and norm_name(a.group(1)) == target:
+                row_text = norm_name(strip_tags(tr))
+                if target and target in row_text:
                     return tr
     return None
 
@@ -258,7 +297,7 @@ def main():
                 if not ru: continue
                 try:
                     if ru not in cache:
-                        cache[ru] = fetch(ru); time.sleep(args.sleep)
+                        cache[ru] = fetch_result_page(ru); time.sleep(args.sleep)
                     rh = cache[ru]
                     rn = extract_horse_number(rh, tok, info["horse_name"])
                     run["horse_number"] = rn
