@@ -71,6 +71,9 @@
     const ability = wmean(r => r.score, null, .5).shrunk;
     const delta = (pred, courseW) => wmean(r => r.score, pred, ability, courseW).shrunk - ability;
     const courseWeight = race.surface === "芝" ? (r => courseSim(r.venue, race.venue)) : null;
+    // 展開に逆らって好走した実績（ハイペースの逃げ・スローペースの差し）を上乗せ評価
+    const paceAdverse = r => r.pace && r.early != null && ((r.pace === "ハイ" && r.early <= .2) || (r.pace === "スロー" && r.early >= .7));
+    const dDefy = delta(paceAdverse);
     const em = wmean(r => r.early);
     const style = em.mean == null ? "不明" : em.mean < .2 ? "逃げ" : em.mean < .42 ? "先行" : em.mean < .7 ? "差し" : "追込";
     const kick = (() => { let sw = 0, sv = 0; runs.forEach((r, i) => { if (r.kick != null) { sw += w[i]; sv += w[i] * r.kick; } }); return sv / (sw + 1); })();
@@ -81,8 +84,10 @@
     const paceDelta = {}; CATS.forEach(c => { paceDelta[c] = delta(r => r.pace === c); });
     // 逃げ馬は前半で脚を使うため「上がりの脚」の数値上は不利に出やすく、この指標を弱めに扱う
     const kickW = style === "逃げ" ? .25 : .6;
-    const base = 3 * (ability - .5) + 1.4 * dDist + dGoing + dSurf + kickW * clamp(kick, -1.5, 1.5) - classPenalty;
-    return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, paceDelta, avgClass, raceClass, classPenalty, base, runs: runs.length };
+    // 出走数が少ない馬（特に1〜3走）は、得意不得意の判定自体の信頼度を下げる
+    const reliability = clamp(runs.length / 5, .3, 1);
+    const base = 3 * (ability - .5) + reliability * (1.4 * dDist + dGoing + dSurf + kickW * clamp(kick, -1.5, 1.5) + .9 * dDefy) - classPenalty;
+    return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, dDefy, paceDelta, avgClass, raceClass, classPenalty, reliability, base, runs: runs.length };
   }
 
   function predictPace(hs) {
@@ -100,8 +105,8 @@
   function simulate(hs, opt) {
     const { n = 10000, sigma = .9, fixedPace = null } = opt || {};
     const pp = predictPace(hs), N = hs.length;
-    const adj = hs.map(h => { const o = {}; CATS.forEach(c => {
-      o[c] = PRIOR[h.style][c] + 1.5 * h.paceDelta[c] + (h.style === "逃げ" && pp.E === 1 && c !== "ハイ" ? .25 : 0); }); return o; });
+    const adj = hs.map(h => { const rel = h.reliability ?? 1; const o = {}; CATS.forEach(c => {
+      o[c] = PRIOR[h.style][c] + 1.5 * rel * h.paceDelta[c] + (h.style === "逃げ" && pp.E === 1 && c !== "ハイ" ? .25 : 0); }); return o; });
     const win = Array(N).fill(0), top2 = Array(N).fill(0), top3 = Array(N).fill(0);
     const paceCount = { ハイ: 0, 平均: 0, スロー: 0 };
     for (let s = 0; s < n; s++) {

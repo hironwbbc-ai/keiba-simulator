@@ -99,7 +99,7 @@ function run() {
       <div class="bar"><i style="width:${h.win / maxW * 100}%"></i></div>
       <div class="tags"><span class="tag">${h.style}</span>${ev ? `<span class="tag ${ev >= 1 ? "hot" : ""}">オッズ${h.odds} 期待値${ev.toFixed(2)}</span>` : ""}${h.finish ? `<span class="tag">実際${h.finish}着</span>` : ""}</div>
       <details><summary>根拠</summary><p>過去走 ${h.runs}走／平均の序盤位置 ${h.earlyMean == null ? "不明" : (h.earlyMean * 100).toFixed(0) + "%（0=先頭）"}／能力 ${(h.ability * 100).toFixed(0)}<br>
-      距離適性 ${sg(h.dDist)}・馬場適性 ${sg(h.dGoing)}・上がり ${h.kick >= 0 ? "+" : ""}${h.kick.toFixed(2)}秒<br>
+      距離適性 ${sg(h.dDist)}・馬場適性 ${sg(h.dGoing)}・上がり ${h.kick >= 0 ? "+" : ""}${h.kick.toFixed(2)}秒${h.dDefy ? `・展開に逆らった好走 +${sg(h.dDefy)}` : ""}<br>
       ペース別 ハイ${sg(h.paceDelta.ハイ)} 平均${sg(h.paceDelta.平均)} スロー${sg(h.paceDelta.スロー)}
       ${h.classPenalty ? `<br>格上挑戦の割引 −${h.classPenalty.toFixed(2)}（過去の主戦クラス目安 ${h.avgClass?.toFixed(1)} → 今回 ${h.raceClass}）` : ""}</p></details></article>`;
   }).join("");
