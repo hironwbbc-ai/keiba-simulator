@@ -86,7 +86,7 @@
     const kickW = style === "逃げ" ? .25 : .6;
     // 出走数が少ない馬（特に1〜3走）は、得意不得意の判定自体の信頼度を下げる
     const reliability = clamp(runs.length / 5, .3, 1);
-    const base = 3 * (ability - .5) + reliability * (1.4 * dDist + dGoing + dSurf + kickW * clamp(kick, -1.5, 1.5) + .9 * dDefy) - classPenalty;
+    const base = 3 * (ability - .5) + reliability * (1.4 * dDist + dGoing + dSurf + kickW * clamp(kick, -.7, .7) + .9 * dDefy) - classPenalty;
     return { style, earlyMean: em.mean, ability, dDist, dGoing, dSurf, kick, dDefy, paceDelta, avgClass, raceClass, classPenalty, reliability, base, runs: runs.length };
   }
 
