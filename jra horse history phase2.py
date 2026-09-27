@@ -18,14 +18,7 @@ def fetch(url, timeout=25):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ja,en;q=0.8"})
     with _opener.open(req, timeout=timeout) as r:
         raw = r.read()
-    for enc in ("cp932", "shift_jis", "utf-8"):
-        try:
-            s = raw.decode(enc)
-            if "<html" in s.lower() or "JRADB" in s:
-                return s
-        except UnicodeDecodeError:
-            pass
-    return raw.decode("cp932", "replace")
+    return _decode_jra(raw)
 
 def _decode_jra(raw):
     for enc in ("cp932", "shift_jis", "utf-8"):
@@ -37,24 +30,128 @@ def _decode_jra(raw):
             pass
     return raw.decode("cp932", "replace")
 
+def _request_bytes(url, method="GET", data=None, referer=None):
+    headers = {
+        "User-Agent": UA, "Accept-Language": "ja,en;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
+    if referer:
+        headers["Referer"] = referer
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    with _opener.open(req, timeout=25) as r:
+        return r.read()
+
 def _post_s(token, referer=None):
     data = urllib.parse.urlencode({"cname": token}).encode("ascii")
-    headers = {"User-Agent": UA, "Accept-Language": "ja,en;q=0.8", "Referer": referer or BASE}
-    req = urllib.request.Request(ACCESS_S, data=data, headers=headers, method="POST")
-    with _opener.open(req, timeout=25) as r:
-        return _decode_jra(r.read())
+    return _decode_jra(_request_bytes(ACCESS_S, "POST", data, referer or BASE))
+
+def _get_s(token, referer=None):
+    url = ACCESS_S + "?CNAME=" + urllib.parse.quote(token, safe="")
+    return _decode_jra(_request_bytes(url, "GET", None, referer or BASE))
+
+def _clean_token(value):
+    value = htmlmod.unescape(value)
+    value = urllib.parse.unquote(value)
+    return value.strip().rstrip(",;")
+
+_ACTION_TOKEN_RE = re.compile(
+    r"doAction\s*\(\s*['\"](?:/JRADB/)?accessS\.html['\"]\s*,\s*['\"]?"
+    r"(pw01(?:srl|sde)[^'\")\s<>&]+)['\"]?", re.I)
+_GENERIC_TOKEN_RE = re.compile(r"(pw01(?:srl|sde)[^\s'\"<>]+/[0-9A-Fa-f]{2})", re.I)
+HIST_TOKEN_RE = re.compile(
+    r"^pw01sde(?P<prefix>[0-9A-Za-z]{2})(?P<venue>[0-9]{2})"
+    r"(?P<year>[0-9]{4})(?P<meet>[0-9]{2})(?P<day>[0-9]{2})"
+    r"(?P<race>[0-9]{2})(?P<date>[0-9]{8})/(?P<hex>[0-9A-Fa-f]{2})$", re.I)
+
+def _extract_objparam(text):
+    pairs = re.findall(r'objParam\s*\[\s*["\'](\d{4})["\']\s*\]\s*=\s*["\']([0-9A-Fa-f]{2})["\']', text, re.I)
+    return {k.upper(): v.upper() for k, v in pairs}
+
+def _extract_link_attributes(text):
+    return [m.group(2) for m in re.finditer(r"(?:href|onclick)\s*=\s*(['\"])(.*?)\1", text, re.I | re.S)]
+
+def _find_tokens(text, prefix):
+    text = htmlmod.unescape(text)
+    found = set()
+    for value in _ACTION_TOKEN_RE.findall(text):
+        value = _clean_token(value)
+        if value.lower().startswith(prefix.lower()):
+            found.add(value)
+    for value in _GENERIC_TOKEN_RE.findall(text):
+        value = _clean_token(value)
+        if value.lower().startswith(prefix.lower()):
+            found.add(value)
+    if prefix.lower() == "pw01srl":
+        for attr in _extract_link_attributes(text):
+            attr = urllib.parse.unquote(htmlmod.unescape(attr))
+            for m in re.finditer(r"(pw01srl[^'\"<>\s,;)]+)", attr, re.I):
+                found.add(_clean_token(m.group(1)))
+    return found
+
+_HIST_ENTRY = "pw01skl00999999/B3"
+_month_checkdigit_cache = {}   # ym(YYYYMM) -> check digit
+_month_sde_cache = {}          # ym(YYYYMM) -> set of pw01sde tokens for the WHOLE month
+
+def _ensure_month_checkdigits():
+    if _month_checkdigit_cache:
+        return
+    selector = _post_s(_HIST_ENTRY, BASE)
+    _month_checkdigit_cache.update(_extract_objparam(selector))
+
+def _ensure_month_sde_tokens(ym):
+    """Warm up the session by walking JRA's own navigation chain
+    (month selector -> day selector -> race results) for this year-month,
+    exactly like the proven historical-race fetch flow. A cold, isolated
+    request to a specific race's CNAME can otherwise return an unrelated
+    (stale/cached) race, since this endpoint appears to depend on having
+    arrived via that chain rather than the CNAME alone."""
+    if ym in _month_sde_cache:
+        return _month_sde_cache[ym]
+    _ensure_month_checkdigits()
+    check_digit = _month_checkdigit_cache.get(ym[2:].upper()) or _month_checkdigit_cache.get(ym.upper())
+    if not check_digit:
+        _month_sde_cache[ym] = set()
+        return _month_sde_cache[ym]
+    rsl_tokens = set()
+    for candidate in (f"pw01skl10{ym}/{check_digit}", f"pw01skl00{ym}/{check_digit}"):
+        for method in ("POST", "GET"):
+            try:
+                page = _post_s(candidate, ACCESS_S) if method == "POST" else _get_s(candidate, ACCESS_S)
+                found = _find_tokens(page, "pw01srl")
+                if found:
+                    rsl_tokens = found
+                    break
+            except Exception:
+                pass
+        if rsl_tokens:
+            break
+    sde_tokens = set()
+    for token in sorted(rsl_tokens):
+        try:
+            page = _post_s(token, ACCESS_S)
+            sde_tokens.update(_find_tokens(page, "pw01sde"))
+        except Exception:
+            pass
+    _month_sde_cache[ym] = sde_tokens
+    return sde_tokens
 
 def fetch_result_page(url, timeout=25):
-    """Fetch an accessS.html result page. A plain GET with CNAME in the query
-    string sometimes returns a パラメータエラー page without a prior POST /
-    session context, so POST first (matching the proven historical-selected
-    flow) and fall back to a normal GET if that still errors."""
+    """Fetch an accessS.html result page reliably. Warms up the session via
+    the same month/day navigation chain used by the proven historical-race
+    fetch, then fetches this specific race in that same session."""
     parsed = urllib.parse.urlparse(url)
     qs = urllib.parse.parse_qs(parsed.query)
     token = qs.get("CNAME", [None])[0]
     if token:
+        token = urllib.parse.unquote(token)
+        m = HIST_TOKEN_RE.fullmatch(token)
+        if m:
+            try:
+                _ensure_month_sde_tokens(m.group("date")[:6])
+            except Exception:
+                pass
         try:
-            raw = _post_s(urllib.parse.unquote(token), BASE)
+            raw = _post_s(token, ACCESS_S)
             title_match = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
             title = strip_tags(title_match.group(1)) if title_match else ""
             if "パラメータエラー" not in title and title != "エラー":
