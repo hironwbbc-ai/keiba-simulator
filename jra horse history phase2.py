@@ -310,10 +310,50 @@ def to_float(s):
     try: return float(re.search(r"\d+(?:\.\d+)?", s).group())
     except Exception: return None
 
-def parse_result_page(html, horse_token, horse_no, horse_name=None):
-    """Extract this horse's corner ranks / agari and the race's lap times from a JRA result page."""
+def _split_corner_digits(raw, field_size=18):
+    """コーナー通過順位のセルは '6 6' のように空白区切りだが、取得経路によっては
+    空白が消えて '66' や '1413' のように連結されることがある。1〜field_sizeの
+    範囲で有効な2つの整数に分割できる切れ目を探す（曖昧な場合は2桁優先）。"""
+    raw = re.sub(r"[^\d]", "", raw or "")
+    if not raw:
+        return []
+    if " " in (raw or ""):
+        pass
+    for cut in (len(raw) // 2, 1, 2, 3):
+        if 0 < cut < len(raw):
+            a, b = raw[:cut], raw[cut:]
+            if a.isdigit() and b.isdigit() and 1 <= int(a) <= field_size and 1 <= int(b) <= field_size:
+                return [int(a), int(b)]
+    return []
+
+def _cells_from(html_slice):
+    return [strip_tags(c) for c in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", html_slice, re.I | re.S)]
+
+def find_row_position(result_html, horse_token, horse_name=None):
+    """馬名リンク（accessU.html?CNAME=...）の出現位置を返す。トークンでの一致を
+    優先し、見つからなければ馬名の文字列一致にフォールバックする。"""
+    needle = re.escape(urllib.parse.unquote(horse_token))
+    anchor_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]*""" + needle, re.I)
+    m = anchor_re.search(result_html)
+    if m:
+        return m.start()
+    if horse_name:
+        target = norm_name(horse_name)
+        if target:
+            link_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]+["'][^>]*>(.*?)</a>""", re.I | re.S)
+            for m in link_re.finditer(result_html):
+                if norm_name(strip_tags(m.group(1))) == target:
+                    return m.start()
+    return None
+
+def parse_result_page(html, horse_token, horse_no=None, horse_name=None, field_size=18):
+    """このレース結果ページから、対象馬の行にある通過順位・上がり・馬番と、
+    レース全体のラップ・距離・馬場状態を抜き出す。列の並びは
+    [馬名 | 性齢 | 負担重量 | 騎手 | タイム | 着差 | コーナー通過順位 | 推定上り | 馬体重 | ...]
+    という固定順であることを前提に、馬名リンクの位置を基準に相対位置で読む。"""
     text = strip_tags(html)
     out = {}
+
     m = re.search(r"ハロンタイム[^0-9]{0,20}((?:\d{1,2}\.\d\s*[-－−]?\s*)+)", text)
     laps = [float(x) for x in re.findall(r"\d{1,2}\.\d", m.group(1))] if m else []
     if len(laps) >= 5:
@@ -323,28 +363,57 @@ def parse_result_page(html, horse_token, horse_no, horse_name=None):
     else:
         m3 = re.search(r"3F\s*(\d{2}\.\d)", text)
         if m3: out["last3"] = float(m3.group(1))
+
     dm = re.search(r"コース[:：]\s*([\d,]+)メートル（(芝|ダート)", text)
     if dm:
         out["distance"] = int(dm.group(1).replace(",", "")); out["surface"] = dm.group(2)
     gm = re.search(r"(?:芝|ダート)\s*(不良|稍重|重|良)(?!\S*メートル)", text)
     if gm: out["going"] = gm.group(1)
-    corners = []
-    for n in (1, 2, 3, 4):
-        cm = re.search(r"(?<!\d)%dコーナー\s*([0-9,()\-=*]+)" % n, text)
-        if cm and horse_no:
-            pos = corner_position_for_horse(cm.group(1), horse_no)
-            if pos: corners.append(pos)
-    if corners:
-        out["corners"] = corners
-        if len(corners) >= 2: out["corner3"], out["corner4"] = corners[-2], corners[-1]
-        out["cornerRaw"] = ""
-    tr = find_result_row(html, horse_token, horse_name)
-    if tr:
-        vals = [strip_tags(c) for c in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", tr, re.I | re.S)]
-        if len(vals) > 10 and re.fullmatch(r"\d{2}\.\d", vals[10].strip()):
-            out["agari"] = float(vals[10])
-    return out
 
+    fs_m = re.search(r"頭数\D{0,4}(\d{1,2})頭", text)
+    fs = int(fs_m.group(1)) if fs_m else field_size
+
+    pos = find_row_position(html, horse_token, horse_name)
+    if pos is not None:
+        window = html[max(0, pos - 400):pos + 2200]
+        cells = _cells_from(window)
+        anchor = None
+        target_name = norm_name(horse_name) if horse_name else None
+        for i, c in enumerate(cells):
+            has_link = bool(re.search(r"accessU\.html\?CNAME=", window))
+            if target_name and norm_name(c) == target_name:
+                anchor = i; break
+        if anchor is None:
+            # 馬名で厳密一致できない場合、リンクを含むセルを馬名セルとみなす
+            rel_link_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]*["'][^>]*>.*?</a>""", re.I | re.S)
+            rel_links = list(rel_link_re.finditer(window))
+            if rel_links:
+                before_cells = _cells_from(window[:rel_links[0].start()])
+                anchor = len(before_cells)
+                cells = _cells_from(window)
+        if anchor is not None:
+            def cell(offset):
+                i = anchor + offset
+                return cells[i] if 0 <= i < len(cells) else None
+            no_cell = cell(-1)
+            if no_cell and re.fullmatch(r"\d{1,2}", no_cell.strip()):
+                out.setdefault("horse_number", int(no_cell.strip()))
+            corner_cell = cell(6)
+            if corner_cell:
+                nums = _split_corner_digits(corner_cell, fs)
+                if nums:
+                    out["corners"] = nums
+                    out["corner3"], out["corner4"] = nums[0], nums[-1]
+                    out["cornerRaw"] = corner_cell.strip()
+            agari_cell = cell(7)
+            if agari_cell and re.fullmatch(r"\d{2}\.\d", agari_cell.strip()):
+                out["agari"] = float(agari_cell.strip())
+
+    if out.get("horse_number") is None and horse_no:
+        out["horse_number"] = horse_no
+    if out.get("distance") is None:
+        out.pop("distance", None); out.pop("surface", None)
+    return out
 def dist_surface(raw):
     m = re.search(r"(\d{3,4})", raw or "")
     s = "ダート" if (raw or "").startswith("ダ") else "芝" if (raw or "").startswith("芝") else ""
@@ -396,10 +465,7 @@ def main():
                     if ru not in cache:
                         cache[ru] = fetch_result_page(ru); time.sleep(args.sleep)
                     rh = cache[ru]
-                    rn = extract_horse_number(rh, tok, info["horse_name"])
-                    run["horse_number"] = rn
-                    extra = parse_result_page(rh, tok, rn, info["horse_name"])
-                    if extra.get("distance") is None: extra.pop("distance", None); extra.pop("surface", None)
+                    extra = parse_result_page(rh, tok, horse_name=info["horse_name"])
                     run.update(extra)
                 except Exception as e:
                     run["parse_error"] = repr(e)
