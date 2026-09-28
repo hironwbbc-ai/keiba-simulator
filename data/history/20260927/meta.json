@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-27",
+  "updated_at": "2026-09-28T16:38:30.535121+09:00",
+  "target_ymd": "20260927",
+  "source": "JRA公式 過去レース・軽量メタデータ",
+  "mode": "historical_metadata",
+  "races": [
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "meet": "",
+      "meet_day": null,
+      "no": 11,
+      "date": "2026-09-27",
+      "time": "",
+      "name": "",
+      "distance": null,
+      "surface": "",
+      "course": "",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604091120260927%2FF5",
+      "token": "pw01sde1006202604091120260927/F5"
+    }
+  ],
+  "race_count": 1,
+  "parser_version": "15.13.2-lightweight-metadata"
+}
