@@ -330,20 +330,32 @@ def _cells_from(html_slice):
     return [strip_tags(c) for c in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", html_slice, re.I | re.S)]
 
 def find_row_position(result_html, horse_token, horse_name=None):
-    """馬名リンク（accessU.html?CNAME=...）の出現位置を返す。トークンでの一致を
-    優先し、見つからなければ馬名の文字列一致にフォールバックする。"""
-    needle = re.escape(urllib.parse.unquote(horse_token))
-    anchor_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]*""" + needle, re.I)
-    m = anchor_re.search(result_html)
-    if m:
-        return m.start()
+    """対象馬の行の開始位置を返す。JRAのページはリンクが href ではなく
+    JavaScript(doAction等)で組まれていることがあるため、リンクの形に
+    依存せず、まずトークン文字列そのもの、次に馬名の文字列そのものを
+    ページ本文から素朴に探す（タグの形を仮定しない、最も壊れにくい方法）。"""
+    token_plain = urllib.parse.unquote(horse_token)
+    for needle in (horse_token, token_plain):
+        if needle:
+            idx = result_html.find(needle)
+            if idx != -1:
+                return idx
     if horse_name:
+        raw_name = horse_name.strip()
+        if raw_name:
+            idx = result_html.find(raw_name)
+            if idx != -1:
+                return idx
+        # 表記ゆれ対策：正規化した名前で、タグ抜きテキストに対して探す
         target = norm_name(horse_name)
         if target:
-            link_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]+["'][^>]*>(.*?)</a>""", re.I | re.S)
-            for m in link_re.finditer(result_html):
-                if norm_name(strip_tags(m.group(1))) == target:
-                    return m.start()
+            stripped = strip_tags(result_html)
+            norm_stripped = re.sub(r"\s+", "", stripped)
+            pos = norm_stripped.find(target)
+            if pos != -1:
+                # 正規化後の位置から、元のHTML側のだいたいの位置に戻す
+                ratio = pos / max(1, len(norm_stripped))
+                return int(len(result_html) * ratio)
     return None
 
 def parse_result_page(html, horse_token, horse_no=None, horse_name=None, field_size=18):
@@ -379,18 +391,25 @@ def parse_result_page(html, horse_token, horse_no=None, horse_name=None, field_s
         cells = _cells_from(window)
         anchor = None
         target_name = norm_name(horse_name) if horse_name else None
-        for i, c in enumerate(cells):
-            has_link = bool(re.search(r"accessU\.html\?CNAME=", window))
-            if target_name and norm_name(c) == target_name:
-                anchor = i; break
+        if target_name:
+            for i, c in enumerate(cells):
+                nc = norm_name(c)
+                if nc == target_name or (nc and (target_name in nc or nc in target_name)):
+                    anchor = i; break
         if anchor is None:
-            # 馬名で厳密一致できない場合、リンクを含むセルを馬名セルとみなす
+            # 名前で辿れない場合、リンク（href形式）を含むセルを馬名セルとみなす
             rel_link_re = re.compile(r"""<a[^>]*accessU\.html\?CNAME=[^"'>]*["'][^>]*>.*?</a>""", re.I | re.S)
             rel_links = list(rel_link_re.finditer(window))
             if rel_links:
                 before_cells = _cells_from(window[:rel_links[0].start()])
                 anchor = len(before_cells)
                 cells = _cells_from(window)
+        if anchor is None and cells:
+            # 最後の手段：位置探索で当たったセル自体を馬名セルとみなす
+            probe = strip_tags(html[max(0, pos - 5):pos + 40])
+            for i, c in enumerate(cells):
+                if c and c[:2] and c[:2] in probe:
+                    anchor = i; break
         if anchor is not None:
             def cell(offset):
                 i = anchor + offset
