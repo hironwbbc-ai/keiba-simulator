@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f2eddf">
 <link rel="manifest" href="manifest.webmanifest">
 <title>競馬予想シミュレーター</title>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 <header class="masthead">
@@ -41,9 +41,17 @@
     <div id="verdict" class="verdict"></div>
     <div id="results"></div>
   </section>
+
+  <section id="verify">
+    <h2><b>検</b>複数レースで検証</h2>
+    <p class="hint">取得済みの過去レースを「開催日_場コード_R」の形で1行ずつ入力（例: 20260906_09_11）。場コード: 01札幌 02函館 03福島 04新潟 05東京 06中山 07中京 08京都 09阪神 10小倉</p>
+    <textarea id="verifyKeys" rows="4" placeholder="20260906_09_11&#10;20260927_06_11"></textarea>
+    <button id="verifyRun" class="btn wide">検証実行</button>
+    <div id="verifyOut"></div>
+  </section>
 </main>
 <footer>過去走データから作った試算です。的中や収益を保証するものではありません。馬券の購入は自己責任でお願いします。</footer>
-<script src="model.js?v=25"></script>
-<script src="app.js?v=24"></script>
+<script src="model.js?v=26"></script>
+<script src="app.js?v=26"></script>
 </body>
 </html>

@@ -107,6 +107,58 @@ function run() {
 }
 const sg = x => (x >= 0 ? "+" : "") + (x * 100).toFixed(0);
 
+async function runVerify() {
+  const keys = $("verifyKeys").value.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+  const out = $("verifyOut");
+  if (!keys.length) { out.innerHTML = ""; return; }
+  out.innerHTML = "計算中…";
+  const rows = [];
+  for (const key of keys) {
+    const m = key.match(/^(\d{8})_(\d{2})_(\d{1,2})$/);
+    if (!m) { rows.push({ key, error: "「開催日_場コード_R」の形式で入力してください" }); continue; }
+    const [, ymd, code, noStr] = m, no = parseInt(noStr, 10);
+    try {
+      const detail = await getJSON(`data/history/${ymd}/${code}_${pad(no)}.json`);
+      let hh = await tryJSON(`data/horse_history/${ymd}_${code}_${pad(no)}.json`), legacy = false;
+      if (!hh) { hh = await tryJSON(`data/horse_history/${ymd}.json`); legacy = !!hh; }
+      if (!detail?.horses?.length) { rows.push({ key, error: "出走馬データがありません" }); continue; }
+      if (!hh) { rows.push({ key, error: "過去走データがありません" }); continue; }
+      const entries = detail.horses.map(h => ({ no: h.number ?? h.no, name: h.name, finish: h.finish, pop: h.popularity }));
+      const byNo = new Map(), byName = new Map();
+      (hh.horses || []).forEach(h => { const runs = h.history_before_target || []; if (h.number != null && !legacy) byNo.set(h.number, runs); byName.set(nn(h.name), runs); });
+      const cond = { distance: detail.distance, surface: detail.surface, going: detail.going || "良", name: detail.name, venue: detail.venue };
+      const hs = entries.map(e => ({ ...e, ...KeibaModel.analyze(byNo.get(e.no) || byName.get(nn(e.name)) || [], cond) }));
+      const res = KeibaModel.simulate(hs, { n: 5000 });
+      const ranked = hs.map((h, i) => ({ ...h, win: res.win[i] })).sort((a, b) => b.win - a.win);
+      const winnerRow = entries.find(e => e.finish === 1);
+      const modelRankOfWinner = winnerRow ? ranked.findIndex(r => r.no === winnerRow.no) + 1 : null;
+      const top1 = ranked[0];
+      rows.push({
+        key, name: detail.name || "", field: entries.length,
+        top1Name: top1.name, top1Finish: top1.finish, top1In3: top1.finish && top1.finish <= 3,
+        winnerName: winnerRow?.name, modelRankOfWinner,
+      });
+    } catch (e) { rows.push({ key, error: String(e.message || e) }); }
+  }
+  renderVerify(rows);
+}
+
+function renderVerify(rows) {
+  const ok = rows.filter(r => !r.error);
+  const n = ok.length, hit1 = ok.filter(r => r.top1Finish === 1).length, hit3 = ok.filter(r => r.top1In3).length;
+  const avgRank = n ? (ok.reduce((s, r) => s + (r.modelRankOfWinner || r.field), 0) / n).toFixed(1) : "-";
+  const pct = x => n ? Math.round(x / n * 100) : 0;
+  const summary = `<div class="vsummary"><b>${n}レース</b>で検証<br>
+    本命(1位予想)が1着 ${hit1}回(${pct(hit1)}%)／3着内 ${hit3}回(${pct(hit3)}%)<br>
+    実際の勝ち馬の平均予想順位 ${avgRank}位</div>`;
+  const list = rows.map(r => r.error
+    ? `<div class="vrow err">${esc(r.key)}：${esc(r.error)}</div>`
+    : `<div class="vrow"><b>${esc(r.key)}</b> ${esc(r.name)}<br>
+         本命 ${esc(r.top1Name)}（実際${r.top1Finish ?? "?"}着）／勝ち馬 ${esc(r.winnerName || "?")} はモデル${r.modelRankOfWinner ?? "?"}位</div>`
+  ).join("");
+  $("verifyOut").innerHTML = summary + list;
+}
+$("verifyRun").onclick = runVerify;
 $("load").onclick = loadDay;
 $("run").onclick = run;
 $("races").onclick = e => { const b = e.target.closest(".rbtn"); if (b) pickRace(b.dataset.k); };
