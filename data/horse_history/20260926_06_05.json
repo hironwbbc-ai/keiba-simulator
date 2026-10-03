@@ -1,0 +1,111 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-26",
+ "target_ymd": "20260926",
+ "venue_code": "06",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 14,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 4,
+   "name": "フェイマスジャズ",
+   "horse_token": "pw01dud102024102965/0B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ジャロロッソ",
+   "horse_token": "pw01dud102024106725/25",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ブンブクチャガマ",
+   "horse_token": "pw01dud102024101095/93",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "ペプチドデバイス",
+   "horse_token": "pw01dud102024101727/60",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "ニシノカチオトコ",
+   "horse_token": "pw01dud102024103853/D3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "シダモフレイバー",
+   "horse_token": "pw01dud102024106188/B8",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "スペーストラベラー",
+   "horse_token": "pw01dud102024103415/B5",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "ゾネンバーデン",
+   "horse_token": "pw01dud102024103640/08",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "エバーラスティング",
+   "horse_token": "pw01dud102024103598/BF",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ブーケフォーミー",
+   "horse_token": "pw01dud102024101990/0D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ヴァイスリッター",
+   "horse_token": "pw01dud102024102432/8D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "サヴィッジブロウ",
+   "horse_token": "pw01dud102024100657/70",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "レックスダミアーニ",
+   "horse_token": "pw01dud102024106860/57",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ハナミヤビ",
+   "horse_token": "pw01dud102024103649/13",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

@@ -1,0 +1,780 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-26",
+ "target_ymd": "20260926",
+ "venue_code": "06",
+ "race_no": 1,
+ "race_name": "",
+ "horse_count": 13,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 3,
+   "name": "アンミツ",
+   "horse_token": "pw01dud102024100614/D7",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-05",
+     "venue": "札幌",
+     "race_name": "2歳新馬",
+     "distance_raw": "芝1500",
+     "going": "稍重",
+     "field_size": 14,
+     "popularity": 10,
+     "finish": 10,
+     "jockey": "和田 陽希",
+     "carried_weight": "52.0",
+     "body_weight": "438",
+     "time": "1:33.0",
+     "rating": "",
+     "winner": "シュヴァルツペルレ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1001202602050520260905/A9",
+     "distance": 1500,
+     "surface": "芝",
+     "horse_number": 10,
+     "laps": [
+      7.2,
+      11.1,
+      12.2,
+      12.5,
+      12.3,
+      12.2,
+      12.2,
+      11.8
+     ],
+     "front3": 30.5,
+     "last3": 36.2,
+     "corners": [
+      2,
+      2,
+      2
+     ],
+     "corner3": 2,
+     "corner4": 2,
+     "cornerRaw": "",
+     "agari": 37.6
+    }
+   ]
+  },
+  {
+   "number": 11,
+   "name": "ハクタカ",
+   "horse_token": "pw01dud102024103502/7D",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-07-12",
+     "venue": "福島",
+     "race_name": "2歳新馬",
+     "distance_raw": "芝1800",
+     "going": "稍重",
+     "field_size": 16,
+     "popularity": 14,
+     "finish": 16,
+     "jockey": "柴田 大知",
+     "carried_weight": "55.0",
+     "body_weight": "450",
+     "time": "1:56.4",
+     "rating": "",
+     "winner": "リサナウト",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1003202602060520260712/DD",
+     "distance": 1800,
+     "surface": "芝",
+     "horse_number": 13,
+     "laps": [
+      12.7,
+      11.6,
+      12.7,
+      13.4,
+      12.8,
+      11.7,
+      11.9,
+      11.6,
+      11.5
+     ],
+     "front3": 37.0,
+     "last3": 35.0,
+     "corners": [
+      11,
+      10,
+      11,
+      12
+     ],
+     "corner3": 11,
+     "corner4": 12,
+     "cornerRaw": "",
+     "agari": 40.8
+    }
+   ]
+  },
+  {
+   "number": 10,
+   "name": "ハイトラクション",
+   "horse_token": "pw01dud102024104937/9F",
+   "history_count": 2,
+   "history_before_target": [
+    {
+     "date": "2026-09-12",
+     "venue": "中山",
+     "race_name": "2歳未勝利",
+     "distance_raw": "ダ1800",
+     "going": "不良",
+     "field_size": 12,
+     "popularity": 5,
+     "finish": 9,
+     "jockey": "長浜 鴻緒",
+     "carried_weight": "54.0",
+     "body_weight": "476",
+     "time": "1:56.9",
+     "rating": "",
+     "winner": "サクセスボーイ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604030120260912/E6",
+     "distance": 1800,
+     "surface": "ダート",
+     "horse_number": 3,
+     "laps": [
+      12.9,
+      12.0,
+      12.7,
+      12.5,
+      12.2,
+      12.2,
+      12.6,
+      13.3,
+      13.8
+     ],
+     "front3": 37.6,
+     "last3": 39.7,
+     "corners": [
+      3,
+      3,
+      6,
+      6
+     ],
+     "corner3": 6,
+     "corner4": 6,
+     "cornerRaw": "",
+     "agari": 41.8
+    },
+    {
+     "date": "2026-06-14",
+     "venue": "東京",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1400",
+     "going": "稍重",
+     "field_size": 14,
+     "popularity": 6,
+     "finish": 12,
+     "jockey": "原 優介",
+     "carried_weight": "55.0",
+     "body_weight": "466",
+     "time": "1:29.2",
+     "rating": "",
+     "winner": "ユイノエスポワール",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1005202603040420260614/06",
+     "distance": 1400,
+     "surface": "ダート",
+     "horse_number": 6,
+     "laps": [
+      12.4,
+      11.0,
+      11.3,
+      11.7,
+      12.2,
+      12.9,
+      13.1
+     ],
+     "front3": 34.7,
+     "last3": 38.2,
+     "corners": [
+      13,
+      13
+     ],
+     "corner3": 13,
+     "corner4": 13,
+     "cornerRaw": "",
+     "agari": 39.0
+    }
+   ]
+  },
+  {
+   "number": 1,
+   "name": "アルビオンライズ",
+   "horse_token": "pw01dud102024105970/A9",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-05",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "重",
+     "field_size": 14,
+     "popularity": 3,
+     "finish": 2,
+     "jockey": "M.ミシェル",
+     "carried_weight": "55.0",
+     "body_weight": "486",
+     "time": "1:12.9",
+     "rating": "",
+     "winner": "ポッドビート",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604010620260905/66",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 1,
+     "laps": [
+      11.9,
+      10.6,
+      11.0,
+      11.5,
+      12.5,
+      13.8
+     ],
+     "front3": 33.5,
+     "last3": 37.8,
+     "corners": [
+      2,
+      2
+     ],
+     "corner3": 2,
+     "corner4": 2,
+     "cornerRaw": "",
+     "agari": 38.9
+    }
+   ]
+  },
+  {
+   "number": 13,
+   "name": "ファイアリーボルト",
+   "horse_token": "pw01dud102024109080/BC",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-12",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "不良",
+     "field_size": 12,
+     "popularity": 10,
+     "finish": 9,
+     "jockey": "菊沢 一樹",
+     "carried_weight": "55.0",
+     "body_weight": "436",
+     "time": "1:13.5",
+     "rating": "",
+     "winner": "ナイトパイロット",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604030620260912/6F",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 8,
+     "laps": [
+      12.5,
+      11.0,
+      11.7,
+      12.1,
+      12.5,
+      12.1
+     ],
+     "front3": 35.2,
+     "last3": 36.7,
+     "corners": [
+      10,
+      10
+     ],
+     "corner3": 10,
+     "corner4": 10,
+     "cornerRaw": "",
+     "agari": 36.8
+    }
+   ]
+  },
+  {
+   "number": 4,
+   "name": "リコルディオーロ",
+   "horse_token": "pw01dud102024102636/BB",
+   "history_count": 2,
+   "history_before_target": [
+    {
+     "date": "2026-08-16",
+     "venue": "新潟",
+     "race_name": "2歳未勝利",
+     "distance_raw": "ダ1200",
+     "going": "良",
+     "field_size": 15,
+     "popularity": 4,
+     "finish": 7,
+     "jockey": "佐藤 翔馬",
+     "carried_weight": "52.0",
+     "body_weight": "444",
+     "time": "1:13.7",
+     "rating": "",
+     "winner": "ラキアーヴェ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1004202602080320260816/12",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 14,
+     "laps": [
+      12.1,
+      10.8,
+      11.3,
+      12.1,
+      12.6,
+      13.4
+     ],
+     "front3": 34.2,
+     "last3": 38.1,
+     "corners": [
+      14,
+      14
+     ],
+     "corner3": 14,
+     "corner4": 14,
+     "cornerRaw": "",
+     "agari": 37.3
+    },
+    {
+     "date": "2026-07-25",
+     "venue": "新潟",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "稍重",
+     "field_size": 14,
+     "popularity": 8,
+     "finish": 5,
+     "jockey": "佐藤 翔馬",
+     "carried_weight": "52.0",
+     "body_weight": "442",
+     "time": "1:14.4",
+     "rating": "",
+     "winner": "ミカミッチー",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1004202602010220260725/5A",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 2,
+     "laps": [
+      12.0,
+      11.1,
+      11.7,
+      12.6,
+      12.9,
+      12.7
+     ],
+     "front3": 34.8,
+     "last3": 38.2,
+     "corners": [
+      9,
+      9
+     ],
+     "corner3": 9,
+     "corner4": 9,
+     "cornerRaw": "",
+     "agari": 38.8
+    }
+   ]
+  },
+  {
+   "number": 9,
+   "name": "アイビーカイロス",
+   "horse_token": "pw01dud102024108316/A2",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-08-08",
+     "venue": "新潟",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "良",
+     "field_size": 10,
+     "popularity": 3,
+     "finish": 5,
+     "jockey": "木幡 巧也",
+     "carried_weight": "55.0",
+     "body_weight": "458",
+     "time": "1:15.2",
+     "rating": "",
+     "winner": "ジャスパートレノ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1004202602050220260808/24",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 2,
+     "laps": [
+      12.3,
+      11.5,
+      12.1,
+      12.6,
+      12.1,
+      12.5
+     ],
+     "front3": 35.9,
+     "last3": 37.2,
+     "corners": [
+      6,
+      6
+     ],
+     "corner3": 6,
+     "corner4": 6,
+     "cornerRaw": "",
+     "agari": 38.7
+    }
+   ]
+  },
+  {
+   "number": 12,
+   "name": "アーバーバイティ",
+   "horse_token": "pw01dud102024102849/86",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-12",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "不良",
+     "field_size": 12,
+     "popularity": 4,
+     "finish": 3,
+     "jockey": "嶋田 純次",
+     "carried_weight": "55.0",
+     "body_weight": "458",
+     "time": "1:12.7",
+     "rating": "",
+     "winner": "ナイトパイロット",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604030620260912/6F",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 2,
+     "laps": [
+      12.5,
+      11.0,
+      11.7,
+      12.1,
+      12.5,
+      12.1
+     ],
+     "front3": 35.2,
+     "last3": 36.7,
+     "corners": [
+      2,
+      2
+     ],
+     "corner3": 2,
+     "corner4": 2,
+     "cornerRaw": "",
+     "agari": 37.4
+    }
+   ]
+  },
+  {
+   "number": 8,
+   "name": "スヴァラ",
+   "horse_token": "pw01dud102024100339/A3",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-19",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "芝1200",
+     "going": "良",
+     "field_size": 16,
+     "popularity": 13,
+     "finish": 15,
+     "jockey": "江田 照男",
+     "carried_weight": "55.0",
+     "body_weight": "452",
+     "time": "1:12.6",
+     "rating": "",
+     "winner": "シルバーノリダー",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604050420260919/16",
+     "distance": 1200,
+     "surface": "芝",
+     "horse_number": 8,
+     "laps": [
+      12.5,
+      11.1,
+      11.6,
+      11.5,
+      11.4,
+      11.5
+     ],
+     "front3": 35.2,
+     "last3": 34.4,
+     "corners": [
+      16,
+      16
+     ],
+     "corner3": 16,
+     "corner4": 16,
+     "cornerRaw": "",
+     "agari": 34.5
+    }
+   ]
+  },
+  {
+   "number": 7,
+   "name": "ヴァンデエス",
+   "horse_token": "pw01dud102024103029/CD",
+   "history_count": 2,
+   "history_before_target": [
+    {
+     "date": "2026-09-13",
+     "venue": "中山",
+     "race_name": "2歳未勝利",
+     "distance_raw": "ダ1200",
+     "going": "重",
+     "field_size": 16,
+     "popularity": 15,
+     "finish": 12,
+     "jockey": "杉原 誠人",
+     "carried_weight": "55.0",
+     "body_weight": "440",
+     "time": "1:14.2",
+     "rating": "",
+     "winner": "アレックスケー",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604040320260913/80",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 14,
+     "laps": [
+      11.8,
+      10.7,
+      11.3,
+      12.3,
+      12.5,
+      13.0
+     ],
+     "front3": 33.8,
+     "last3": 37.8,
+     "corners": [
+      11,
+      11
+     ],
+     "corner3": 11,
+     "corner4": 11,
+     "cornerRaw": "",
+     "agari": 39.4
+    },
+    {
+     "date": "2026-07-19",
+     "venue": "福島",
+     "race_name": "2歳新馬",
+     "distance_raw": "芝1200",
+     "going": "良",
+     "field_size": 16,
+     "popularity": 14,
+     "finish": 16,
+     "jockey": "大野 拓弥",
+     "carried_weight": "55.0",
+     "body_weight": "428",
+     "time": "1:13.1",
+     "rating": "",
+     "winner": "チャランダマルツ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1003202602080620260719/A3",
+     "distance": 1200,
+     "surface": "芝",
+     "horse_number": 11,
+     "laps": [
+      12.4,
+      11.3,
+      11.6,
+      12.1,
+      11.7,
+      11.4
+     ],
+     "front3": 35.3,
+     "last3": 35.2,
+     "corners": [
+      16,
+      16
+     ],
+     "corner3": 16,
+     "corner4": 16,
+     "cornerRaw": "",
+     "agari": 35.4
+    }
+   ]
+  },
+  {
+   "number": 6,
+   "name": "クリアマインド",
+   "horse_token": "pw01dud102024103876/4C",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-12",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "不良",
+     "field_size": 12,
+     "popularity": 11,
+     "finish": 12,
+     "jockey": "原 優介",
+     "carried_weight": "55.0",
+     "body_weight": "462",
+     "time": "1:15.9",
+     "rating": "",
+     "winner": "ナイトパイロット",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604030620260912/6F",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 5,
+     "laps": [
+      12.5,
+      11.0,
+      11.7,
+      12.1,
+      12.5,
+      12.1
+     ],
+     "front3": 35.2,
+     "last3": 36.7,
+     "corners": [
+      12,
+      12
+     ],
+     "corner3": 12,
+     "corner4": 12,
+     "cornerRaw": "",
+     "agari": 37.9
+    }
+   ]
+  },
+  {
+   "number": 5,
+   "name": "コウソクレムリア",
+   "horse_token": "pw01dud102024101886/7E",
+   "history_count": 2,
+   "history_before_target": [
+    {
+     "date": "2026-08-08",
+     "venue": "新潟",
+     "race_name": "2歳未勝利",
+     "distance_raw": "芝1400",
+     "going": "良",
+     "field_size": 13,
+     "popularity": 7,
+     "finish": 6,
+     "jockey": "武藤 雅",
+     "carried_weight": "55.0",
+     "body_weight": "442",
+     "time": "1:22.2",
+     "rating": "",
+     "winner": "グルーヴェンス",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1004202602050120260808/6F",
+     "distance": 1400,
+     "surface": "芝",
+     "horse_number": 9,
+     "laps": [
+      12.3,
+      10.7,
+      11.3,
+      11.9,
+      11.9,
+      11.8,
+      11.8
+     ],
+     "front3": 34.3,
+     "last3": 35.5,
+     "corners": [
+      9,
+      9
+     ],
+     "corner3": 9,
+     "corner4": 9,
+     "cornerRaw": "",
+     "agari": 35.1
+    },
+    {
+     "date": "2026-06-06",
+     "venue": "東京",
+     "race_name": "2歳新馬",
+     "distance_raw": "芝1600",
+     "going": "良",
+     "field_size": 9,
+     "popularity": 8,
+     "finish": 6,
+     "jockey": "武藤 雅",
+     "carried_weight": "55.0",
+     "body_weight": "446",
+     "time": "1:36.0",
+     "rating": "",
+     "winner": "フィリオソラーレ",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1005202603010520260606/82",
+     "distance": 1600,
+     "surface": "芝",
+     "horse_number": 7,
+     "laps": [
+      12.7,
+      11.4,
+      12.1,
+      12.2,
+      12.3,
+      11.3,
+      11.0,
+      11.3
+     ],
+     "front3": 36.2,
+     "last3": 33.6,
+     "corners": [
+      8,
+      7
+     ],
+     "corner3": 8,
+     "corner4": 7,
+     "cornerRaw": "",
+     "agari": 34.8
+    }
+   ]
+  },
+  {
+   "number": 2,
+   "name": "トパーズヘッド",
+   "horse_token": "pw01dud102024101845/CB",
+   "history_count": 1,
+   "history_before_target": [
+    {
+     "date": "2026-09-12",
+     "venue": "中山",
+     "race_name": "2歳新馬",
+     "distance_raw": "ダ1200",
+     "going": "不良",
+     "field_size": 12,
+     "popularity": 12,
+     "finish": 11,
+     "jockey": "菅原 隆一",
+     "carried_weight": "55.0",
+     "body_weight": "484",
+     "time": "1:13.9",
+     "rating": "",
+     "winner": "ナイトパイロット",
+     "result_url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604030620260912/6F",
+     "distance": 1200,
+     "surface": "ダート",
+     "horse_number": 4,
+     "laps": [
+      12.5,
+      11.0,
+      11.7,
+      12.1,
+      12.5,
+      12.1
+     ],
+     "front3": 35.2,
+     "last3": 36.7,
+     "corners": [
+      6,
+      6
+     ],
+     "corner3": 6,
+     "corner4": 6,
+     "cornerRaw": "",
+     "agari": 38.3
+    }
+   ]
+  }
+ ]
+}

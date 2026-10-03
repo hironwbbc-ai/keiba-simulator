@@ -1,0 +1,125 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-26",
+ "target_ymd": "20260926",
+ "venue_code": "06",
+ "race_no": 3,
+ "race_name": "",
+ "horse_count": 16,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 3,
+   "name": "モルスリール",
+   "horse_token": "pw01dud102024106146/92",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "プラチナリーフ",
+   "horse_token": "pw01dud102024106171/83",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ツイストマインド",
+   "horse_token": "pw01dud102024105870/78",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ゼットターム",
+   "horse_token": "pw01dud102024106532/7A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "コパノキラキラ",
+   "horse_token": "pw01dud102024101206/D8",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ブルーサンタ",
+   "horse_token": "pw01dud102024102355/D5",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ジェイエルバージ",
+   "horse_token": "pw01dud102024100819/78",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 16,
+   "name": "ココル",
+   "horse_token": "pw01dud102024104270/63",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "アイビーナツユメ",
+   "horse_token": "pw01dud102024106775/75",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "ドナミモザ",
+   "horse_token": "pw01dud102024101762/61",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "ロイヤルグルーヴ",
+   "horse_token": "pw01dud102024105690/36",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "ボスヒッツ",
+   "horse_token": "pw01dud102024100993/77",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "オレガイチバンイイ",
+   "horse_token": "pw01dud102024105251/A5",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "セイトゥゴールド",
+   "horse_token": "pw01dud102024100133/8F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "スパーキー",
+   "horse_token": "pw01dud102024102556/AA",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ブリッド",
+   "horse_token": "pw01dud102024106008/07",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

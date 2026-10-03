@@ -1,0 +1,118 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-26",
+ "target_ymd": "20260926",
+ "venue_code": "09",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 15,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 10,
+   "name": "ネーロノワール",
+   "horse_token": "pw01dud102024100638/C3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "トップオブドリーム",
+   "horse_token": "pw01dud102024106417/68",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "ベニールラヴニール",
+   "horse_token": "pw01dud102024103644/D4",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "エールヴォル",
+   "horse_token": "pw01dud102024106881/EA",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "メイショウリベロ",
+   "horse_token": "pw01dud102024101549/04",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "サトノステラ",
+   "horse_token": "pw01dud102024100551/8D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "ノーブルキングダム",
+   "horse_token": "pw01dud102024105185/70",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ケイアイヴェネチア",
+   "horse_token": "pw01dud102024104526/58",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "レガリアフォリア",
+   "horse_token": "pw01dud102024104846/0B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "プラトーローザ",
+   "horse_token": "pw01dud102024102485/36",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "スナークルーベンス",
+   "horse_token": "pw01dud102024102002/99",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ゴールデンステーラ",
+   "horse_token": "pw01dud102024105116/73",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "レイルジェット",
+   "horse_token": "pw01dud102024105150/01",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "カーティス",
+   "horse_token": "pw01dud102024107151/52",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "シルクウォード",
+   "horse_token": "pw01dud102024107167/14",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

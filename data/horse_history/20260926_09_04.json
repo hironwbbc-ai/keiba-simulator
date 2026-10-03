@@ -1,0 +1,118 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-26",
+ "target_ymd": "20260926",
+ "venue_code": "09",
+ "race_no": 4,
+ "race_name": "",
+ "horse_count": 15,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 2,
+   "name": "ギブリ",
+   "horse_token": "pw01dud102024105852/3E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "フライウィズユー",
+   "horse_token": "pw01dud102024105142/D7",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ランゲ",
+   "horse_token": "pw01dud102024102496/B9",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ルージュラボルタ",
+   "horse_token": "pw01dud102024105808/A0",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "レクリドジョワ",
+   "horse_token": "pw01dud102024108368/D8",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "モンサンラパージュ",
+   "horse_token": "pw01dud102024100477/2E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ウォーターケプリ",
+   "horse_token": "pw01dud102024102745/89",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ポエジア",
+   "horse_token": "pw01dud102024107051/21",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "ヒノトリ",
+   "horse_token": "pw01dud102024101768/13",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "フィオッコローザ",
+   "horse_token": "pw01dud102024106586/96",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "ロックウイズミー",
+   "horse_token": "pw01dud102024102159/3F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ブラスバンド",
+   "horse_token": "pw01dud102024107307/16",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "ゴウオン",
+   "horse_token": "pw01dud102024100647/60",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "テンハッピー",
+   "horse_token": "pw01dud102024107265/5F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "カフジカニステル",
+   "horse_token": "pw01dud102024103510/A7",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}
