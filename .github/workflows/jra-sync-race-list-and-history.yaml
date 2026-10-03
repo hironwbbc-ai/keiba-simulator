@@ -324,10 +324,18 @@ jobs:
               tp = TextParser(); tp.feed(s or "")
               return re.sub(r"\s+", " ", "".join(tp.text)).strip()
 
+          HORSE_TOKEN_RE = re.compile(r"pw01dud[0-9A-Za-z]+/[0-9A-Fa-f]{2}", re.I)
+
+          def _cells_from(html_slice):
+              return [strip_tags(c) for c in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", html_slice, re.I | re.S)]
+
           def parse_history_page(raw_html, token):
+              """このレース自身の出走表/結果を読む。馬名リンクの形（href か
+              JavaScript か）に依存せず、ページ中のpw01dud（馬個別ページ）
+              トークンの出現位置を手がかりに、各馬の行を相対位置で読み取る。
+              列の並び: [着順|枠|馬番|馬名|性齢|負担重量|騎手|タイム|着差|
+              コーナー通過順位|推定上り|馬体重|調教師|人気|Rt]"""
               match = HIST_TOKEN_RE.fullmatch(token)
-              cp = CellParser(); cp.feed(raw_html)
-              cells = cp.cells
               title_match = re.search(r"<title[^>]*>(.*?)</title>", raw_html, re.I | re.S)
               title = strip_tags(title_match.group(1)) if title_match else ""
               text = strip_tags(raw_html)
@@ -351,36 +359,47 @@ jobs:
               tm = re.search(r"発走時刻[:：]?\s*(\d{1,2}時\d{1,2}分)", text)
               if tm: meta["time"] = tm.group(1)
 
-              rows, cur = [], []
-              for c in cells:
-                  cur.append(c)
-                  if len(cur) >= 15:
-                      rows.append(cur); cur = []
               deduped = {}
-              for row in rows:
-                  try:
-                      finish_s, waku, no_s = row[0].strip(), row[1].strip(), row[2].strip()
-                      if not re.fullmatch(r"\d{1,2}", no_s):
-                          continue
-                      no = int(no_s)
-                      finish = int(finish_s) if re.fullmatch(r"\d{1,2}", finish_s) else None
-                      name = row[3].strip()
-                      if not name:
-                          continue
-                      corner_raw = row[9] if len(row) > 9 else ""
-                      agari = None
-                      if len(row) > 10 and re.fullmatch(r"\d{2}\.\d", row[10].strip()):
-                          agari = float(row[10].strip())
-                      deduped[no] = {
-                          "number": no, "name": name, "finish": finish,
-                          "jockey": row[6].strip() if len(row) > 6 else "",
-                          "time": row[7].strip() if len(row) > 7 else "",
-                          "corner_raw": corner_raw, "agari": agari,
-                          "weight": row[11].strip() if len(row) > 11 else "",
-                          "popularity": int(row[13]) if len(row) > 13 and row[13].strip().isdigit() else None,
-                      }
-                  except Exception:
+              seen_tokens = set()
+              for tm2 in HORSE_TOKEN_RE.finditer(raw_html):
+                  htoken = tm2.group(0)
+                  if htoken in seen_tokens:
                       continue
+                  seen_tokens.add(htoken)
+                  pos = tm2.start()
+                  window = raw_html[max(0, pos - 500):pos + 2200]
+                  cells = _cells_from(window)
+                  # 馬名セル＝このトークンを含む<a>より前のセル数を数えて特定する
+                  link_re = re.compile(r"""<a[^>]*>[^<]*</a>""", re.I | re.S)
+                  rel_pos = pos - max(0, pos - 500)
+                  before_cells = _cells_from(window[:rel_pos])
+                  anchor = len(before_cells)
+                  if anchor >= len(cells):
+                      continue
+
+                  def cell(offset):
+                      i = anchor + offset
+                      return cells[i] if 0 <= i < len(cells) else None
+
+                  no_cell, name_cell = cell(-1), cell(0)
+                  if not (no_cell and re.fullmatch(r"\d{1,2}", no_cell.strip())):
+                      continue
+                  no = int(no_cell.strip())
+                  finish_cell = cell(-3)
+                  finish = int(finish_cell.strip()) if finish_cell and re.fullmatch(r"\d{1,2}", finish_cell.strip()) else None
+                  name = (name_cell or "").strip()
+                  if not name:
+                      continue
+                  agari_cell = cell(7)
+                  agari = float(agari_cell.strip()) if agari_cell and re.fullmatch(r"\d{2}\.\d", agari_cell.strip()) else None
+                  pop_cell = cell(10)
+                  deduped[no] = {
+                      "number": no, "name": name, "finish": finish,
+                      "jockey": (cell(3) or "").strip(), "time": (cell(4) or "").strip(),
+                      "corner_raw": (cell(6) or "").strip(), "agari": agari,
+                      "weight": (cell(8) or "").strip(),
+                      "popularity": int(pop_cell.strip()) if pop_cell and pop_cell.strip().isdigit() else None,
+                  }
               return meta, sorted(deduped.values(), key=lambda row: row["number"])
 
           def fetch_one(ymd, venue_code, race_no):
