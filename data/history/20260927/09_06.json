@@ -16,15 +16,158 @@
   "historical": true,
   "horses": [
     {
+      "number": 1,
+      "name": "コンヴィヴィアル",
+      "finish": 11,
+      "jockey": "池添 謙一",
+      "time": "1:58.4",
+      "corner_raw": "15 14 12 11",
+      "agari": 40.4,
+      "weight": "504(初出走)",
+      "popularity": 13
+    },
+    {
+      "number": 2,
+      "name": "メイショウラリマー",
+      "finish": 12,
+      "jockey": "太宰 啓介",
+      "time": "1:59.0",
+      "corner_raw": "13 14 14 11",
+      "agari": 40.8,
+      "weight": "460(初出走)",
+      "popularity": 6
+    },
+    {
+      "number": 3,
+      "name": "プライムウィザード",
+      "finish": 13,
+      "jockey": "国分 恭介",
+      "time": "2:00.2",
+      "corner_raw": "12 12 14 14",
+      "agari": 41.8,
+      "weight": "460(初出走)",
+      "popularity": 14
+    },
+    {
+      "number": 4,
+      "name": "オメガマサヤ",
+      "finish": 3,
+      "jockey": "斎藤 新",
+      "time": "1:56.7",
+      "corner_raw": "9 10 9 9",
+      "agari": 39.1,
+      "weight": "462(初出走)",
+      "popularity": 10
+    },
+    {
+      "number": 5,
+      "name": "サンライズブレイド",
+      "finish": 5,
+      "jockey": "△柴田 裕一郎",
+      "time": "1:56.9",
+      "corner_raw": "6 5 7 7",
+      "agari": 39.6,
+      "weight": "458(初出走)",
+      "popularity": 15
+    },
+    {
+      "number": 6,
+      "name": "ハレムスビ",
+      "finish": 4,
+      "jockey": "◇今村 聖奈",
+      "time": "1:56.8",
+      "corner_raw": "11 9 4 2",
+      "agari": 39.8,
+      "weight": "462(初出走)",
+      "popularity": 7
+    },
+    {
+      "number": 7,
+      "name": "アメリカンステラ",
+      "finish": 2,
+      "jockey": "川田 将雅",
+      "time": "1:55.6",
+      "corner_raw": "1 1 1 1",
+      "agari": 38.9,
+      "weight": "520(初出走)",
+      "popularity": 1
+    },
+    {
+      "number": 8,
+      "name": "ロードスピアヘッド",
+      "finish": 8,
+      "jockey": "☆田山 旺佑",
+      "time": "1:57.0",
+      "corner_raw": "2 2 2 2",
+      "agari": 40.2,
+      "weight": "506(初出走)",
+      "popularity": 2
+    },
+    {
+      "number": 9,
+      "name": "メイショウシガニー",
+      "finish": 10,
+      "jockey": "角田 大和",
+      "time": "1:58.4",
+      "corner_raw": "13 13 12 11",
+      "agari": 40.4,
+      "weight": "450(初出走)",
+      "popularity": 9
+    },
+    {
+      "number": 10,
+      "name": "スペクトリオン",
+      "finish": 14,
+      "jockey": "西塚 洸二",
+      "time": "2:00.7",
+      "corner_raw": "2 2 3 9",
+      "agari": 43.5,
+      "weight": "540(初出走)",
+      "popularity": 16
+    },
+    {
+      "number": 11,
+      "name": "イグニアスロック",
+      "finish": 9,
+      "jockey": "吉村 誠之助",
+      "time": "1:57.5",
+      "corner_raw": "4 4 4 4",
+      "agari": 40.5,
+      "weight": "514(初出走)",
+      "popularity": 12
+    },
+    {
+      "number": 12,
+      "name": "ファーストステイト",
+      "finish": 7,
+      "jockey": "北村 友一",
+      "time": "1:56.9",
+      "corner_raw": "9 10 9 7",
+      "agari": 39.4,
+      "weight": "450(初出走)",
+      "popularity": 4
+    },
+    {
       "number": 13,
-      "name": "12",
+      "name": "テムスターオー",
       "finish": null,
-      "jockey": "メイショウラリマー",
-      "time": "牡2",
-      "corner_raw": "太宰 啓介",
+      "jockey": "M.デムーロ",
+      "time": "",
+      "corner_raw": "",
       "agari": null,
-      "weight": "３ 1/2",
-      "popularity": null
+      "weight": "494(初出走)",
+      "popularity": 5
+    },
+    {
+      "number": 14,
+      "name": "ノヴァアクレイム",
+      "finish": 6,
+      "jockey": "松本 大輝",
+      "time": "1:56.9",
+      "corner_raw": "4 5 4 4",
+      "agari": 39.9,
+      "weight": "504(初出走)",
+      "popularity": 8
     },
     {
       "number": 15,
@@ -32,10 +175,21 @@
       "finish": 15,
       "jockey": "松若 風馬",
       "time": "2:01.1",
-      "corner_raw": "6\r\n          7\r\n          11\r\n          15",
+      "corner_raw": "6 7 11 15",
       "agari": 42.5,
       "weight": "530(初出走)",
       "popularity": 11
+    },
+    {
+      "number": 16,
+      "name": "ヤマニンガルブ",
+      "finish": 1,
+      "jockey": "田口 貫太",
+      "time": "1:55.4",
+      "corner_raw": "8 7 7 6",
+      "agari": 38.1,
+      "weight": "486(初出走)",
+      "popularity": 3
     }
   ]
 }

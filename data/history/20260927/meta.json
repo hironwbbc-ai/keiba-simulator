@@ -1,6 +1,6 @@
 {
   "date": "2026-09-27",
-  "updated_at": "2026-10-03T10:29:42.005986+09:00",
+  "updated_at": "2026-10-04T02:52:50.813576+09:00",
   "target_ymd": "20260927",
   "source": "JRA公式 過去レース・軽量メタデータ",
   "mode": "historical_metadata",
@@ -36,6 +36,22 @@
       "going": "稍重",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604090220260927%2F58",
       "token": "pw01sde1006202604090220260927/58"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "meet": "中山",
+      "meet_day": 9,
+      "no": 3,
+      "date": "20260927",
+      "time": "11時05分",
+      "name": "",
+      "distance": 1800,
+      "surface": "ダート",
+      "course": "",
+      "going": "稍重",
+      "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604090320260927%2F0D",
+      "token": "pw01sde1006202604090320260927/0D"
     },
     {
       "venue": "中山",
@@ -122,6 +138,22 @@
       "venue_code": "06",
       "meet": "中山",
       "meet_day": 9,
+      "no": 9,
+      "date": "20260927",
+      "time": "14時25分",
+      "name": "",
+      "distance": 1600,
+      "surface": "芝",
+      "course": "",
+      "going": "稍重",
+      "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1006202604090920260927%2F4B",
+      "token": "pw01sde1006202604090920260927/4B"
+    },
+    {
+      "venue": "中山",
+      "venue_code": "06",
+      "meet": "中山",
+      "meet_day": 9,
       "no": 10,
       "date": "20260927",
       "time": "15時01分",
@@ -186,6 +218,22 @@
       "venue_code": "09",
       "meet": "阪神",
       "meet_day": 9,
+      "no": 2,
+      "date": "20260927",
+      "time": "10時20分",
+      "name": "",
+      "distance": 1600,
+      "surface": "芝",
+      "course": "",
+      "going": "良",
+      "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604090220260927%2F36",
+      "token": "pw01sde1009202604090220260927/36"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "meet": "阪神",
+      "meet_day": 9,
       "no": 3,
       "date": "20260927",
       "time": "10時50分",
@@ -196,6 +244,22 @@
       "going": "良",
       "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604090320260927%2FEB",
       "token": "pw01sde1009202604090320260927/EB"
+    },
+    {
+      "venue": "阪神",
+      "venue_code": "09",
+      "meet": "阪神",
+      "meet_day": 9,
+      "no": 4,
+      "date": "20260927",
+      "time": "11時20分",
+      "name": "",
+      "distance": 2000,
+      "surface": "芝",
+      "course": "",
+      "going": "良",
+      "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604090420260927%2FA0",
+      "token": "pw01sde1009202604090420260927/A0"
     },
     {
       "venue": "阪神",
@@ -326,6 +390,6 @@
       "token": "pw01sde1009202604091220260927/88"
     }
   ],
-  "race_count": 20,
+  "race_count": 24,
   "parser_version": "race-list-v1"
 }
