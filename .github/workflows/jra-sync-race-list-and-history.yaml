@@ -381,7 +381,7 @@ jobs:
                       }
                   except Exception:
                       continue
-              return meta, sorted(deduped.values(), key=lambda row: row["no"])
+              return meta, sorted(deduped.values(), key=lambda row: row["number"])
 
           def fetch_one(ymd, venue_code, race_no):
               sde_tokens = get_date_sde(ymd)
