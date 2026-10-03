@@ -1,0 +1,118 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-27",
+ "target_ymd": "20260927",
+ "venue_code": "06",
+ "race_no": 4,
+ "race_name": "",
+ "horse_count": 15,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 5,
+   "name": "ミエノヴィヴィッド",
+   "horse_token": "pw01dud102024100426/6B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "ユーサイコー",
+   "horse_token": "pw01dud102024102455/06",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ダブルスプリング",
+   "horse_token": "pw01dud102024106407/58",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "ジョワリヴレ",
+   "horse_token": "pw01dud102024104119/DD",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "ブランカバローズ",
+   "horse_token": "pw01dud102024104865/B8",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "エコロヴィータ",
+   "horse_token": "pw01dud102024100388/80",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "リオビーチ",
+   "horse_token": "pw01dud102024104146/B4",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ナムラジョン",
+   "horse_token": "pw01dud102024100987/33",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "コックコート",
+   "horse_token": "pw01dud102024103175/82",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "リゼスカーレット",
+   "horse_token": "pw01dud102024104305/63",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "マルジョレーヌ",
+   "horse_token": "pw01dud102024100222/3D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "ピンクダイアモンド",
+   "horse_token": "pw01dud102024101398/7F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "フレンチネイル",
+   "horse_token": "pw01dud102024107372/47",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "アイファーティアラ",
+   "horse_token": "pw01dud102024100101/79",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "アッパレヤ",
+   "horse_token": "pw01dud102024105181/A4",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

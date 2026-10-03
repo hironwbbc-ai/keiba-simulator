@@ -1,0 +1,83 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-27",
+ "target_ymd": "20260927",
+ "venue_code": "09",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 10,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 4,
+   "name": "メモリーブック",
+   "horse_token": "pw01dud102024102574/E4",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "スパイスオブライフ",
+   "horse_token": "pw01dud102024103462/AC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ノーマンデー",
+   "horse_token": "pw01dud102024104498/7D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ベルジャンブ",
+   "horse_token": "pw01dud102024106686/C7",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "エクシプノス",
+   "horse_token": "pw01dud102024106155/2F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "パルスカ",
+   "horse_token": "pw01dud102024107090/EE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "クリスレグナム",
+   "horse_token": "pw01dud102024106846/E9",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "エターナルバラード",
+   "horse_token": "pw01dud102024106505/A3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "ジゼルアリーナ",
+   "horse_token": "pw01dud102024103771/DC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "チョウサクラ",
+   "horse_token": "pw01dud102024105212/D8",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

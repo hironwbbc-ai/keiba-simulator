@@ -1,0 +1,83 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-27",
+ "target_ymd": "20260927",
+ "venue_code": "06",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 10,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 3,
+   "name": "ダイアナマリア",
+   "horse_token": "pw01dud102024106618/3D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "スワーヴバシレウス",
+   "horse_token": "pw01dud102024104920/6A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "テムグリーン",
+   "horse_token": "pw01dud102024103517/CC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "ケルンミッチー",
+   "horse_token": "pw01dud102024102629/04",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "キセキテキニキテル",
+   "horse_token": "pw01dud102024103836/0C",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "リンカーンバローズ",
+   "horse_token": "pw01dud102024104871/FC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "テイクユアタイム",
+   "horse_token": "pw01dud102024103354/51",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "タイセイパーシスト",
+   "horse_token": "pw01dud102024106095/3E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "ライカホウ",
+   "horse_token": "pw01dud102024106145/1F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "エルエシック",
+   "horse_token": "pw01dud102024106385/C1",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

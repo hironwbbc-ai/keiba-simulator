@@ -1,0 +1,125 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-09-27",
+ "target_ymd": "20260927",
+ "venue_code": "09",
+ "race_no": 6,
+ "race_name": "",
+ "horse_count": 16,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 16,
+   "name": "ヤマニンガルブ",
+   "horse_token": "pw01dud102024103428/1E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "アメリカンステラ",
+   "horse_token": "pw01dud102024108309/EB",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "オメガマサヤ",
+   "horse_token": "pw01dud102024105905/78",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ハレムスビ",
+   "horse_token": "pw01dud102024101736/FD",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "サンライズブレイド",
+   "horse_token": "pw01dud102024101204/F2",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "ノヴァアクレイム",
+   "horse_token": "pw01dud102024108210/BF",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ファーストステイト",
+   "horse_token": "pw01dud102024106740/06",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ロードスピアヘッド",
+   "horse_token": "pw01dud102024105272/38",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "イグニアスロック",
+   "horse_token": "pw01dud102024106244/DD",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "メイショウシガニー",
+   "horse_token": "pw01dud102024102301/B9",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "コンヴィヴィアル",
+   "horse_token": "pw01dud102024108223/28",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "メイショウラリマー",
+   "horse_token": "pw01dud102024102532/BE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "プライムウィザード",
+   "horse_token": "pw01dud102024102623/52",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "スペクトリオン",
+   "horse_token": "pw01dud102024104196/04",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ツーエムブレード",
+   "horse_token": "pw01dud102024105672/FC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "テムスターオー",
+   "horse_token": "pw01dud102024104923/C3",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}
