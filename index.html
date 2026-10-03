@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f2eddf">
 <link rel="manifest" href="manifest.webmanifest">
 <title>競馬予想シミュレーター</title>
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 </head>
 <body>
 <header class="masthead">
@@ -44,14 +44,25 @@
 
   <section id="verify">
     <h2><b>検</b>複数レースで検証</h2>
-    <p class="hint">取得済みの過去レースを「開催日_場コード_R」の形で1行ずつ入力（例: 20260906_09_11）。場コード: 01札幌 02函館 03福島 04新潟 05東京 06中山 07中京 08京都 09阪神 10小倉</p>
-    <textarea id="verifyKeys" rows="4" placeholder="20260906_09_11&#10;20260927_06_11"></textarea>
+    <p class="hint">取得済みの日付を選ぶと、その日のレースがボタンで並びます。タップして検証したいレースを選んでください（複数選択・複数日にまたがってOK）。</p>
+    <div class="line">
+      <input id="verifyDate" type="date">
+      <button id="verifyLoad" class="btn">読み込む</button>
+    </div>
+    <div id="verifyRaces" class="races"></div>
+    <p class="hint">選択中（タップで解除）</p>
+    <div id="verifySelectedList" class="chips"></div>
     <button id="verifyRun" class="btn wide">検証実行</button>
     <div id="verifyOut"></div>
+    <details class="advanced">
+      <summary>キーを直接入力・編集する</summary>
+      <p class="hint">「開催日_場コード_R」の形式で1行ずつ（例: 20260906_09_11）。場コード: 01札幌 02函館 03福島 04新潟 05東京 06中山 07中京 08京都 09阪神 10小倉</p>
+      <textarea id="verifyKeys" rows="4" placeholder="20260906_09_11&#10;20260927_06_11"></textarea>
+    </details>
   </section>
 </main>
 <footer>過去走データから作った試算です。的中や収益を保証するものではありません。馬券の購入は自己責任でお願いします。</footer>
-<script src="model.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="model.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

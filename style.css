@@ -50,6 +50,12 @@ details{grid-column:2/4;font-size:12px;color:var(--mute)}summary{cursor:pointer}
 details p{margin:4px 0 0}
 #verify textarea{width:100%;font:13px/1.5 ui-monospace,monospace;padding:8px;background:var(--card);border:1.5px solid var(--ink);border-radius:2px;resize:vertical}
 .hint{font-size:12px;color:var(--mute);margin:0 0 6px}
+#verify .races{margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:20px}
+.chip{font:12px/1.4 inherit;background:var(--ink);color:var(--paper);border:0;padding:4px 8px;border-radius:2px;cursor:pointer}
+.advanced{margin-top:14px;font-size:13px}
+.advanced summary{cursor:pointer;color:var(--mute)}
+.advanced textarea{margin-top:8px}
 .vsummary{background:var(--card);border:1.5px solid var(--ink);padding:10px 12px;margin-top:12px;border-radius:2px;font-size:14px;line-height:1.6}
 .vrow{border-top:1px solid #cfc7b2;padding:8px 2px;font-size:13px;line-height:1.5}
 .vrow.err{color:var(--red)}

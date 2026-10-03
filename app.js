@@ -107,6 +107,57 @@ function run() {
 }
 const sg = x => (x >= 0 ? "+" : "") + (x * 100).toFixed(0);
 
+const verifySelected = new Map(); // key -> ラベル
+
+async function loadVerifyDay() {
+  const ymd = $("verifyDate").value.replace(/-/g, "");
+  const box = $("verifyRaces");
+  if (!ymd) return;
+  box.innerHTML = "読み込み中…";
+  let idx = await tryJSON(`data/history/${ymd}/index.json`);
+  let daily = await tryJSON(`data/daily/${ymd}.json`);
+  if (!daily) { const d = await tryJSON("data/jra_daily.json"); if (d && String(d.date || "").replace(/-/g, "") === ymd) daily = d; }
+  const map = new Map();
+  (idx?.races || []).forEach(r => map.set(r.venue_code + "-" + r.no, { ...r }));
+  (daily?.races || []).forEach(r => { const k = r.venue_code + "-" + r.no; map.set(k, { ...(map.get(k) || {}), ...r }); });
+  const races = [...map.values()].sort((a, b) => String(a.venue_code).localeCompare(b.venue_code) || a.no - b.no);
+  if (!races.length) { box.innerHTML = "この日のレース一覧が見つかりません。先にデータを取得してください。"; return; }
+  const byVenue = {};
+  races.forEach(r => (byVenue[r.venue || r.venue_code] ||= []).push(r));
+  box.innerHTML = Object.entries(byVenue).map(([v, rs]) => `<h3>${esc(v)}</h3><div class="rgrid">` +
+    rs.map(r => {
+      const key = `${ymd}_${r.venue_code}_${pad(r.no)}`, label = `${r.venue || ""}${r.no}R ${r.name || ""}`;
+      return `<button class="rbtn ${verifySelected.has(key) ? "on" : ""}" data-key="${key}" data-label="${esc(label)}"><b>${r.no}R</b><small>${esc(r.name || "")}</small></button>`;
+    }).join("") + "</div>").join("");
+}
+
+function toggleVerifyRace(btn) {
+  const key = btn.dataset.key;
+  if (verifySelected.has(key)) verifySelected.delete(key); else verifySelected.set(key, btn.dataset.label);
+  btn.classList.toggle("on");
+  syncVerifySelection();
+}
+
+function syncVerifySelection() {
+  $("verifyKeys").value = [...verifySelected.keys()].join("\n");
+  const list = $("verifySelectedList");
+  list.innerHTML = verifySelected.size
+    ? [...verifySelected.entries()].map(([k, l]) => `<button class="chip" data-key="${k}">${esc(l)} ✕</button>`).join("")
+    : `<span class="hint">まだ選択されていません</span>`;
+}
+
+$("verifyRaces").addEventListener("click", e => { const b = e.target.closest(".rbtn"); if (b) toggleVerifyRace(b); });
+$("verifySelectedList").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const key = b.dataset.key;
+  verifySelected.delete(key);
+  document.querySelectorAll(`#verifyRaces .rbtn[data-key="${CSS.escape(key)}"]`).forEach(el => el.classList.remove("on"));
+  syncVerifySelection();
+});
+$("verifyLoad").onclick = loadVerifyDay;
+$("verifyDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+syncVerifySelection();
+
 async function runVerify() {
   const keys = $("verifyKeys").value.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
   const out = $("verifyOut");
