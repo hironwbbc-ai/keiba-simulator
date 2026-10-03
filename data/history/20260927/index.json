@@ -1,6 +1,6 @@
 {
   "date": "2026-09-27",
-  "updated_at": "2026-09-28T16:38:30.535121+09:00",
+  "updated_at": "2026-10-03T10:29:42.005986+09:00",
   "target_ymd": "20260927",
   "source": "JRA公式 accessS 過去レース結果",
   "mode": "historical_index",
@@ -9,13 +9,15 @@
       "venue": "中山",
       "venue_code": "06",
       "no": 1,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 2,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
@@ -27,31 +29,36 @@
       "venue": "中山",
       "venue_code": "06",
       "no": 4,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 5,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 6,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 7,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 8,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
@@ -63,25 +70,29 @@
       "venue": "中山",
       "venue_code": "06",
       "no": 10,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 11,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "中山",
       "venue_code": "06",
       "no": 12,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 1,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
@@ -93,7 +104,8 @@
       "venue": "阪神",
       "venue_code": "09",
       "no": 3,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
@@ -105,51 +117,59 @@
       "venue": "阪神",
       "venue_code": "09",
       "no": 5,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 6,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 7,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 8,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 9,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 10,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 11,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     },
     {
       "venue": "阪神",
       "venue_code": "09",
       "no": 12,
-      "date": "2026-09-27"
+      "date": "20260927",
+      "name": ""
     }
   ],
   "race_count": 24,
-  "parser_version": "15.13.2-selected-race"
+  "parser_version": "race-list-v1"
 }

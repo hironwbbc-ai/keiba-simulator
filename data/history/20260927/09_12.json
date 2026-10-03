@@ -1,0 +1,30 @@
+{
+  "venue": "阪神",
+  "venue_code": "09",
+  "meet": "阪神",
+  "meet_day": 9,
+  "no": 12,
+  "date": "20260927",
+  "time": "16時05分",
+  "name": "",
+  "distance": 2000,
+  "surface": "ダート",
+  "course": "",
+  "going": "良",
+  "url": "https://www.jra.go.jp/JRADB/accessS.html?CNAME=pw01sde1009202604091220260927%2F88",
+  "token": "pw01sde1009202604091220260927/88",
+  "historical": true,
+  "horses": [
+    {
+      "number": 11,
+      "name": "12",
+      "finish": null,
+      "jockey": "テンエースワン",
+      "time": "牡5",
+      "corner_raw": "M.デムーロ",
+      "agari": null,
+      "weight": "１ 1/2",
+      "popularity": null
+    }
+  ]
+}
