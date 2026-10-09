@@ -1,0 +1,179 @@
+{
+  "date": "20261004",
+  "updated_at": "2026-10-10T00:51:24.450570+09:00",
+  "target_ymd": "20261004",
+  "source": "JRA公式 accessS 過去レース結果",
+  "mode": "historical_index",
+  "races": [
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 1,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 2,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 3,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 4,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 5,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 6,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 7,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 8,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 9,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 10,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 11,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "東京",
+      "venue_code": "05",
+      "no": 12,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 1,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 2,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 3,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 4,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 5,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 6,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 7,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 8,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 9,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 10,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 11,
+      "date": "20261004",
+      "name": ""
+    },
+    {
+      "venue": "京都",
+      "venue_code": "08",
+      "no": 12,
+      "date": "20261004",
+      "name": ""
+    }
+  ],
+  "race_count": 24,
+  "parser_version": "race-list-v1"
+}
