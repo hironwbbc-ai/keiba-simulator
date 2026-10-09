@@ -1,0 +1,125 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "05",
+ "race_no": 3,
+ "race_name": "",
+ "horse_count": 16,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 9,
+   "name": "ヴェントセラーレ",
+   "horse_token": "pw01dud102024106966/3A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ドーリック",
+   "horse_token": "pw01dud102024105845/87",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "エコロゴッド",
+   "horse_token": "pw01dud102024107322/F7",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "オーケーグラン",
+   "horse_token": "pw01dud102024102824/27",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ピュアティアラ",
+   "horse_token": "pw01dud102024101205/65",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "コールレスポンス",
+   "horse_token": "pw01dud102024106796/08",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "コールドアズアイス",
+   "horse_token": "pw01dud102024102162/2A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "サラサハヤブサ",
+   "horse_token": "pw01dud102024104345/A3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "フェデュデスタン",
+   "horse_token": "pw01dud102024102205/54",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "ワイドヴァラー",
+   "horse_token": "pw01dud102024108373/A9",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "ジーティーカグラ",
+   "horse_token": "pw01dud102024102550/F8",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "タイザンフクン",
+   "horse_token": "pw01dud102024106984/74",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "アルヴィットーリア",
+   "horse_token": "pw01dud102024101248/FE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 16,
+   "name": "アストロカノン",
+   "horse_token": "pw01dud102024102760/6A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "マックスプロックス",
+   "horse_token": "pw01dud102024106024/5B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "シンボリサーブル",
+   "horse_token": "pw01dud102024102327/8B",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

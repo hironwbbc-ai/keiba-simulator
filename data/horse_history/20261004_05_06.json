@@ -1,0 +1,111 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "05",
+ "race_no": 6,
+ "race_name": "",
+ "horse_count": 14,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 5,
+   "name": "ジョーティス",
+   "horse_token": "pw01dud102024106141/53",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "シドニーハーバー",
+   "horse_token": "pw01dud102024100645/7A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ディアム",
+   "horse_token": "pw01dud102024102901/DF",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "ルージュクエーサー",
+   "horse_token": "pw01dud102024103405/A5",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "レンミッキ",
+   "horse_token": "pw01dud102024100094/31",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "リリーリリー",
+   "horse_token": "pw01dud102024103863/E3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ウィレマイト",
+   "horse_token": "pw01dud102024106317/37",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "サンデー",
+   "horse_token": "pw01dud102024102192/5A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ドンタククイーン",
+   "horse_token": "pw01dud102024105603/FF",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "リプレイハズシ",
+   "horse_token": "pw01dud102024109045/BB",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "ゴールドパーティー",
+   "horse_token": "pw01dud102024103682/2E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "ニシノメガミサマ",
+   "horse_token": "pw01dud102024101683/C3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "ヘヴンリーワールド",
+   "horse_token": "pw01dud102024103194/2F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "ランプリサージュ",
+   "horse_token": "pw01dud102024102484/C3",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

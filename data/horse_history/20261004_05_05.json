@@ -1,0 +1,97 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "05",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 12,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 7,
+   "name": "シルヴァノーブル",
+   "horse_token": "pw01dud102024101851/0F",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ロジヴィジョン",
+   "horse_token": "pw01dud102024103411/E9",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "ランパディアス",
+   "horse_token": "pw01dud102024106528/1C",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "ピエナモルタル",
+   "horse_token": "pw01dud102024100170/76",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "リントヴルム",
+   "horse_token": "pw01dud102024107350/41",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "スズノハヤブサ",
+   "horse_token": "pw01dud102024107014/3A",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "シャインシュネル",
+   "horse_token": "pw01dud102024104502/6C",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "シダス",
+   "horse_token": "pw01dud102024101928/35",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "シルバータイガー",
+   "horse_token": "pw01dud102024103181/C6",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "エメラルドプレミア",
+   "horse_token": "pw01dud102024102035/22",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "サトノラディアント",
+   "horse_token": "pw01dud102024102239/50",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "マイネルユンフェン",
+   "horse_token": "pw01dud102024103584/E3",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

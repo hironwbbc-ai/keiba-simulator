@@ -1,0 +1,125 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "08",
+ "race_no": 3,
+ "race_name": "",
+ "horse_count": 16,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 1,
+   "name": "ミホマル",
+   "horse_token": "pw01dud102024101431/2B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "タガノゲイル",
+   "horse_token": "pw01dud102024103377/CA",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "ランスオブナイト",
+   "horse_token": "pw01dud102024106792/3C",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "マンノエンプレス",
+   "horse_token": "pw01dud102024101394/B3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "リアルハーン",
+   "horse_token": "pw01dud102024102352/7C",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "スリーオブスペイズ",
+   "horse_token": "pw01dud102024108284/FB",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "エリーマイラヴ",
+   "horse_token": "pw01dud102024108341/93",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "インユアスカイ",
+   "horse_token": "pw01dud102024103353/DE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 16,
+   "name": "ギニー",
+   "horse_token": "pw01dud102024102946/5E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "フェイマスウルフ",
+   "horse_token": "pw01dud102024100276/59",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "マカロンボイス",
+   "horse_token": "pw01dud102024101322/5D",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "アマリス",
+   "horse_token": "pw01dud102024101482/EE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "アップルペアー",
+   "horse_token": "pw01dud102024107251/83",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "ラムネ",
+   "horse_token": "pw01dud102024105614/82",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "オージーブラック",
+   "horse_token": "pw01dud102024101134/F1",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "ダイヴ",
+   "horse_token": "pw01dud102024100874/99",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

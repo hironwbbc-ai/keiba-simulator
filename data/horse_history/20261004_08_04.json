@@ -1,0 +1,125 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "08",
+ "race_no": 4,
+ "race_name": "",
+ "horse_count": 16,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 5,
+   "name": "ブライトスクリプト",
+   "horse_token": "pw01dud102024105916/FB",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 16,
+   "name": "ヘヴンインザレイン",
+   "horse_token": "pw01dud102024106062/B5",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "スイートリディア",
+   "horse_token": "pw01dud102024106283/AA",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "イグナイトフィール",
+   "horse_token": "pw01dud102024105750/27",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "サウンドアミューズ",
+   "horse_token": "pw01dud102024101070/34",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "ルシオラ",
+   "horse_token": "pw01dud102024105642/CC",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 14,
+   "name": "ジャヤ",
+   "horse_token": "pw01dud102024100007/FA",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "ルージュプリメーロ",
+   "horse_token": "pw01dud102024101400/88",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 8,
+   "name": "ワンダールカ",
+   "horse_token": "pw01dud102024102482/DD",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "ワンダープレマ",
+   "horse_token": "pw01dud102024102541/5B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 15,
+   "name": "アマスペラーレ",
+   "horse_token": "pw01dud102024101163/AE",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "バードギール",
+   "horse_token": "pw01dud102024100564/F6",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 13,
+   "name": "ルーディン",
+   "horse_token": "pw01dud102024101413/F1",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "テイケイモエ",
+   "horse_token": "pw01dud102024104762/2E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "リリックラヴ",
+   "horse_token": "pw01dud102024106227/16",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "シュネルマリス",
+   "horse_token": "pw01dud102024104723/61",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}

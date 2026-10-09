@@ -1,0 +1,97 @@
+{
+ "schema_version": "3.0-selected",
+ "target_date": "2026-10-04",
+ "target_ymd": "20261004",
+ "venue_code": "08",
+ "race_no": 5,
+ "race_name": "",
+ "horse_count": 12,
+ "failure_count": 0,
+ "failures": [],
+ "horses": [
+  {
+   "number": 8,
+   "name": "トロカアニマダ",
+   "horse_token": "pw01dud102024103593/80",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 2,
+   "name": "アンバーライト",
+   "horse_token": "pw01dud102024104135/31",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 6,
+   "name": "ジーティーギャング",
+   "horse_token": "pw01dud102024106422/39",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 3,
+   "name": "ジュンキング",
+   "horse_token": "pw01dud102024106382/68",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 1,
+   "name": "クラウンソクラテス",
+   "horse_token": "pw01dud102024100299/D2",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 10,
+   "name": "ザキノシュガー",
+   "horse_token": "pw01dud102024103519/B2",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 7,
+   "name": "シュテルンライト",
+   "horse_token": "pw01dud102024102827/80",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 11,
+   "name": "ジワールドコア",
+   "horse_token": "pw01dud102024103199/6E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 4,
+   "name": "オミゴト",
+   "horse_token": "pw01dud102024105657/1B",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 9,
+   "name": "ピュティアス",
+   "horse_token": "pw01dud102024106555/F3",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 12,
+   "name": "タナオルフォーリア",
+   "horse_token": "pw01dud102024109036/1E",
+   "history_count": 0,
+   "history_before_target": []
+  },
+  {
+   "number": 5,
+   "name": "アスクハイタッチ",
+   "horse_token": "pw01dud102024102223/8E",
+   "history_count": 0,
+   "history_before_target": []
+  }
+ ]
+}
