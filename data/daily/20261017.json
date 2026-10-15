@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "updated_at": "2026-10-15T21:44:59.045831+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261017",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22"
+  ],
+  "races": [
+    {
+      "race_key": "20261017_05_11",
+      "venue": "東京",
+      "venue_code": "05",
+      "meet": "東京",
+      "meet_day": 6,
+      "no": 11,
+      "date": "2026-10-17",
+      "time": "15:45",
+      "name": "第29回富士ステークス",
+      "distance": 1600,
+      "surface": "芝",
+      "course": "左",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22",
+      "token": "pw01dde0105202604061120261017/22",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "ミトノオルフェ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡4/鹿",
+          "carried_weight": 57.0,
+          "jockey": "菅原 明良"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "東京": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
