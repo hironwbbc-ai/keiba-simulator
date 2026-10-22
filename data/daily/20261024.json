@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "updated_at": "2026-10-22T22:04:18.887275+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261024",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604081120261024%2F2B"
+  ],
+  "races": [
+    {
+      "race_key": "20261024_05_11",
+      "venue": "東京",
+      "venue_code": "05",
+      "meet": "東京",
+      "meet_day": 8,
+      "no": 11,
+      "date": "2026-10-24",
+      "time": "15:45",
+      "name": "第15回アルテミスステークス",
+      "distance": 1600,
+      "surface": "芝",
+      "course": "左",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604081120261024%2F2B",
+      "token": "pw01dde0105202604081120261024/2B",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "ローズサルーテ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牝2/栗",
+          "carried_weight": 55.0,
+          "jockey": "小林 美駒"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "東京": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
