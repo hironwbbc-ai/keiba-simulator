@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "updated_at": "2026-10-29T23:32:52.670723+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261031",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604101120261031%2FA4"
+  ],
+  "races": [
+    {
+      "race_key": "20261031_08_11",
+      "venue": "京都",
+      "venue_code": "08",
+      "meet": "京都",
+      "meet_day": 10,
+      "no": 11,
+      "date": "2026-10-31",
+      "time": "15:45",
+      "name": "第31回KBS京都賞ファンタジーステークス",
+      "distance": 1400,
+      "surface": "芝",
+      "course": "右 外",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604101120261031%2FA4",
+      "token": "pw01dde0108202604101120261031/A4",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "レニュアージュ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牝2/鹿",
+          "carried_weight": 55.0,
+          "jockey": "西村 淳也"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "京都": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
