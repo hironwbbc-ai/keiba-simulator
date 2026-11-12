@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-14",
+  "updated_at": "2026-11-13T01:05:49.568013+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261114",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202605031120261114%2F3E",
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202605031120261114%2F1C"
+  ],
+  "races": [
+    {
+      "race_key": "20261114_05_11",
+      "venue": "東京",
+      "venue_code": "05",
+      "meet": "東京",
+      "meet_day": 3,
+      "no": 11,
+      "date": "2026-11-14",
+      "time": "15:30",
+      "name": "第31回武蔵野ステークス",
+      "distance": 1600,
+      "surface": "ダート",
+      "course": "左",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202605031120261114%2F3E",
+      "token": "pw01dde0105202605031120261114/3E",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "ロックターミガン",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡3/黒鹿",
+          "carried_weight": 57.0,
+          "jockey": "津村 明秀"
+        }
+      ]
+    },
+    {
+      "race_key": "20261114_08_11",
+      "venue": "京都",
+      "venue_code": "08",
+      "meet": "京都",
+      "meet_day": 3,
+      "no": 11,
+      "date": "2026-11-14",
+      "time": "15:45",
+      "name": "第61回デイリー杯2歳ステークス",
+      "distance": 1600,
+      "surface": "芝",
+      "course": "右 外",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202605031120261114%2F1C",
+      "token": "pw01dde0108202605031120261114/1C",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "レオンティウス",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "丸山 元気"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "東京": 1,
+    "京都": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
