@@ -1,0 +1,180 @@
+{
+  "date": "2026-11-23",
+  "updated_at": "2026-11-23T12:29:02.896653+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261123",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202605061120261123%2F34"
+  ],
+  "races": [
+    {
+      "race_key": "20261123_05_11",
+      "venue": "東京",
+      "venue_code": "05",
+      "meet": "東京",
+      "meet_day": 6,
+      "no": 11,
+      "date": "2026-11-23",
+      "time": "15:30",
+      "name": "第31回東京スポーツ杯2歳ステークス",
+      "distance": 1800,
+      "surface": "芝",
+      "course": "左",
+      "going": "良",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202605061120261123%2F34",
+      "token": "pw01dde0105202605061120261123/34",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "ダノンダックス",
+          "odds": 4.9,
+          "popularity": 2,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "C.ルメール"
+        },
+        {
+          "number": 2,
+          "frame": 1,
+          "name": "シルヴァノーブル",
+          "odds": 26.1,
+          "popularity": 7,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/青鹿",
+          "carried_weight": 56.0,
+          "jockey": "横山 典弘"
+        },
+        {
+          "number": 3,
+          "frame": 2,
+          "name": "テンカタイヘイ",
+          "odds": 113.5,
+          "popularity": 12,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "横山 和生"
+        },
+        {
+          "number": 4,
+          "frame": 2,
+          "name": "キングリア",
+          "odds": 7.6,
+          "popularity": 5,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/青鹿",
+          "carried_weight": 56.0,
+          "jockey": "川田 将雅"
+        },
+        {
+          "number": 5,
+          "frame": 3,
+          "name": "ジョドレルバンク",
+          "odds": 7.2,
+          "popularity": 3,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "J.モレイラ"
+        },
+        {
+          "number": 6,
+          "frame": 3,
+          "name": "ティフォシ",
+          "odds": 63.6,
+          "popularity": 11,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "M.デムーロ"
+        },
+        {
+          "number": 7,
+          "frame": 4,
+          "name": "スローブギ",
+          "odds": 51.2,
+          "popularity": 9,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/青鹿",
+          "carried_weight": 56.0,
+          "jockey": "松山 弘平"
+        },
+        {
+          "number": 8,
+          "frame": 4,
+          "name": "コラリオン",
+          "odds": 7.4,
+          "popularity": 4,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "坂井 瑠星"
+        },
+        {
+          "number": 9,
+          "frame": 5,
+          "name": "ニースケンス",
+          "odds": 58.0,
+          "popularity": 10,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "原 優介"
+        },
+        {
+          "number": 10,
+          "frame": 5,
+          "name": "ショウナンガレオン",
+          "odds": 2.3,
+          "popularity": 1,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "鮫島 克駿"
+        },
+        {
+          "number": 11,
+          "frame": 6,
+          "name": "ビンドゥング",
+          "odds": 26.5,
+          "popularity": 8,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "戸崎 圭太"
+        },
+        {
+          "number": 12,
+          "frame": 6,
+          "name": "オンユアマークス",
+          "odds": 12.4,
+          "popularity": 6,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "武 豊"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "東京": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
