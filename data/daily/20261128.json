@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-28",
+  "updated_at": "2026-11-27T02:49:33.840593+09:00",
+  "calendar_url": "https://www.jra.go.jp/JRADB/",
+  "target_ymd": "20261128",
+  "official_race_links": [
+    "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202605071120261128%2F36"
+  ],
+  "races": [
+    {
+      "race_key": "20261128_08_11",
+      "venue": "京都",
+      "venue_code": "08",
+      "meet": "京都",
+      "meet_day": 7,
+      "no": 11,
+      "date": "2026-11-28",
+      "time": "15:40",
+      "name": "第13回ラジオNIKKEI杯京都2歳ステークス",
+      "distance": 2000,
+      "surface": "芝",
+      "course": "右",
+      "going": "",
+      "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202605071120261128%2F36",
+      "token": "pw01dde0108202605071120261128/36",
+      "horses": [
+        {
+          "number": 1,
+          "frame": 1,
+          "name": "ポルトブルー",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/青鹿",
+          "carried_weight": 56.0,
+          "jockey": "西村 淳也"
+        }
+      ]
+    }
+  ],
+  "venue_counts": {
+    "京都": 1
+  },
+  "source": "JRA公式 accessD",
+  "parser_version": "15.13.10",
+  "race_key_rule": "YYYYMMDD_venue_code_race_no"
+}
