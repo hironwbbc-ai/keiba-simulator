@@ -1,6 +1,6 @@
 {
   "date": "2026-11-28",
-  "updated_at": "2026-11-27T02:49:33.840593+09:00",
+  "updated_at": "2026-11-27T13:44:55.332305+09:00",
   "calendar_url": "https://www.jra.go.jp/JRADB/",
   "target_ymd": "20261128",
   "official_race_links": [
@@ -27,6 +27,78 @@
         {
           "number": 1,
           "frame": 1,
+          "name": "アーケントレイル",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "岩田 望来"
+        },
+        {
+          "number": 2,
+          "frame": 1,
+          "name": "シャローチャンプ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "C.デムーロ"
+        },
+        {
+          "number": 3,
+          "frame": 2,
+          "name": "ショウナンバトレニ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/栗",
+          "carried_weight": 56.0,
+          "jockey": "松山 弘平"
+        },
+        {
+          "number": 4,
+          "frame": 2,
+          "name": "フェイマスジャズ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牝2/鹿",
+          "carried_weight": 55.0,
+          "jockey": "杉原 誠人"
+        },
+        {
+          "number": 5,
+          "frame": 3,
+          "name": "エトワールハマー",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "武 豊"
+        },
+        {
+          "number": 6,
+          "frame": 3,
+          "name": "ゴールデンプロミス",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/黒鹿",
+          "carried_weight": 56.0,
+          "jockey": "坂井 瑠星"
+        },
+        {
+          "number": 7,
+          "frame": 4,
           "name": "ポルトブルー",
           "odds": null,
           "popularity": null,
@@ -35,6 +107,54 @@
           "sex_age": "牡2/青鹿",
           "carried_weight": 56.0,
           "jockey": "西村 淳也"
+        },
+        {
+          "number": 8,
+          "frame": 4,
+          "name": "ノヴァヴェローチェ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/栗",
+          "carried_weight": 56.0,
+          "jockey": "北村 友一"
+        },
+        {
+          "number": 9,
+          "frame": 5,
+          "name": "ネーロノワール",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牝2/黒鹿",
+          "carried_weight": 55.0,
+          "jockey": "川田 将雅"
+        },
+        {
+          "number": 10,
+          "frame": 5,
+          "name": "ドラゴンバルド",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/青鹿",
+          "carried_weight": 56.0,
+          "jockey": "J.モレイラ"
+        },
+        {
+          "number": 11,
+          "frame": 6,
+          "name": "サノノキセキ",
+          "odds": null,
+          "popularity": null,
+          "body_weight": null,
+          "body_weight_diff": null,
+          "sex_age": "牡2/鹿",
+          "carried_weight": 56.0,
+          "jockey": "小林 美駒"
         }
       ]
     }
